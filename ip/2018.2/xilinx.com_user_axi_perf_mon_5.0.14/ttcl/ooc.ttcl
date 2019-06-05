@@ -1,0 +1,270 @@
+<: setFileUsedIn { out_of_context synthesis implementation } :>
+<: ;#Component and file information :>
+<: set ComponentName [getComponentNameString] :>
+<: setOutputDirectory "./" :>
+<: setFileName $ComponentName :>
+<: setFileExtension "_ooc.xdc" :>
+<: set enable_axi4litesync [getIntValue "C_AXI4LITE_CORE_CLK_ASYNC"] :>
+<: set enable_count [getIntValue "C_ENABLE_EVENT_COUNT"] :>
+<: set enable_log [getIntValue "C_ENABLE_EVENT_LOG"] :>
+<: set num_slots [getIntValue "C_NUM_MONITOR_SLOTS"] :>
+<: set s0_protocol [getIntValue "C_SLOT_0_AXI_PROTOCOL"] :>
+<: set s1_protocol [getIntValue "C_SLOT_1_AXI_PROTOCOL"] :>
+<: set s2_protocol [getIntValue "C_SLOT_2_AXI_PROTOCOL"] :>
+<: set s3_protocol [getIntValue "C_SLOT_3_AXI_PROTOCOL"] :>
+<: set s4_protocol [getIntValue "C_SLOT_4_AXI_PROTOCOL"] :>
+<: set s5_protocol [getIntValue "C_SLOT_5_AXI_PROTOCOL"] :>
+<: set s6_protocol [getIntValue "C_SLOT_6_AXI_PROTOCOL"] :>
+<: set s7_protocol [getIntValue "C_SLOT_7_AXI_PROTOCOL"] :>
+<: set enable_extevents [getIntValue "ENABLE_EXT_EVENTS"] :>
+<: set family [getIntValue "C_FAMILY"] :>
+<: set enable_profile [getIntValue "C_ENABLE_PROFILE"] :>
+<: set enable_trace [getIntValue "C_ENABLE_TRACE"] :>
+<: set offload_mode [get_property "MODELPARAM_VALUE.C_LOG_DATA_OFFLD" [current_scope]] :>
+<: ;#set offload_mode 0 :>
+################################################################################
+# (c) Copyright 2012 - 2013 Xilinx, Inc. All rights reserved.
+# 
+# This file contains confidential and proprietary information
+# of Xilinx, Inc. and is protected under U.S. and
+# international copyright and other intellectual property
+# laws.
+# 
+# DISCLAIMER
+# This disclaimer is not a license and does not grant any
+# rights to the materials distributed herewith. Except as
+# otherwise provided in a valid license issued to you by
+# Xilinx, and to the maximum extent permitted by applicable
+# law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND
+# WITH ALL FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES
+# AND CONDITIONS, EXPRESS, IMPLIED, OR STATUTORY, INCLUDING
+# BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, NON-
+# INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE; and
+# (2) Xilinx shall not be liable (whether in contract or tort,
+# including negligence, or under any other theory of
+# liability) for any loss or damage of any kind or nature
+# related to, arising under or in connection with these
+# materials, including for any direct, or any indirect,
+# special, incidental, or consequential loss or damage
+# (including loss of data, profits, goodwill, or any type of
+# loss or damage suffered as a result of any action brought
+# by a third party) even if such damage or loss was
+# reasonably foreseeable or Xilinx had been advised of the
+# possibility of the same.
+# 
+# CRITICAL APPLICATIONS
+# Xilinx products are not designed or intended to be fail-
+# safe, or for use in any application requiring fail-safe
+# performance, such as life-support or safety devices or
+# systems, Class III medical devices, nuclear facilities,
+# applications related to the deployment of airbags, or any
+# other applications that could lead to death, personal
+# injury, or severe property or environmental damage
+# (individually and collectively, "Critical
+# Applications"). Customer assumes the sole risk and
+# liability of any use of Xilinx products in Critical
+# Applications, subject only to applicable laws and
+# regulations governing limitations on product liability.
+# 
+# THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
+# PART OF THIS FILE AT ALL TIMES.
+
+################################################################################
+
+# This XDC is used only for OOC mode of synthesis, implementation
+# User should update the correct clock period before proceeding further
+# This constraints file contains default clock frequencies to be used during 
+# out-of-context flows such as OOC Synthesis and Hierarchical Designs. 
+# For best results the frequencies should be modified# to match the target 
+# frequencies. 
+# This constraints file is not used in normal top-down synthesis (the default flow of Vivado)
+################################################################################
+#create_clock -name clock_name -period 10 [get_ports clock_name] 
+################################################################################
+
+#list of all the clock needed for AXI Performance Monitor core
+
+
+	create_clock -name core_aclk -period 10 [get_ports core_aclk] 
+        set_property HD.CLK_SRC BUFGCTRL_X0Y0 [get_ports core_aclk]
+
+	create_clock -name s_axi_aclk -period 10 [get_ports s_axi_aclk] 
+        set_property HD.CLK_SRC BUFGCTRL_X0Y1 [get_ports s_axi_aclk]
+
+<: if { $enable_log == 1 || $enable_trace == 1} { :>
+   <: if { $offload_mode == 0 } { :>
+	create_clock -name m_axis_aclk -period 12.5 [get_ports m_axis_aclk] 
+        set_property HD.CLK_SRC BUFGCTRL_X0Y2 [get_ports m_axis_aclk]
+   <: } :>
+   <: if { $offload_mode == 1 } { :>
+	create_clock -name s_axi_offld_aclk -period 12.5 [get_ports s_axi_offld_aclk] 
+        set_property HD.CLK_SRC BUFGCTRL_X0Y2 [get_ports s_axi_offld_aclk]
+   <: } :>
+<: } :>
+
+<: if { $enable_count == 1 || $enable_log == 1 || $enable_profile == 1 || $enable_trace == 1} { :>
+        
+               
+              <: if { $enable_extevents == 1} { :>
+              	create_clock -name ext_clk_0 -period 20 [get_ports ext_clk_0] 
+                #set_property HD.CLK_SRC BUFGCTRL_X0Y3 [get_ports ext_clk_0]
+              <: } :>
+              <: if { $s0_protocol != "AXI4S"} { :>
+	            create_clock -name slot_0_axi_aclk -period 20 [get_ports slot_0_axi_aclk] 
+                    set_property HD.CLK_SRC BUFGCTRL_X0Y4 [get_ports slot_0_axi_aclk]
+              <: } else { :>
+                    create_clock -name slot_0_axis_aclk -period 20 [get_ports slot_0_axis_aclk]
+                    set_property HD.CLK_SRC BUFGCTRL_X0Y4 [get_ports slot_0_axis_aclk]
+              <: } :>
+
+        <: if { $num_slots > 1} { :>
+              <: if { $enable_extevents == 1} { :>
+              	create_clock -name ext_clk_1 -period 20 [get_ports ext_clk_1] 
+                #set_property HD.CLK_SRC BUFGCTRL_X0Y5 [get_ports ext_clk_1]
+              <: } :>
+              <: if { $s1_protocol != "AXI4S"} { :>
+	            create_clock -name slot_1_axi_aclk -period 20 [get_ports slot_1_axi_aclk] 
+                    set_property HD.CLK_SRC BUFGCTRL_X0Y6 [get_ports slot_1_axi_aclk]
+              <: } else { :>
+                    create_clock -name slot_1_axis_aclk -period 20 [get_ports slot_1_axis_aclk]
+                    set_property HD.CLK_SRC BUFGCTRL_X0Y6 [get_ports slot_1_axis_aclk]
+              <: } :>
+         <: } :>
+         <: if { $num_slots > 2} { :>
+              <: if { $enable_extevents == 1} { :>
+              	create_clock -name ext_clk_2 -period 20 [get_ports ext_clk_2] 
+                #set_property HD.CLK_SRC BUFGCTRL_X0Y7 [get_ports ext_clk_2]
+              <: } :>
+              <: if { $s2_protocol != "AXI4S"} { :>
+	            create_clock -name slot_2_axi_aclk -period 20 [get_ports slot_2_axi_aclk] 
+                    set_property HD.CLK_SRC BUFGCTRL_X0Y8 [get_ports slot_2_axi_aclk]
+              <: } else { :>
+                    create_clock -name slot_2_axis_aclk -period 20 [get_ports slot_2_axis_aclk]
+                    set_property HD.CLK_SRC BUFGCTRL_X0Y8 [get_ports slot_2_axis_aclk]
+              <: } :>
+         <: } :>
+         <: if { $num_slots > 3} { :>
+              <: if { $enable_extevents == 1} { :>
+              	create_clock -name ext_clk_3 -period 20 [get_ports ext_clk_3] 
+                #set_property HD.CLK_SRC BUFGCTRL_X0Y9 [get_ports ext_clk_3]
+              <: } :>
+              <: if { $s3_protocol != "AXI4S"} { :>
+	            create_clock -name slot_3_axi_aclk -period 20 [get_ports slot_3_axi_aclk] 
+                   <: if { $family == "virtexu" || $family == "kintexu" || $family == "artixu"} { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X1Y0 [get_ports slot_3_axi_aclk]
+                   <: } else { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X0Y10 [get_ports slot_3_axi_aclk]
+                   <: } :>
+              <: } else { :>
+                    create_clock -name slot_3_axis_aclk -period 20 [get_ports slot_3_axis_aclk]
+                    <: if { $family == "virtexu" || $family == "kintexu" || $family == "artixu"} { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X1Y0 [get_ports slot_3_axis_aclk]
+                    <: } else { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X0Y10 [get_ports slot_3_axis_aclk]
+                    <: } :>
+              <: } :>
+         <: } :>
+         <: if { $num_slots > 4} { :>
+              <: if { $enable_extevents == 1} { :>
+              	create_clock -name ext_clk_4 -period 20 [get_ports ext_clk_4] 
+                #<: if { $family == "virtexu" || $family == "kintexu" || $family == "artixu"} { :>
+                #set_property HD.CLK_SRC BUFGCTRL_X1Y1 [get_ports ext_clk_4]
+                #<: } else { :>
+                #set_property HD.CLK_SRC BUFGCTRL_X0Y11 [get_ports ext_clk_4]
+                #<: } :>
+              <: } :>
+              <: if { $s4_protocol != "AXI4S"} { :>
+	            create_clock -name slot_4_axi_aclk -period 20 [get_ports slot_4_axi_aclk] 
+                    <: if { $family == "virtexu" || $family == "kintexu" || $family == "artixu"} { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X1Y2 [get_ports slot_4_axi_aclk]
+                    <: } else { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X0Y12 [get_ports slot_4_axi_aclk]
+                    <: } :>
+              <: } else { :>
+                    create_clock -name slot_4_axis_aclk -period 20 [get_ports slot_4_axis_aclk]
+                    <: if { $family == "virtexu" || $family == "kintexu" || $family == "artixu"} { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X1Y2 [get_ports slot_4_axis_aclk]
+                    <: } else { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X0Y12 [get_ports slot_4_axis_aclk]
+                    <: } :>
+              <: } :>
+         <: } :>
+         <: if { $num_slots > 5} { :>
+              <: if { $enable_extevents == 1} { :>
+              	create_clock -name ext_clk_5 -period 20 [get_ports ext_clk_5] 
+                #<: if { $family == "virtexu" || $family == "kintexu" || $family == "artixu"} { :>
+                #set_property HD.CLK_SRC BUFGCTRL_X1Y3 [get_ports ext_clk_5]
+                #<: } else { :>
+                #set_property HD.CLK_SRC BUFGCTRL_X0Y13 [get_ports ext_clk_5]
+                #<: } :>
+              <: } :>
+              <: if { $s5_protocol != "AXI4S"} { :>
+	            create_clock -name slot_5_axi_aclk -period 20 [get_ports slot_5_axi_aclk] 
+                   <: if { $family == "virtexu" || $family == "kintexu" || $family == "artixu"} { :>
+                       set_property HD.CLK_SRC BUFGCTRL_X1Y4 [get_ports slot_5_axi_aclk]
+                   <: } else { :>
+                       set_property HD.CLK_SRC BUFGCTRL_X0Y14 [get_ports slot_5_axi_aclk]
+                   <: } :>
+              <: } else { :>
+                    create_clock -name slot_5_axis_aclk -period 20 [get_ports slot_5_axis_aclk]
+                    <: if { $family == "virtexu" || $family == "kintexu" || $family == "artixu"} { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X1Y4 [get_ports slot_5_axis_aclk]
+                    <: } else { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X0Y14 [get_ports slot_5_axis_aclk]
+                    <: } :>
+              <: } :>
+         <: } :>
+         <: if { $num_slots > 6} { :>
+              <: if { $enable_extevents == 1} { :>
+              	create_clock -name ext_clk_6 -period 20 [get_ports ext_clk_6] 
+                #<: if { $family == "virtexu" || $family == "kintexu" || $family == "artixu"} { :>
+                #set_property HD.CLK_SRC BUFGCTRL_X1Y5 [get_ports ext_clk_6]
+                #<: } else { :>
+                #set_property HD.CLK_SRC BUFGCTRL_X0Y15 [get_ports ext_clk_6]
+                #<: } :>
+              <: } :>
+              <: if { $s6_protocol != "AXI4S"} { :>
+	            create_clock -name slot_6_axi_aclk -period 20 [get_ports slot_6_axi_aclk] 
+                    <: if { $family == "virtexu" || $family == "kintexu" || $family == "artixu"} { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X1Y6 [get_ports slot_6_axi_aclk]
+                    <: } else { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X0Y16 [get_ports slot_6_axi_aclk]
+                    <: } :>
+              <: } else { :>
+                    create_clock -name slot_6_axis_aclk -period 20 [get_ports slot_6_axis_aclk]
+                    <: if { $family == "virtexu" || $family == "kintexu" || $family == "artixu"} { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X1Y6 [get_ports slot_6_axis_aclk]
+                    <: } else { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X0Y16 [get_ports slot_6_axis_aclk]
+                    <: } :>
+              <: } :>
+         <: } :>
+         <: if { $num_slots > 7} { :>
+              <: if { $enable_extevents == 1} { :>
+              	create_clock -name ext_clk_7 -period 20 [get_ports ext_clk_7] 
+                #<: if { $family == "virtexu" || $family == "kintexu" || $family == "artixu"} { :>
+                #set_property HD.CLK_SRC BUFGCTRL_X1Y7 [get_ports ext_clk_7]
+                #<: } else { :>
+                #set_property HD.CLK_SRC BUFGCTRL_X0Y17 [get_ports ext_clk_7]
+                #<: } :>
+              <: } :>
+              <: if { $s7_protocol != "AXI4S"} { :>
+	            create_clock -name slot_7_axi_aclk -period 20 [get_ports slot_7_axi_aclk] 
+                    <: if { $family == "virtexu" || $family == "kintexu" || $family == "artixu"} { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X1Y8 [get_ports slot_7_axi_aclk]
+                    <: } else { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X0Y18 [get_ports slot_7_axi_aclk]
+                    <: } :>
+              <: } else { :>
+                    create_clock -name slot_7_axis_aclk -period 20 [get_ports slot_7_axis_aclk]
+                    <: if { $family == "virtexu" || $family == "kintexu" || $family == "artixu"} { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X1Y8 [get_ports slot_7_axis_aclk]
+                    <: } else { :>
+                    set_property HD.CLK_SRC BUFGCTRL_X0Y18 [get_ports slot_7_axis_aclk]
+                    <: } :>
+              <: } :>
+         <: } :>
+         
+
+<: } :>
+

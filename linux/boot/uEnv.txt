@@ -1,0 +1,5 @@
+fdt_high=0xffffffffffffffff
+initrd_high=0xffffffffffffffff
+fdt_addr=0x1000200000
+kernel_addr=0x1000280000
+uenvcmd=run sdroot$sdbootdev

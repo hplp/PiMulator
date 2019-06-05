@@ -1,0 +1,91 @@
+<: ;#Component and file information :>
+<: set ComponentName [getComponentNameString] :>
+<: setOutputDirectory "./" :>
+<: setFileName "generate_exdes_cores" :>
+<: setFileExtension ".tcl" :>
+<: ;#Parameter information :>
+<: ;#Params required to decide mode of generated core :>
+<: set C_SLOT_0_AXI_PROTOCOL [getStringValue "C_SLOT_0_AXI_PROTOCOL"] :>
+<: set C_SLOT_1_AXI_PROTOCOL [getStringValue "C_SLOT_1_AXI_PROTOCOL"] :>
+<: set C_SLOT_2_AXI_PROTOCOL [getStringValue "C_SLOT_2_AXI_PROTOCOL"] :>
+<: set C_SLOT_3_AXI_PROTOCOL [getStringValue "C_SLOT_3_AXI_PROTOCOL"] :>
+<: set C_SLOT_4_AXI_PROTOCOL [getStringValue "C_SLOT_4_AXI_PROTOCOL"] :>
+<: set C_SLOT_5_AXI_PROTOCOL [getStringValue "C_SLOT_5_AXI_PROTOCOL"] :>
+<: set C_SLOT_6_AXI_PROTOCOL [getStringValue "C_SLOT_6_AXI_PROTOCOL"] :>
+<: set C_SLOT_7_AXI_PROTOCOL [getStringValue "C_SLOT_7_AXI_PROTOCOL"] :>
+
+<: set wd [ file dirname [ get_property xml_file_name [ current_ipbom ] ] ] :>
+
+create_ip -name clk_wiz -version 5.1 -vendor xilinx.com -library ip -module_name clk_wiz_0
+set_property -dict [list CONFIG.PRIM_IN_FREQ {200.000} CONFIG.PRIM_SOURCE {Differential_clock_capable_pin} CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {100} CONFIG.CLKOUT2_USED {true} CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {150}] [get_ips clk_wiz_0]
+
+create_ip -name axi_traffic_gen -version 2.0 -vendor xilinx.com -library ip -module_name atg_lite_agent
+set coe1 [lindex [get_property name [get_files *addr.coe]] 0 ]
+set coe2 [lindex [get_property name [get_files *mask.coe]] 0 ]
+set coe3 [lindex [get_property name [get_files *ctrl.coe]] 0 ]
+set coe4 [lindex [get_property name [get_files *data.coe]] 0 ]
+set_property -dict [list \
+CONFIG.C_ATG_MODE {AXI4-Lite} \
+CONFIG.C_ATG_SYSTEM_INIT_ADDR_MIF $coe1 \
+CONFIG.C_ATG_SYSTEM_INIT_MASK_MIF $coe2 \
+CONFIG.C_ATG_SYSTEM_INIT_CTRL_MIF $coe3 \
+CONFIG.C_ATG_SYSTEM_INIT_DATA_MIF $coe4 \
+CONFIG.C_ATG_SYSINIT_MODES {System_Test} \
+CONFIG.C_ATG_SYSTEM_TEST_MAX_CLKS {2147483647} \
+CONFIG.C_ATG_SYSTEM_CMD_MAX_RETRY {2147483647} \
+CONFIG.C_ATG_MIF_DATA_DEPTH {256} \
+CONFIG.C_ATG_SYSTEM_MAX_CHANNELS {3} \
+CONFIG.C_ATG_SYSTEM_CH1_LOW {0x00000000} \
+CONFIG.C_ATG_SYSTEM_CH1_HIGH {0x0000FFFF} \
+CONFIG.C_ATG_SYSTEM_CH2_LOW {0x00010000} \
+CONFIG.C_ATG_SYSTEM_CH2_HIGH {0x0001FFFF} \
+CONFIG.C_ATG_SYSTEM_CH3_LOW {0x00020000} \
+CONFIG.C_ATG_SYSTEM_CH3_HIGH {0x0002FFFF} \
+] [get_ips atg_lite_agent]
+
+<: if { $C_SLOT_0_AXI_PROTOCOL == "AXI4" || $C_SLOT_0_AXI_PROTOCOL == "AXI4LITE" || $C_SLOT_0_AXI_PROTOCOL == "AXI3" || :>
+<:        $C_SLOT_1_AXI_PROTOCOL == "AXI4" || $C_SLOT_1_AXI_PROTOCOL == "AXI4LITE" || $C_SLOT_1_AXI_PROTOCOL == "AXI3" || :>
+<:        $C_SLOT_2_AXI_PROTOCOL == "AXI4" || $C_SLOT_2_AXI_PROTOCOL == "AXI4LITE" || $C_SLOT_2_AXI_PROTOCOL == "AXI3" || :>
+<:        $C_SLOT_3_AXI_PROTOCOL == "AXI4" || $C_SLOT_3_AXI_PROTOCOL == "AXI4LITE" || $C_SLOT_3_AXI_PROTOCOL == "AXI3" || :>
+<:        $C_SLOT_4_AXI_PROTOCOL == "AXI4" || $C_SLOT_4_AXI_PROTOCOL == "AXI4LITE" || $C_SLOT_4_AXI_PROTOCOL == "AXI3" || :>
+<:        $C_SLOT_5_AXI_PROTOCOL == "AXI4" || $C_SLOT_5_AXI_PROTOCOL == "AXI4LITE" || $C_SLOT_5_AXI_PROTOCOL == "AXI3" || :>
+<:        $C_SLOT_6_AXI_PROTOCOL == "AXI4" || $C_SLOT_6_AXI_PROTOCOL == "AXI4LITE" || $C_SLOT_6_AXI_PROTOCOL == "AXI3" || :>
+<:        $C_SLOT_7_AXI_PROTOCOL == "AXI4" || $C_SLOT_7_AXI_PROTOCOL == "AXI4LITE" || $C_SLOT_7_AXI_PROTOCOL == "AXI3"   } {  :>
+create_ip -name axi_traffic_gen -version 2.0 -vendor xilinx.com -library ip -module_name atg_axi_source
+set_property -dict [list \
+CONFIG.C_M_AXI_THREAD_ID_WIDTH {6} \
+CONFIG.C_M_AXI_DATA_WIDTH {512} \
+CONFIG.C_ATG_MODE_L2 {Basic} \
+] [get_ips atg_axi_source]
+create_ip -name axi_bram_ctrl -version 4.0 -vendor xilinx.com -library ip -module_name axi_bram_memory
+set_property -dict [list \
+CONFIG.DATA_WIDTH            {512} \
+CONFIG.MEM_DEPTH             {1024} \
+CONFIG.ID_WIDTH              {6} \
+CONFIG.SUPPORTS_NARROW_BURST {0} \
+CONFIG.BMG_INSTANCE          {INTERNAL} \
+] [get_ips axi_bram_memory]
+<: } :>
+
+<: if { $C_SLOT_0_AXI_PROTOCOL == "AXI4S" ||   :>
+<:        $C_SLOT_1_AXI_PROTOCOL == "AXI4S" || :>
+<:        $C_SLOT_2_AXI_PROTOCOL == "AXI4S" || :>
+<:        $C_SLOT_3_AXI_PROTOCOL == "AXI4S" || :>
+<:        $C_SLOT_4_AXI_PROTOCOL == "AXI4S" || :>
+<:        $C_SLOT_5_AXI_PROTOCOL == "AXI4S" || :>
+<:        $C_SLOT_6_AXI_PROTOCOL == "AXI4S" || :>
+<:        $C_SLOT_7_AXI_PROTOCOL == "AXI4S" } {  :>
+create_ip -name axi_traffic_gen -version 2.0 -vendor xilinx.com -library ip -module_name atg_stream_source
+set_property -dict [list \
+CONFIG.C_ATG_MODE {AXI4-Stream} \
+CONFIG.C_AXIS_SPARSE_EN {false} \
+CONFIG.C_AXIS_TUSER_WIDTH {256} \
+CONFIG.C_AXIS_TID_WIDTH {16} \
+CONFIG.C_AXIS_TDEST_WIDTH {8} \
+CONFIG.C_AXIS_TDATA_WIDTH {1024} \
+CONFIG.C_ATG_STREAMING_MAX_LEN_BITS {14} \
+] [get_ips atg_stream_source]
+<: } :>
+
+set_property generate_synth_checkpoint false [get_files *.xci]
+generate_target all [get_ips *]
