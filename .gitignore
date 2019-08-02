@@ -3,7 +3,8 @@ vivado.log
 *.backup.jou
 *.backup.log
 
-ip/hls/DRAMSim2/Bank/Bank_HLS/
-
 vivado_hls.log
+
+PiMulator/DRAMEmulation/Bank_HLS/Bank_HLS/
+
 
