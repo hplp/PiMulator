@@ -5,6 +5,6 @@ vivado.log
 
 vivado_hls.log
 
-PiMulator/DRAMEmulation/Bank_HLS/Bank_HLS/*
+DRAMEmulation/Bank_HLS/Bank_HLS/
 
 
