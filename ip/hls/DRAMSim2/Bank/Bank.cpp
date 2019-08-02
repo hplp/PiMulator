@@ -28,70 +28,155 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************************/
 
+/**************************************************************************************
+ * Hardware Model for DDR3 Bank
+ * NOTE: even though model is based on DRAMSim2, the C-code is modified fundamentally to
+ * reflect DDR3 Bank operation in Hardware
+ * Added is row buffer, as well as an accurate representation of what happens in DRAM during each Bank Command.
+ * The Memory being used is BRAM: BRAM is configured to be NUM_COLUMS * 8 bits wide, so that one can read
+ * an entire row of memory data (a.k.a. ACTIVATE a row) during 1 clock cycle. (see #pragma after each array declaration)
+ * Here are things that need to be added or improved
+ * 1) add sub-array row buffers: a bank is divided into sub-arrays, where each one has its own row buffer
+ * 	  the current emulation models the entire bank with only 1 row buffer, so to be more accurate
+ * 	  (1.1) divide main memory array into sub-arrays (1.2) create row buffer (as the one we already have) for each sub-array
+ * 2) Max out BRAM usage: current Bank usage is configured 256x256 bytes to max out Pynq Board BRAM resources
+ * 	  Synthesize for a bigger board (e.g. UltraZed EG) and max BRAM (or make memory rows x columns configuration as large as possible for the new board)
+ * 3) Map BRAM to DRAM (** HARDEST AND MOST CRITICAL **): Instead of BRAM, emulate with DRAM, or abstract DRAM (see LiME paper) so that bank sees a black
+ * 	  box for memory access, which is made of DRAM. This is challenging because BRAM can be configured to have the width we want, but DRAM  cannot be
+ * 	  Suggestion: see if we have control over activating an entire row of DRAM cells, which can serve our purpose
+ * 4) Make DDR3 commands accurate: I have put some logic to carry out commands in BusPacketType, to make our emulation DDR3-accurate,
+ * 	  if some commands are missing, they will need to be added; or the already coded commands may need to be adjusted for sub-array configuration,
+ * 	  greater accuracy to DDR3 Bank operation, etc.
+ *
+ *	PS: please see ? and TODO in code where things might need to be checked or worked on
+ *
+ ****************************************************************************************/
+
+//#include <stdio.h>
 // The following code models a DDR3 Bank as a C++ function that will undergo HLS synthesis
 enum BusPacketType {
 	READ, READ_P, WRITE, WRITE_P, ACTIVATE, PRECHARGE, REFRESH, DATA
 };
 
-//8192
-#define NUM_ROWS 512
-#define NUM_COLS 512
+//1024x8192 is the Micron standard
+#define NUM_ROWS 256
+#define NUM_COLS 256
 
-void Bank(BusPacketType busPacketType, unsigned row, unsigned column,
-		 unsigned char data_in, unsigned char& data_out) {
-
-#pragma HLS INTERFACE s_axilite register port=busPacketType bundle=BankBundle
-#pragma HLS INTERFACE s_axilite register port=row bundle=BankBundle
-#pragma HLS INTERFACE s_axilite register port=column bundle=BankBundle
-#pragma HLS INTERFACE s_axilite register port=data_in bundle=BankBundle
+void Bank(unsigned input, unsigned char& data_out) {
+// change to stream interface ?
+#pragma HLS INTERFACE s_axilite register port=input bundle=BankBundle
 #pragma HLS INTERFACE s_axilite register port=data_out bundle=BankBundle
 #pragma HLS INTERFACE s_axilite register port=return bundle=BankBundle
 
+//* previous config
 
+//void Bank(BusPacketType busPacketType, unsigned row, unsigned column,
+//		 unsigned char data_in, unsigned char& data_out) {
+
+//#pragma HLS INTERFACE s_axilite register port=busPacketType bundle=BankBundle
+//#pragma HLS INTERFACE s_axilite register port=row bundle=BankBundle
+//#pragma HLS INTERFACE s_axilite register port=column bundle=BankBundle
+//#pragma HLS INTERFACE s_axilite register port=data_in bundle=BankBundle
+//#pragma HLS INTERFACE s_axilite register port=data_out bundle=BankBundle
+//#pragma HLS INTERFACE s_axilite register port=return bundle=BankBundle
+
+//*
+
+// seperate input signals (shift and mask)
+
+	unsigned char busPacketType = input % 8;
+	unsigned row = (input >> 3) % 256;
+	unsigned column = (input >> 11) % 256;
+	unsigned char data_in = (input >> 19) % 256;
+
+	/*	// decide which memory to use (for the sake of saving FPGA resource) done before to split memory into BRAM and LUT config (IGNORE)
+	 //	bool LUT_use = (row > 255);
+	 //	if (LUT_use) {
+	 //		row = row % 256;
+	 //	}
+	 //	if (EN)
+	 //	{
+	 //		printf("busPacketType: %d, row: %d, column: %d, data_in: %d \n ",busPacketType,row,column,data_in);
+	 //	}
+	 //*/
 
 // Memory
-	static unsigned char rowEntries[NUM_ROWS * NUM_COLS];
-	// create as BRAM (1 port)
-#pragma HLS RESOURCE variable=rowEntries core=RAM_1P_BRAM
-	// Row Buffer
-	unsigned char rowBuffer[NUM_COLS];
-	// create as BRAM (2 port)
-#pragma HLS RESOURCE variable=rowBuffer core=RAM_S2P_BRAM
+// main memory
+	static unsigned char rowEntries[NUM_ROWS][NUM_COLS];
+#pragma HLS array_partition variable=rowEntries complete dim=2
 
-// concatenate as 1 array in order to save BRAM
-//#pragma HLS ARRAY_MAP variable=rowEntries instance=BANK_BRAM horizontal
-//#pragma HLS ARRAY_MAP variable=rowBuffer instance =BANK_BRAM horizontal
+// for Resource Usage Limit we need to split main memory into (1) BRAM and (2) LUTRAM
+//	static unsigned char rowEntries_BRAM[NUM_ROWS / 2][NUM_COLS];
+//#pragma HLS array_partition variable=rowEntries_BRAM complete dim=2
+//#pragma HLS RESOURCE variable=rowEntries_BRAM core=RAM_1P_BRAM
+//
+//	static unsigned char rowEntries_LUT[NUM_ROWS / 2][NUM_COLS];
+//#pragma HLS array_partition variable=rowEntries_LUT complete dim=2
+//#pragma HLS RESOURCE variable=rowEntries_LUT core=RAM_1P_LUTRAM
 
-// allocate as LUTRAM
-//#pragma HLS RESOURCE variable=rowBuffer core=RAM_1P_LUTRAM
+// Row Buffer
+	static unsigned char rowBuffer[NUM_COLS];
+#pragma HLS array_partition variable=rowBuffer complete dim=1
 
-// reading, writing transaction (TODO: add all other Commands)
+// commands execution (TODO: check and add commands if needed, modify when sub-arrays added)
 
-	if (busPacketType == READ || busPacketType == WRITE) {
-		// upgrade row buffer
-
-
+// ACTIVATE
+	if (busPacketType == ACTIVATE) {
+		//* upgrade row buffer
 		for (int j = 0; j < NUM_COLS; j++) {
 #pragma HLS unroll
-			rowBuffer[j] = rowEntries[row * NUM_ROWS + j];
+			rowBuffer[j] = rowEntries[row][j];
+			//			rowBuffer[j] =
+			//					(LUT_use) ?
+			//							rowEntries_LUT[row][j] : rowEntries_BRAM[row][j];
 		}
-
-		// 2 different paths depending on whether we read or write
-		if (busPacketType == READ) {
-			// extract column
-			data_out = rowBuffer[column];
-			//the return packet should be a data packet, not a read packet
-			busPacketType = DATA;
-		} else if (busPacketType == WRITE) {
-			// write column
-			rowBuffer[column] = data_in;
-		}
+	}
+	// READ
+	//* read from row buffer
+	if (busPacketType == READ || busPacketType == READ_P) {
+		// extract column
+		data_out = rowBuffer[column];
+		//the return packet should be a data packet, not a read packet
+		busPacketType = DATA;
+	}
+	// WRITE
+	if (busPacketType == WRITE || busPacketType == WRITE_P) {
+		// write column to row buffer
+		rowBuffer[column] = data_in;
 
 		//write back row buffer
-		for (int i = 0; i < NUM_COLS; i++) {
+		for (int j = 0; j < NUM_COLS; j++) {
 #pragma HLS unroll
-			rowEntries[row * NUM_COLS + i] = rowBuffer[i];
+			rowEntries[row][j] = rowBuffer[j];
 		}
+	}
+	// PRECHARGE
+	//* double check: clear out contents of row buffer, write all zeros ?
+	if (busPacketType == PRECHARGE) {
+		for (int j = 0; j < NUM_COLS; j++) {
+#pragma HLS unroll
+			rowBuffer[j] = 0;
+		}
+	}
+	// REFRESH
 
+	//* doube check: read all contents and write all contents back (read / write all rows via row buffer)?
+	//* this latency will be significantly improved when we have sub-arrays
+
+	if (busPacketType == REFRESH) {
+
+		Refresh_Loop: for (int i = 0; i < NUM_ROWS; i++) {
+			// read row into row buffer
+			for (int j = 0; j < NUM_COLS; j++) {
+#pragma HLS unroll
+				rowBuffer[j] = rowEntries[i][j];
+			}
+			//write row buffer back
+			for (int j = 0; j < NUM_COLS; j++) {
+#pragma HLS unroll
+				rowEntries[i][j] = rowBuffer[j];
+			}
+		}
 	}
 }
+
