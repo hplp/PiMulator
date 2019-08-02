@@ -1,0 +1,341 @@
+<: ;#Component and file information :>
+<: set ComponentName [getComponentNameString] :>
+<: setOutputDirectory "./" :>
+<: setFileName $ComponentName :>
+<: setFileExtension "_clocks.xdc" :>
+<: setFileProcessingOrder late :>
+<: set enable_sync [getIntValue "C_AXI4LITE_CORE_CLK_ASYNC"] :>
+<: set slot0_enable_sync [getIntValue "C_SLOT_0_FIFO_ENABLE"] :>
+<: set s0_protocol [getIntValue "C_SLOT_0_AXI_PROTOCOL"] :>
+<: set slot1_enable_sync [getIntValue "C_SLOT_1_FIFO_ENABLE"] :>
+<: set s1_protocol [getIntValue "C_SLOT_1_AXI_PROTOCOL"] :>
+<: set slot2_enable_sync [getIntValue "C_SLOT_2_FIFO_ENABLE"] :>
+<: set s2_protocol [getIntValue "C_SLOT_2_AXI_PROTOCOL"] :>
+<: set slot3_enable_sync [getIntValue "C_SLOT_3_FIFO_ENABLE"] :>
+<: set s3_protocol [getIntValue "C_SLOT_3_AXI_PROTOCOL"] :>
+<: set slot4_enable_sync [getIntValue "C_SLOT_4_FIFO_ENABLE"] :>
+<: set s4_protocol [getIntValue "C_SLOT_4_AXI_PROTOCOL"] :>
+<: set slot5_enable_sync [getIntValue "C_SLOT_5_FIFO_ENABLE"] :>
+<: set s5_protocol [getIntValue "C_SLOT_5_AXI_PROTOCOL"] :>
+<: set slot6_enable_sync [getIntValue "C_SLOT_6_FIFO_ENABLE"] :>
+<: set s6_protocol [getIntValue "C_SLOT_6_AXI_PROTOCOL"] :>
+<: set slot7_enable_sync [getIntValue "C_SLOT_7_FIFO_ENABLE"] :>
+<: set s7_protocol [getIntValue "C_SLOT_7_AXI_PROTOCOL"] :>
+<: set num_slots [getIntValue "C_NUM_MONITOR_SLOTS"] :>
+<: set ext_events [getIntValue "ENABLE_EXT_EVENTS"] :>
+<: set event0_sync [getIntValue "C_EXT_EVENT0_FIFO_ENABLE"] :>
+<: set event1_sync [getIntValue "C_EXT_EVENT1_FIFO_ENABLE"] :>
+<: set event2_sync [getIntValue "C_EXT_EVENT2_FIFO_ENABLE"] :>
+<: set event3_sync [getIntValue "C_EXT_EVENT3_FIFO_ENABLE"] :>
+<: set event4_sync [getIntValue "C_EXT_EVENT4_FIFO_ENABLE"] :>
+<: set event5_sync [getIntValue "C_EXT_EVENT5_FIFO_ENABLE"] :>
+<: set event6_sync [getIntValue "C_EXT_EVENT6_FIFO_ENABLE"] :>
+<: set event7_sync [getIntValue "C_EXT_EVENT7_FIFO_ENABLE"] :>
+<: set event_log [getIntValue "C_ENABLE_EVENT_LOG"] :>
+<: set sync_log [getIntValue "C_FIFO_AXIS_SYNC"] :>
+<: set enable_trace [getIntValue "C_ENABLE_TRACE"] :>
+<: set enable_advanced [getIntValue "C_ENABLE_ADVANCED"] :>
+<: set enable_profile [getIntValue "C_ENABLE_PROFILE"] :>
+<: set en_ext_flags [getIntValue "C_EN_EXT_EVENTS_FLAG"] :>
+<: set offload_mode [get_property "MODELPARAM_VALUE.C_LOG_DATA_OFFLD" [current_scope]] :>
+<: ;#set offload_mode 0 :>
+
+# file: <=: ComponentName :>_clocks.xdc
+# (c) Copyright 2009 - 2013 Xilinx, Inc. All rights reserved.
+# 
+# This file contains confidential and proprietary information
+# of Xilinx, Inc. and is protected under U.S. and
+# international copyright and other intellectual property
+# laws.
+# 
+# DISCLAIMER
+# This disclaimer is not a license and does not grant any
+# rights to the materials distributed herewith. Except as
+# otherwise provided in a valid license issued to you by
+# Xilinx, and to the maximum extent permitted by applicable
+# law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND
+# WITH ALL FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES
+# AND CONDITIONS, EXPRESS, IMPLIED, OR STATUTORY, INCLUDING
+# BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, NON-
+# INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE; and
+# (2) Xilinx shall not be liable (whether in contract or tort,
+# including negligence, or under any other theory of
+# liability) for any loss or damage of any kind or nature
+# related to, arising under or in connection with these
+# materials, including for any direct, or any indirect,
+# special, incidental, or consequential loss or damage
+# (including loss of data, profits, goodwill, or any type of
+# loss or damage suffered as a result of any action brought
+# by a third party) even if such damage or loss was
+# reasonably foreseeable or Xilinx had been advised of the
+# possibility of the same.
+# 
+# CRITICAL APPLICATIONS
+# Xilinx products are not designed or intended to be fail-
+# safe, or for use in any application requiring fail-safe
+# performance, such as life-support or safety devices or
+# systems, Class III medical devices, nuclear facilities,
+# applications related to the deployment of airbags, or any
+# other applications that could lead to death, personal
+# injury, or severe property or environmental damage
+# (individually and collectively, "Critical
+# Applications"). Customer assumes the sole risk and
+# liability of any use of Xilinx products in Critical
+# Applications, subject only to applicable laws and
+# regulations governing limitations on product liability.
+# 
+# THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
+# PART OF THIS FILE AT ALL TIMES.
+
+
+<: if { ($enable_sync == 1) && ($enable_advanced == 1 || $enable_profile == 1) } { :>
+## axi4_lite interface and core_clock false path
+## This constraint applies with cdc_module
+set s_axi_aclk       [get_clocks -of_objects [get_ports s_axi_aclk]]
+set core_aclk         [get_clocks -of_objects [get_ports core_aclk]]
+set_false_path -from [get_cells -hier *_CDC* -filter {IS_SEQUENTIAL}] -to $core_aclk
+set_false_path -from [get_cells -hier *_CDCR* -filter {IS_SEQUENTIAL}] -to $s_axi_aclk
+<: } :>
+
+<: if { $slot0_enable_sync == 1} { :>
+#slot0 to core clock
+ 
+   <: if { $s0_protocol != "AXI4S" } { :>
+   set slot0_wr_clock         [get_clocks -of_objects [get_ports slot_0_axi_aclk]]
+ # Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports slot_0_axi_aclk] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+   <: } else { :>
+   set slot0_wr_clock         [get_clocks -of_objects [get_ports slot_0_axis_aclk]]
+ # Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports slot_0_axis_aclk] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+   <: } :>
+ set core_rd_clock          [get_clocks -of_objects [get_ports core_aclk]]
+
+
+
+ # Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $core_rd_clock]
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $slot0_wr_clock]
+
+  <: if { ($ext_events == 1 && $event0_sync == 1) && ($enable_advanced == 1 || ($enable_trace == 1 && $en_ext_flags ==1)) } { :>
+   # External events to core clock
+   set ext_clock0         [get_clocks -of_objects [get_ports ext_clk_0]]
+   # Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+   set_false_path -from [filter [all_fanout -from [get_ports ext_clk_0] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+   # Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+   set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $core_rd_clock]
+   set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $ext_clock0]
+  <: } :>
+<: } :>
+
+
+
+<: if {($slot1_enable_sync == 1) && ($num_slots > 1)} { :>
+ #slot1 to core clock
+   <: if { $s1_protocol != "AXI4S" } { :>
+      set slot1_wr_clock         [get_clocks -of_objects [get_ports slot_1_axi_aclk]]
+ # Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports slot_1_axi_aclk] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+   <: } else { :>
+      set slot1_wr_clock         [get_clocks -of_objects [get_ports slot_1_axis_aclk]]
+      # Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports slot_1_axis_aclk] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+      set slot1_clk slot1_axis_aclk 
+   <: } :>
+ set core_rd_clock          [get_clocks -of_objects [get_ports core_aclk]]
+ # Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $core_rd_clock]
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $slot1_wr_clock]
+
+ <: if { ($ext_events == 1) && ($event1_sync == 1) && ($enable_advanced == 1 || ($enable_trace == 1 && $en_ext_flags ==1))} { :>
+ # External events to core clock
+ set ext_clock1         [get_clocks -of_objects [get_ports ext_clk_1]]
+ # Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports ext_clk_1] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+ # Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $core_rd_clock]
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $ext_clock1]
+  <: } :>
+<: } :>
+
+<: if {($slot2_enable_sync == 1) && ($num_slots > 2)} { :>
+ #slot2 to core clock
+   <: if { $s2_protocol != "AXI4S" } { :>
+      set slot2_wr_clock         [get_clocks -of_objects [get_ports slot_2_axi_aclk]]
+# Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports slot_2_axi_aclk] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+   <: } else { :>
+      set slot2_wr_clock         [get_clocks -of_objects [get_ports slot_2_axis_aclk]]
+# Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports slot_2_axis_aclk] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+   <: } :>
+ set core_rd_clock          [get_clocks -of_objects [get_ports core_aclk]]
+  # Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $core_rd_clock]
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $slot2_wr_clock]
+
+ <: if { ($ext_events == 1) && ($event2_sync == 1) && ($enable_advanced == 1 || ($enable_trace == 1 && $en_ext_flags ==1))} { :>
+ # External events to core clock
+ set ext_clock2         [get_clocks -of_objects [get_ports ext_clk_2]]
+ # Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports ext_clk_2] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+ # Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $core_rd_clock]
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $ext_clock2]
+  <: } :>
+<: } :>
+
+<: if {($slot3_enable_sync == 1) && ($num_slots > 3)} { :>
+ #slot3 to core clock
+   <: if { $s3_protocol != "AXI4S" } { :>
+      set slot3_wr_clock         [get_clocks -of_objects [get_ports slot_3_axi_aclk]]
+       # Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports slot_3_axi_aclk] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+   <: } else { :>
+      set slot3_wr_clock         [get_clocks -of_objects [get_ports slot_3_axis_aclk]]
+# Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports slot_3_axis_aclk] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+   <: } :>
+ set core_rd_clock          [get_clocks -of_objects [get_ports core_aclk]]
+ # Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $core_rd_clock]
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $slot3_wr_clock]
+
+  <: if { ($ext_events == 1) && ($event3_sync == 1) && ($enable_advanced == 1 || ($enable_trace == 1 && $en_ext_flags ==1))} { :>
+ # External events to core clock
+ set ext_clock3         [get_clocks -of_objects [get_ports ext_clk_3]]
+ # Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports ext_clk_3] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+ # Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $core_rd_clock]
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $ext_clock3]
+  <: } :>
+<: } :>
+
+<: if {($slot4_enable_sync == 1) && ($num_slots > 4)} { :>
+ #slot4 to core clock
+   <: if { $s4_protocol != "AXI4S" } { :>
+      set slot4_wr_clock         [get_clocks -of_objects [get_ports slot_4_axi_aclk]]
+      # Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports slot_4_axi_aclk] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+   <: } else { :>
+      set slot4_wr_clock         [get_clocks -of_objects [get_ports slot_4_axis_aclk]]
+# Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports slot_4_axis_aclk] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+   <: } :>
+ set core_rd_clock          [get_clocks -of_objects [get_ports core_aclk]]
+  # Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $core_rd_clock]
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $slot4_wr_clock]
+
+ <: if { ($ext_events == 1) && ($event4_sync == 1) && ($enable_advanced == 1 || ($enable_trace == 1 && $en_ext_flags ==1))} { :>
+ # External events to core clock
+ set ext_clock4         [get_clocks -of_objects [get_ports ext_clk_4]]
+ # Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports ext_clk_4] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+ # Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $core_rd_clock]
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $ext_clock4]
+  <: } :>
+<: } :>
+
+<: if {($slot5_enable_sync == 1) && ($num_slots > 5)} { :>
+ #slot5 to core clock
+   <: if { $s5_protocol != "AXI4S" } { :>
+      set slot5_wr_clock         [get_clocks -of_objects [get_ports slot_5_axi_aclk]]
+# Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports slot_5_axi_aclk] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+   <: } else { :>
+      set slot5_wr_clock         [get_clocks -of_objects [get_ports slot_5_axis_aclk]]
+# Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports slot_5_axis_aclk] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+   <: } :>
+
+ set core_rd_clock          [get_clocks -of_objects [get_ports core_aclk]]
+  # Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $core_rd_clock ]
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $slot5_wr_clock]
+
+ <: if { ($ext_events == 1) && ($event5_sync == 1) && ($enable_advanced == 1 || ($enable_trace == 1 && $en_ext_flags ==1))} { :>
+ # External events to core clock
+ set ext_clock5         [get_clocks -of_objects [get_ports ext_clk_5]]
+ # Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports ext_clk_5] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+ # Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $core_rd_clock ]
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $ext_clock5]
+  <: } :>
+<: } :>
+
+<: if {($slot6_enable_sync == 1) && ($num_slots > 6)} { :>
+ #slot6 to core clock
+   <: if { $s6_protocol != "AXI4S" } { :>
+      set slot6_wr_clock         [get_clocks -of_objects [get_ports slot_6_axi_aclk]]
+ # Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports slot_6_axi_aclk] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+   <: } else { :>
+      set slot6_wr_clock         [get_clocks -of_objects [get_ports slot_6_axis_aclk]]
+  # Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports slot_6_axis_aclk] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]    
+   <: } :>
+ set core_rd_clock          [get_clocks -of_objects [get_ports core_aclk]]
+ # Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $core_rd_clock]
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $slot6_wr_clock]
+
+  <: if { ($ext_events == 1) && ($event6_sync == 1) && ($enable_advanced == 1 || ($enable_trace == 1 && $en_ext_flags ==1))} { :>
+ # External events to core clock
+ set ext_clock6         [get_clocks -of_objects [get_ports ext_clk_6]]
+ # Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports ext_clk_6] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+ # Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $core_rd_clock]
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $ext_clock6]
+  <: } :>
+<: } :>
+
+<: if {($slot7_enable_sync == 1) && ($num_slots > 7)} { :>
+ #slot7 to core clock
+   <: if { $s7_protocol != "AXI4S" } { :>
+      set slot7_wr_clock         [get_clocks -of_objects [get_ports slot_7_axi_aclk]]
+# Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports slot_7_axi_aclk] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+   <: } else { :>
+      set slot7_wr_clock         [get_clocks -of_objects [get_ports slot_7_axis_aclk]]
+# Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports slot_7_axis_aclk] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+   <: } :>
+ set core_rd_clock          [get_clocks -of_objects [get_ports core_aclk]]
+  # Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $core_rd_clock]
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $slot7_wr_clock]
+
+  <: if { ($ext_events == 1) && ($event7_sync == 1) && ($enable_advanced == 1 || ($enable_trace == 1 && $en_ext_flags ==1))} { :>
+ # External events to core clock
+ set ext_clock7         [get_clocks -of_objects [get_ports ext_clk_7]]
+ # Ignore paths from the write clock to the read data registers for Asynchronous Distributed RAM based FIFO
+ set_false_path -from [filter [all_fanout -from [get_ports ext_clk_7] -flat -endpoints_only] {IS_LEAF}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.mem/gdm.dm/gpr1.dout_i_reg[*]}]
+ # Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $core_rd_clock]
+ set_max_delay -from [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*mon_fifo_*/USE_MON_FIFO.async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $ext_clock7]
+  <: } :>
+<: } :>
+
+ 
+<: if { (($event_log == 1) || ($enable_trace == 1)) && ($sync_log == 0)} { :>
+# async event log FIFO constraints
+set wr_clock          [get_clocks -of_objects [get_ports core_aclk]]
+  <: if { $offload_mode == 0} { :>
+set rd_clock          [get_clocks -of_objects [get_ports m_axis_aclk]]
+  <: } :>
+  <: if { $offload_mode == 1} { :>
+set rd_clock          [get_clocks -of_objects [get_ports s_axi_offld_aclk]]
+  <: } :>
+
+# Set max delay on cross clock domain path for Block/Distributed RAM based FIFO
+
+set_max_delay -from [get_cells -hierarchical -filter {NAME =~*/async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/rd_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*/async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].wr_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $rd_clock]
+
+set_max_delay -from [get_cells -hierarchical -filter {NAME =~*/async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/wr_pntr_gc_reg[*]}] -to [get_cells -hierarchical -filter {NAME =~*/async_fifo_inst/inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gcx.clkx/gsync_stage[*].rd_stg_inst/Q_reg_reg[*]}] -datapath_only [get_property  -min PERIOD $wr_clock]
+
+<: } :>
