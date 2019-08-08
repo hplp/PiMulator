@@ -12,7 +12,7 @@ I. How to Generate:
       Zynq CPU, AXI, and Bank Hardware Module
    
    Note: Make sure that you have run the .tcl script provided in the DRAMEmulation/Bank_HLS directory, so 
-	 that the Bank IP block is generated prior to attempting to build the project.\n
+	 that the Bank IP block is generated prior to attempting to build the project.  
 	 Also, the generated project is only compatible with the PYNQ FPGA.
 
 II. How to Run Bank Software Tests:                                                         
