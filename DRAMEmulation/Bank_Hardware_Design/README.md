@@ -16,7 +16,6 @@ I. How to Generate:
 	 Also, the generated project is only compatible with the PYNQ FPGA.
 
 II. How to Run Bank Software Tests:
-
     1. Once having the project generated, open Xilinx SDK and create a blank C++ project 
     (IMPORTANT: make sure that the created project is specifically for C++)
     2. Delete the default main.cc file generated in the src directory
