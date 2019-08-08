@@ -2,13 +2,14 @@ Project that Interfaces Bank with CPU
 
 I. How to Generate:
    1. Open Vivado (version has to be >=2018.3)
-   2. Tools -> Run Tcl Script..  
-   3. Choose Bank_Hardware.tcl 
+   2. In the Vivado TCL shell, make sure that your current directory is set to the Bank_Hardware_Design directory  
+   3. Tools -> Run Tcl Script..  
+   4. Choose Bank_Hardware.tcl 
 
-   Alternatively: navigate to Bank_Hardware_Design directory in Vivado TCL shell and run     
+   Alternatively: in Vivado TCL shell, run:   
    source Bank_Hardware.tcl
 
-   4. Project Bank_Hardware is generated with a board design that includes   
+   5. Project Bank_Hardware is generated with a board design that includes   
       Zynq CPU, AXI, and Bank Hardware Module
    
    Note: Make sure that you have run the .tcl script provided in the DRAMEmulation/Bank_HLS directory, so    
