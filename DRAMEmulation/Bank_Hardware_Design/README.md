@@ -17,7 +17,7 @@ I. How to Generate:
 
 II. How to Run Bank Software Tests:                                                         
     1. Once having the project generated, open Xilinx SDK and create a blank C++ project 
-    (IMPORTANT: make sure that the created project is specifically for C++)
-    2. Delete the default main.cc file generated in the src directory
-    3. Add All C++ files from the Bank_Hardware_Design/software_src directory to your Xilinx SDK project src directory
-    4. Now Run the software on the PYNQ board: documentation on how to run/understand the code is provided in the code itself
+    (IMPORTANT: make sure that the created project is specifically for C++)      
+    2. Delete the default main.cc file generated in the src directory      
+    3. Add All C++ files from the Bank_Hardware_Design/software_src directory to your Xilinx SDK project src directory     
+    4. Now Run the software on the PYNQ board: documentation on how to run/understand the code is provided in the code itself    
