@@ -15,7 +15,7 @@ I. How to Generate:
 	 that the Bank IP block is generated prior to attempting to build the project
 	 Also, the generated project is only compatible with the PYNQ FPGA.
 
-II. How to Run Bank Software Tests:
+II. How to Run Bank Software Tests:                                                         
     1. Once having the project generated, open Xilinx SDK and create a blank C++ project 
     (IMPORTANT: make sure that the created project is specifically for C++)
     2. Delete the default main.cc file generated in the src directory
