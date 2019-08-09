@@ -1,6 +1,6 @@
 DRAM Emulation Code: 
 
-Bank_Hardware_Design: 
+Bank_Hardware_Design:                               
 Bank-CPU Vivado Project and also Xilinx SDK Zynq Software Projects. 
 Zynq CPU issues commands to Bank Hardware Module. 
 Both Bank Hardware Module and Bank SOftware Module tested with same benchmark.
