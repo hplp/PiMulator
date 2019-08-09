@@ -39,9 +39,9 @@
 #ifdef  RANK_H
 
 #include "Bank.h"
-#include <vector>
+//#include <vector>
 using namespace std;
-
+#define readReturnPacket_size 32
 //#include "SimulatorObject.h"
 //#include "SystemConfiguration.h"
 //#include "Definitions.h"
@@ -52,6 +52,103 @@ using namespace std;
 //#include "BankState.h"
 //using namespace DRAMSim;
 //class MemoryController; //forward declaration
+
+// replacing vector of BusPacket* (size fixed to readReturnPacket_size)
+
+struct vector_Bus_Packet {
+	// constructor  
+	vector_Bus_Packet() {
+		for (int i = 0; i < readReturnPacket_size; i++) {
+			readReturnPacket[i] = NULL;
+		}
+		size = 0;
+	}
+	// attrubutes
+	BusPacket * readReturnPacket[readReturnPacket_size];
+	int size;
+	// add elements
+	void push_back(BusPacket* bp) {
+		if (size != readReturnPacket_size) {
+			readReturnPacket[size] = bp;
+			size++;
+		}
+	}
+	// access element
+	BusPacket* at(int pos) {
+		if (pos < size) {
+			return readReturnPacket[pos];
+		}
+		else {
+			return NULL;
+		}
+	}
+	// erase 1st element
+	void pop() {
+		for (int i = 1; i < size; i++) {
+			readReturnPacket[i - 1] = readReturnPacket[i];
+		}
+		if (readReturnPacket[size] != NULL) {
+			delete readReturnPacket[size];
+			readReturnPacket[size] = NULL;
+		}
+		size--;
+	}
+	// clear 
+	void clear() {
+		for (int i = 0; i < size; i++) {
+			if (readReturnPacket[i] != NULL) {
+				delete readReturnPacket[i];
+				readReturnPacket[i] = NULL;
+			}
+		}
+		size = 0;
+	}
+};
+
+// replacing vector of unsigned type (size fixed to readReturnPacket_size)
+
+struct vector_unsigned {
+	// constructor  
+	vector_unsigned() {
+		for (int i = 0; i < readReturnPacket_size; i++) {
+			unsigned_arr[i] = 0;
+		}
+		size = 0;
+	}
+	// attrubutes
+	unsigned unsigned_arr[readReturnPacket_size];
+	int size;
+	// add elements
+	void push_back(unsigned u) {
+		if (size != readReturnPacket_size) {
+			unsigned_arr[size] = u;
+			size++;
+		}
+	}
+	// access element
+	unsigned at(int pos) {
+		if (pos < size) {
+			return unsigned_arr[pos];
+		}
+		else {
+			return 0;
+		}
+	}
+	// erase 1st element
+	void pop() {
+		for (int i = 1; i < size; i++) {
+			unsigned_arr[i - 1] = unsigned_arr[i];
+		}
+		size--;
+	}
+	// clear 
+	void clear() {
+		for (int i = 0; i < size; i++) {
+			unsigned_arr[i] = 0;
+		}
+		size = 0;
+	}
+};
 
 // Banks States, info kept by rank
 
@@ -121,17 +218,23 @@ public:
 	unsigned char bank_data_out;
 
 	// Internal Signals (a.k.a Control Logic)
-	vector<BankState> bankStates;			// keep track of Bank States (for proper commands timing)
+	BankState bankStates[8];			// keep track of Bank States (for proper commands timing)
 	uint64_t currentClockCycle;				// clk signal (or counter keeping track of clock cycles for proper commands timing)
 
-	vector<BusPacket *> readReturnPacket;   // keep track of what goes back to MCC
-	vector<unsigned> readReturnCountdown;	// keep track of what goes back to MCC
+	// transform to arrays of fixed size
+	//BusPacket**readReturnPacket;   // keep track of what goes back to MCC
+	//unsigned *readReturnCountdown;	// keep track of what goes back to MCC
+
+	vector_Bus_Packet readReturnPacket;		// keep track of what goes back to MCC
+	vector_unsigned readReturnCountdown;	// keep track of what goes back to MCC
+	//vector<BusPacket *> readReturnPacket;  // keep track of what goes back to MCC
+	//vector<unsigned> readReturnCountdown;	// keep track of what goes back to MCC
 
 
 	bool isPowerDown;						// is Rank tuned OFF
 	int id;									// ID of Rank
 	unsigned dataCyclesLeft;				// house-keeping of cycles left until transfer of data
-	
+
 	// debug
 
 	void print_param();

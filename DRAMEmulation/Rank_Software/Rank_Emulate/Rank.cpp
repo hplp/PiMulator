@@ -94,13 +94,12 @@ Rank::Rank() :
 	id(-1),
 	//dramsim_log(dramsim_log_),
 	isPowerDown(false),
-	refreshWaiting(false),
-	readReturnCountdown(0),
+	refreshWaiting(false)
+	//readReturnCountdown(0)
 	//banks(NUM_BANKS, Bank()),
-	bankStates(NUM_BANKS, BankState())
+	//bankStates(NUM_BANKS, BankState())
 
 {
-
 	//memoryController = NULL;
 	outgoingDataPacket = NULL;
 	dataCyclesLeft = 0;
@@ -114,10 +113,10 @@ Rank::Rank() :
 
 Rank::~Rank()
 {
-	for (size_t i = 0; i < readReturnPacket.size(); i++)
-	{
-		delete readReturnPacket[i];
-	}
+	//for (size_t i = 0; i < readReturnPacket.size(); i++)
+	//{
+	//	delete readReturnPacket[i];
+	//}
 	readReturnPacket.clear();
 	delete outgoingDataPacket;
 }
@@ -155,8 +154,8 @@ void Rank::receiveFromBus(BusPacket *packet)
 		//printf("\n\n"); 
 		for (size_t i = 0; i < NUM_BANKS; i++)
 		{
-			bankStates[i].nextRead = max(bankStates[i].nextRead, currentClockCycle + max(tCCD, BL / 2));
-			bankStates[i].nextWrite = max(bankStates[i].nextWrite, currentClockCycle + READ_TO_WRITE_DELAY);
+			bankStates[i].nextRead = max(bankStates[i].nextRead, currentClockCycle + max(tCCD, BL / 2)); 
+			bankStates[i].nextWrite = max(bankStates[i].nextWrite, currentClockCycle + READ_TO_WRITE_DELAY); 
 			//printf("(READ)Bank %d: next_Read: %d, next_Write: %d\n", i,(bankStates[i].nextRead), bankStates[i].nextWrite );
 		}
 
@@ -409,27 +408,30 @@ void Rank::update()
 	}
 
 	// decrement the counter for all packets waiting to be sent back
-	for (size_t i = 0; i < readReturnCountdown.size(); i++)
+	for (size_t i = 0; i < readReturnCountdown.size; i++)
 	{
-		readReturnCountdown[i]--;
+		readReturnCountdown.unsigned_arr[i]--;
 	}
 
 	//printf("readReturnCountdown[0]: %d\n", readReturnCountdown[0]);
 
 	// assigns the outgoingDataPacket with actual data from the READ Queue
 
-	if (readReturnCountdown.size() > 0 && readReturnCountdown[0] == 0)
+	if (readReturnCountdown.size > 0 && readReturnCountdown.at(0) == 0)
 	{
 		// RL time has passed since the read was issued; this packet is
 		// ready to go out on the bus
 
-		outgoingDataPacket = readReturnPacket[0];
+		//outgoingDataPacket = readReturnPacket[0];
+		outgoingDataPacket = readReturnPacket.at(0); 
 		//printf("outgoingDataPacket: %d\n", outgoingDataPacket->data); 
 		dataCyclesLeft = BL / 2;
 
 		// remove the packet from the ranks
-		readReturnPacket.erase(readReturnPacket.begin());
-		readReturnCountdown.erase(readReturnCountdown.begin());
+		readReturnPacket.pop(); 
+		//readReturnPacket.erase(readReturnPacket.begin());
+		readReturnCountdown.pop();
+		//readReturnCountdown.erase(readReturnCountdown.begin());
 
 		if (DEBUG_BUS)
 		{

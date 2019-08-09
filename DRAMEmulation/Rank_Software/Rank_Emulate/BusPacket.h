@@ -12,7 +12,7 @@ struct BusPacket {
 		busPacketType = bp; column = c; row = r; bank = b; rank = ra; physicalAddress = pa; data = d;
 	}
 	void print() {
-		printf("Bus Packet Data: type: %d, col: %d, row: %d, bank %d, rank %d, address %x, data %d\n", busPacketType, column, row, bank, rank, physicalAddress, data);
+		//printf("Bus Packet Data: type: %d, col: %d, row: %d, bank %d, rank %d, address %x, data %d\n", busPacketType, column, row, bank, rank, physicalAddress, data);
 	}
 
 	BusPacketType busPacketType;
