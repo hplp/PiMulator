@@ -12,3 +12,6 @@ HLS project for DRAM Bank.
 Rank_Software: 
 Software Project of DRAM Rank, where DRAM Rank is modeled in Software and 
 tested in Software. 
+
+Reading_Information:
+Reference Literature and also information on DDR3 / Command Timing
