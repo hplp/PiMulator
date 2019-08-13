@@ -1,0 +1,45 @@
+document shows (1) what the requirements are before issuing a DRAM Bank command
+	   and (2) how many clock cycles need to pass before issuing that command after another command
+
+WRITE: 
+	Requirements: ACTIVATE
+	
+	Timing after other commands: 
+
+	after READ: 6
+	after WRITE: 4
+	ACTIVATE: 5
+READ: 
+	
+	Requirements:ACTIVATE
+
+	Timing after other commands: 
+
+	after READ: 4
+	after WRITE: 23
+	ACTIVATE: 5
+ACTIVATE:
+	
+	Requirements: IDLE, need to PRECHARGE if not idle 
+	
+	Timing after other commands: 
+
+	READ_P: 20 
+	WRITE_P: 38
+	ACTIVATE (current bank): 34
+	ACTIVATE (another bank): 4
+	PRECHARGE: 10
+	REFRESH: 74
+
+PRECHARGE: 
+
+	Requirements:ACTIVATE
+	
+	Timing after other commands: 
+
+	READ: 5 
+	WRITE: 28
+	ACTIVATE: 24 
+
+REFRESH: 
+	Requirements:has to be IDLE= need to PRECHARGE if not idle 
