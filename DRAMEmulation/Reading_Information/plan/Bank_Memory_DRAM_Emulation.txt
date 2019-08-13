@@ -1,0 +1,16 @@
+Plan: 
+
+Memory represented inside CPU (in software) as 3D array
+
+Access Row: 
+Bank-CPU Interface: Bank issues row address to CPU
+CPU returns data at that row (contrinuous transfer of NUM_COLS bytes via stream AXI)
+
+Write Row: 
+Bank-CPU Interface: Bank issues row address to CPU and continuosly issues NUM_COLS bytes via stream AXI
+CPU receives all NUM_COLS bytes and writes them in 3D array to row address (via interrupt?)
+
+Realization: 
+
+Modify ACTIVATE / WRITE commands in Bank Hardware Module
+
