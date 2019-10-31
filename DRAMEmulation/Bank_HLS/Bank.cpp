@@ -66,6 +66,8 @@ void Bank(unsigned input, unsigned char& data_out) {
 // change to stream interface ?
 #pragma HLS INTERFACE s_axilite register port=input bundle=BankBundle
 #pragma HLS INTERFACE s_axilite register port=data_out bundle=BankBundle
+//#pragma HLS INTERFACE axis port=input
+//#pragma HLS INTERFACE axis port=data_out
 #pragma HLS INTERFACE s_axilite register port=return bundle=BankBundle
 
 //* previous config

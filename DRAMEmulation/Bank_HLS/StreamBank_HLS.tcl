@@ -6,7 +6,7 @@
 ## Run 'vivado_hls -f Bank_HLS.tcl' to generate the HLS project
 ## Then, run 'vivado_hls -p Bank_HLS' to open the HLS project
 ############################################################
-open_project -reset Bank_HLS
+open_project -reset StreamBank_HLS
 set_top Bank
 add_files Bank.cpp
 add_files -tb test_Bank.cpp -cflags "-Wno-unknown-pragmas"
