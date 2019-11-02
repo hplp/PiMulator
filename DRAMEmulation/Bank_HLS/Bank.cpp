@@ -50,23 +50,17 @@
  *
  *	PS: please see ? and TODO in code where things might need to be checked or worked on
  *
+ *  The following code models a DDR3 Bank as a C++ function that will undergo HLS synthesis
+ *
  ****************************************************************************************/
 
-//#include <stdio.h>
-// The following code models a DDR3 Bank as a C++ function that will undergo HLS synthesis
-enum BusPacketType {
-	READ, READ_P, WRITE, WRITE_P, ACTIVATE, PRECHARGE, REFRESH, DATA
-};
+#include "Bank.h"
 
-//1024x8192 is the Micron standard
-#define NUM_ROWS 256
-#define NUM_COLS 256
-
-void Bank(unsigned input, unsigned char& data_out) {
-// change to stream interface ?
-#pragma HLS INTERFACE s_axilite register port=input bundle=BankBundle
+void Bank(unsigned b_input, unsigned char& data_out) {
+#pragma HLS INTERFACE s_axilite register port=b_input bundle=BankBundle
 #pragma HLS INTERFACE s_axilite register port=data_out bundle=BankBundle
-//#pragma HLS INTERFACE axis port=input
+// change to stream interface
+//#pragma HLS INTERFACE axis port=b_input
 //#pragma HLS INTERFACE axis port=data_out
 #pragma HLS INTERFACE s_axilite register port=return bundle=BankBundle
 
@@ -86,25 +80,25 @@ void Bank(unsigned input, unsigned char& data_out) {
 
 // seperate input signals (shift and mask)
 
-	unsigned char busPacketType = input % 8;
-	unsigned row = (input >> 3) % 256;
-	unsigned column = (input >> 11) % 256;
-	unsigned char data_in = (input >> 19) % 256;
+    unsigned char busPacketType = b_input % 8; // last 3 bits
+    unsigned row = (b_input >> 3) % 256; // 4th to 11th bit
+    unsigned column = (b_input >> 11) % 256; // 12th to 19th bit
+    unsigned char data_in = (b_input >> 19) % 256; // 20th to 27th bit
 
-	/*	// decide which memory to use (for the sake of saving FPGA resource) done before to split memory into BRAM and LUT config (IGNORE)
-	 //	bool LUT_use = (row > 255);
-	 //	if (LUT_use) {
-	 //		row = row % 256;
-	 //	}
-	 //	if (EN)
-	 //	{
-	 //		printf("busPacketType: %d, row: %d, column: %d, data_in: %d \n ",busPacketType,row,column,data_in);
-	 //	}
-	 //*/
+    /*	// decide which memory to use (for the sake of saving FPGA resource) done before to split memory into BRAM and LUT config (IGNORE)
+     //	bool LUT_use = (row > 255);
+     //	if (LUT_use) {
+     //		row = row % 256;
+     //	}
+     //	if (EN)
+     //	{
+     //		printf("busPacketType: %d, row: %d, column: %d, data_in: %d \n ",busPacketType,row,column,data_in);
+     //	}
+     //*/
 
 // Memory
 // main memory
-	static unsigned char rowEntries[NUM_ROWS][NUM_COLS];
+    static unsigned char rowEntries[NUM_ROWS][NUM_COLS];
 #pragma HLS array_partition variable=rowEntries complete dim=2
 
 // for Resource Usage Limit we need to split main memory into (1) BRAM and (2) LUTRAM
@@ -117,68 +111,68 @@ void Bank(unsigned input, unsigned char& data_out) {
 //#pragma HLS RESOURCE variable=rowEntries_LUT core=RAM_1P_LUTRAM
 
 // Row Buffer
-	static unsigned char rowBuffer[NUM_COLS];
+    static unsigned char rowBuffer[NUM_COLS];
 #pragma HLS array_partition variable=rowBuffer complete dim=1
 
-// commands execution (TODO: check and add commands if needed, modify when sub-arrays added)
+    // commands execution (TODO: check and add commands if needed, modify when sub-arrays added)
 
-// ACTIVATE
-	if (busPacketType == ACTIVATE) {
-		//* upgrade row buffer
-		for (int j = 0; j < NUM_COLS; j++) {
+    // ACTIVATE
+    if (busPacketType == ACTIVATE) {
+        //* upgrade row buffer
+        for (int j = 0; j < NUM_COLS; j++) {
 #pragma HLS unroll
-			rowBuffer[j] = rowEntries[row][j];
-			//			rowBuffer[j] =
-			//					(LUT_use) ?
-			//							rowEntries_LUT[row][j] : rowEntries_BRAM[row][j];
-		}
-	}
-	// READ
-	//* read from row buffer
-	if (busPacketType == READ || busPacketType == READ_P) {
-		// extract column
-		data_out = rowBuffer[column];
-		//the return packet should be a data packet, not a read packet
-		busPacketType = DATA;
-	}
-	// WRITE
-	if (busPacketType == WRITE || busPacketType == WRITE_P) {
-		// write column to row buffer
-		rowBuffer[column] = data_in;
+            rowBuffer[j] = rowEntries[row][j];
+            // rowBuffer[j] = (LUT_use) ? rowEntries_LUT[row][j] : rowEntries_BRAM[row][j];
+        }
+    }
 
-		//write back row buffer
-		for (int j = 0; j < NUM_COLS; j++) {
-#pragma HLS unroll
-			rowEntries[row][j] = rowBuffer[j];
-		}
-	}
-	// PRECHARGE
-	//* double check: clear out contents of row buffer, write all zeros ?
-	if (busPacketType == PRECHARGE) {
-		for (int j = 0; j < NUM_COLS; j++) {
-#pragma HLS unroll
-			rowBuffer[j] = 0;
-		}
-	}
-	// REFRESH
+    // READ
+    //* read from row buffer
+    if (busPacketType == READ || busPacketType == READ_P) {
+        // extract column
+        data_out = rowBuffer[column];
+        // the return packet should be a data packet, not a read packet
+        busPacketType = DATA;
+    }
 
-	//* doube check: read all contents and write all contents back (read / write all rows via row buffer)?
-	//* this latency will be significantly improved when we have sub-arrays
+    // WRITE
+    if (busPacketType == WRITE || busPacketType == WRITE_P) {
+        // write column to row buffer
+        rowBuffer[column] = data_in;
 
-	if (busPacketType == REFRESH) {
+        //write back row buffer
+        for (int j = 0; j < NUM_COLS; j++) {
+#pragma HLS unroll
+            rowEntries[row][j] = rowBuffer[j];
+        }
+    }
 
-		Refresh_Loop: for (int i = 0; i < NUM_ROWS; i++) {
-			// read row into row buffer
-			for (int j = 0; j < NUM_COLS; j++) {
+    // PRECHARGE
+    //* double check: clear out contents of row buffer, write all zeros ?
+    if (busPacketType == PRECHARGE) {
+        for (int j = 0; j < NUM_COLS; j++) {
 #pragma HLS unroll
-				rowBuffer[j] = rowEntries[i][j];
-			}
-			//write row buffer back
-			for (int j = 0; j < NUM_COLS; j++) {
+            rowBuffer[j] = 0;
+        }
+    }
+
+    // REFRESH
+    //* doube check: read all contents and write all contents back (read / write all rows via row buffer)?
+    //* this latency will be significantly improved when we have sub-arrays
+    if (busPacketType == REFRESH) {
+
+        Refresh_Loop: for (int i = 0; i < NUM_ROWS; i++) {
+            // read row into row buffer
+            for (int j = 0; j < NUM_COLS; j++) {
 #pragma HLS unroll
-				rowEntries[i][j] = rowBuffer[j];
-			}
-		}
-	}
+                rowBuffer[j] = rowEntries[i][j];
+            }
+            //write row buffer back
+            for (int j = 0; j < NUM_COLS; j++) {
+#pragma HLS unroll
+                rowEntries[i][j] = rowBuffer[j];
+            }
+        }
+    }
 }
 
