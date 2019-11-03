@@ -56,36 +56,22 @@
 
 #include "Bank.h"
 
-void Bank(unsigned b_input, unsigned char& data_out) {
+void Bank(bank_in b_input, unsigned char& data_out) {
+// axi lite interface
 #pragma HLS INTERFACE s_axilite register port=b_input bundle=BankBundle
 #pragma HLS INTERFACE s_axilite register port=data_out bundle=BankBundle
-// change to stream interface
+// change to axi stream interface
 //#pragma HLS INTERFACE axis port=b_input
 //#pragma HLS INTERFACE axis port=data_out
 #pragma HLS INTERFACE s_axilite register port=return bundle=BankBundle
 
-//* previous config
+    BusPacketType busPacketType = b_input.busPacketType;
+    unsigned char row = b_input.row;
+    unsigned char column = b_input.column;
+    unsigned char data_in = b_input.data_in;
 
-//void Bank(BusPacketType busPacketType, unsigned row, unsigned column,
-//		 unsigned char data_in, unsigned char& data_out) {
-
-//#pragma HLS INTERFACE s_axilite register port=busPacketType bundle=BankBundle
-//#pragma HLS INTERFACE s_axilite register port=row bundle=BankBundle
-//#pragma HLS INTERFACE s_axilite register port=column bundle=BankBundle
-//#pragma HLS INTERFACE s_axilite register port=data_in bundle=BankBundle
-//#pragma HLS INTERFACE s_axilite register port=data_out bundle=BankBundle
-//#pragma HLS INTERFACE s_axilite register port=return bundle=BankBundle
-
-//*
-
-// seperate input signals (shift and mask)
-
-    unsigned char busPacketType = b_input % 8; // last 3 bits
-    unsigned row = (b_input >> 3) % 256; // 4th to 11th bit
-    unsigned column = (b_input >> 11) % 256; // 12th to 19th bit
-    unsigned char data_in = (b_input >> 19) % 256; // 20th to 27th bit
-
-    /*	// decide which memory to use (for the sake of saving FPGA resource) done before to split memory into BRAM and LUT config (IGNORE)
+    /*
+     // decide which memory to use (for the sake of saving FPGA resource) done before to split memory into BRAM and LUT config (IGNORE)
      //	bool LUT_use = (row > 255);
      //	if (LUT_use) {
      //		row = row % 256;
@@ -94,10 +80,9 @@ void Bank(unsigned b_input, unsigned char& data_out) {
      //	{
      //		printf("busPacketType: %d, row: %d, column: %d, data_in: %d \n ",busPacketType,row,column,data_in);
      //	}
-     //*/
+     */
 
-// Memory
-// main memory
+// Main Memory
     static unsigned char rowEntries[NUM_ROWS][NUM_COLS];
 #pragma HLS array_partition variable=rowEntries complete dim=2
 

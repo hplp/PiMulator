@@ -1,6 +1,6 @@
 #include "Bank.h"
 
-#define TEST2 // TEST1 TEST2
+#define TEST1 // TEST1 TEST2
 
 unsigned get_b_input(unsigned busPacketType, unsigned row, unsigned column, unsigned data_in) {
 //	unsigned return_val=0;
@@ -10,52 +10,57 @@ unsigned get_b_input(unsigned busPacketType, unsigned row, unsigned column, unsi
 //	return data_in << 9;
     return ((((((0 | data_in) << 8) | column) << 8) | row) << 3) | busPacketType;
 }
-//void Bank(BusPacketType busPacketType, unsigned row, unsigned column,
-//		 unsigned char data_in, unsigned char& data_out);
-void Bank(unsigned b_input, unsigned char& data_out);
+
+void Bank(bank_in b_input, unsigned char& data_out);
 
 int main() {
 
 #ifdef TEST1
     // One Value Test
-    unsigned char data_in = 35;
     unsigned char data_out = 0;
-    Bank(get_b_input(WRITE, 0, 0, data_in), data_out);
-    std::cout << "Value: " << int(data_in) << " " << int(data_out) << std::endl;
-    Bank(get_b_input(READ, 0, 0, data_in), data_out);
-    std::cout << "Value: " << int(data_in) << " " << int(data_out) << std::endl;
+    bank_in b_input;
+
+    b_input.row = 0;
+    b_input.column = 0;
+    b_input.data_in = 35;
+
+    b_input.busPacketType = WRITE;
+    Bank(b_input, data_out);
+    cout << "WRITE: " << int(b_input.data_in) << " " << int(data_out) << endl;
+
+    b_input.busPacketType = READ;
+    Bank(b_input, data_out);
+    cout << "READ: " << int(b_input.data_in) << " " << int(data_out) << endl;
 #endif
 
 #ifdef TEST2
     // Brute Force Test
-    unsigned char data_out1 = 0;
-    unsigned char data_out2 = 0;
-    unsigned b_input = 0;
+    unsigned char data_out = 0;
+    bank_in b_input;
 
-    for (int i = 0; i < NUM_ROWS; i++) {
-        for (int j = 0; j < NUM_COLS; j++) {
-//			Bank(WRITE, i, j, (unsigned char) ((i + j) % 256), data_out1);
-//			Bank(READ, i, j, 0, data_out2);
-//			b_input(WRITE, i, j, (unsigned char) ((i + j) % 256));
-            Bank(get_b_input(WRITE, i, j, (unsigned char) ((i + j) % 256)), data_out1);
-//			if (j==8 && i==3){
-//				Bank(get_(WRITE, i, j, (unsigned char) ((i + j+1) % 256)),
-//						data_out1);
-////				printf(": %x\n",get_(WRITE, i, j, (unsigned char) ((i + j) % 256)));
-//
-////				return 0;
-//			}
+    for (unsigned int i = 0; i < NUM_ROWS; i++) {
+        b_input.row = i;
+        for (unsigned int j = 0; j < NUM_COLS; j++) {
+            b_input.column = j;
+            b_input.data_in = (unsigned char) ((i + j) % 256);
 
-            Bank(get_b_input(READ, i, j, 0), data_out2);
+            b_input.busPacketType = WRITE;
+            Bank(b_input, data_out);
 
-            if (data_out2 != (unsigned char) ((i + j) % 256)) {
-                std::cout << "Wrong at iteration " << i << ", " << j << std::endl;
-                cout << "Data supposed to be " << (int) (unsigned char) ((i + j) % 256) << "\nData is: " << (int) data_out2 << endl;
+            b_input.busPacketType = READ;
+            Bank(b_input, data_out);
+
+            if (data_out != (unsigned char) ((i + j) % 256)) {
+                cout << "Wrong at iteration " << i << ", " << j << endl;
+                cout << "Data supposed to be " << (int) (unsigned char) ((i + j) % 256) << "\nData is: " << (int) data_out << endl;
                 return 0;
             }
 
+            //cout << "Wrote: " << (int) (unsigned char) ((i + j) % 256) << " Read: " << int(data_out) << endl;
+
         }
     }
+
     cout << "Success\n";
 #endif
 
