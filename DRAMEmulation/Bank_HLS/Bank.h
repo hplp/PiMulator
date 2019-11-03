@@ -17,3 +17,8 @@ typedef struct {
     unsigned char data_in;
     bool TLAST;
 } bank_in;
+
+#define TEST2 // TEST1 TEST2
+#define AXIStream // AXILite AXIStream
+
+#define LEN NUM_COLS

@@ -57,13 +57,19 @@
 #include "Bank.h"
 
 void Bank(bank_in b_input, unsigned char& data_out) {
+#ifdef AXILite
 // axi lite interface
-#pragma HLS INTERFACE s_axilite register port=b_input bundle=BankBundle
-#pragma HLS INTERFACE s_axilite register port=data_out bundle=BankBundle
-// change to axi stream interface
-//#pragma HLS INTERFACE axis port=b_input
-//#pragma HLS INTERFACE axis port=data_out
-#pragma HLS INTERFACE s_axilite register port=return bundle=BankBundle
+#pragma HLS INTERFACE s_axilite register port=b_input bundle=Bank
+#pragma HLS INTERFACE s_axilite register port=data_out bundle=Bank
+#endif
+
+#ifdef AXIStream
+// axi stream interface
+#pragma HLS INTERFACE axis port=b_input
+#pragma HLS INTERFACE axis port=data_out
+#endif
+
+#pragma HLS INTERFACE s_axilite register port=return bundle=Bank
 
     BusPacketType busPacketType = b_input.busPacketType;
     unsigned char row = b_input.row;
@@ -141,6 +147,7 @@ void Bank(bank_in b_input, unsigned char& data_out) {
         }
     }
 
+#ifdef AXILite
     // REFRESH
     //* doube check: read all contents and write all contents back (read / write all rows via row buffer)?
     //* this latency will be significantly improved when we have sub-arrays
@@ -159,5 +166,6 @@ void Bank(bank_in b_input, unsigned char& data_out) {
             }
         }
     }
+#endif
 }
 

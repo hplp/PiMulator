@@ -1,7 +1,5 @@
 #include "Bank.h"
 
-#define TEST1 // TEST1 TEST2
-
 unsigned get_b_input(unsigned busPacketType, unsigned row, unsigned column, unsigned data_in) {
 //	unsigned return_val=0;
 //	return_val = data_in;
