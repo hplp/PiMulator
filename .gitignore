@@ -6,5 +6,8 @@ vivado.log
 vivado_hls.log
 
 DRAMEmulation/Bank_HLS/Bank_HLS/
-
+DRAMEmulation/Bank_HLS/StreamBank_HLS/
+DRAMEmulation/Bank_Hardware_Design/Bank_Hardware/
+DRAMEmulation/Bank_Hardware_Design/UZ_BankSHT/
+DRAMEmulation/Bank_Hardware_Design/UZ_BankStreamHT/
 
