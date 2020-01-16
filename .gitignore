@@ -2,8 +2,12 @@ vivado.jou
 vivado.log
 *.backup.jou
 *.backup.log
+vivado_pid*.str
 
 vivado_hls.log
+
+NA/
+.Xil/
 
 DRAMEmulation/Bank_HLS/Bank_HLS/
 DRAMEmulation/Bank_HLS/StreamBank_HLS/
