@@ -17,21 +17,20 @@ variable TARGET [lindex $argv 2]
 puts "FPGA TARGET Device is $TARGET"
 
 if {$TARGET=="xc7z020clg400-1"} {
-    # Pynq Solution
-    puts "Pynq solution"
+    # Pynq-Z1 Solution
+    puts "Pynq-Z1 solution"
     open_solution -reset "Pynq_Solution"
     set_part {xc7z020clg400-1} -tool vivado
     create_clock -period 10 -name default
-    csim_design -clean -compiler clang
 } elseif {$TARGET=="xczu3eg-sfva625-1-i-es1"} {
     # UltraZed 3EG Solution
-    puts "UltraZed solution"
+    puts "UltraZed-EG solution"
     open_solution -reset "UZ_Solution"
     set_part {xczu3eg-sfva625-1-i-es1} -tool vivado
     create_clock -period 4 -name default
-    csim_design -clean -compiler clang
 }
 
+csim_design
 csynth_design
 #cosim_design
 export_design -rtl verilog -format ip_catalog -vendor "HPLP" -library "PiMulator"
