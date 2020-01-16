@@ -52,42 +52,19 @@
  *
  ****************************************************************************************/
 
-//#include <stdio.h>
 // The following code models a DDR3 Bank as a C++ function that will undergo HLS synthesis
-enum BusPacketType {
-	READ, READ_P, WRITE, WRITE_P, ACTIVATE, PRECHARGE, REFRESH, DATA
-};
+#include "Bank.h"
 
-//1024x8192 is the Micron standard
-#define NUM_ROWS 256
-#define NUM_COLS 256
+void Bank(bank_in input, unsigned char& data_out) {
 
-void Bank(unsigned input, unsigned char& data_out) {
-// change to stream interface ?
-#pragma HLS INTERFACE s_axilite register port=input bundle=BankBundle
-#pragma HLS INTERFACE s_axilite register port=data_out bundle=BankBundle
-#pragma HLS INTERFACE s_axilite register port=return bundle=BankBundle
+#pragma HLS INTERFACE s_axilite register port=input bundle=Bank
+#pragma HLS INTERFACE s_axilite register port=data_out bundle=Bank
+#pragma HLS INTERFACE s_axilite register port=return bundle=Bank
 
-//* previous config
-
-//void Bank(BusPacketType busPacketType, unsigned row, unsigned column,
-//		 unsigned char data_in, unsigned char& data_out) {
-
-//#pragma HLS INTERFACE s_axilite register port=busPacketType bundle=BankBundle
-//#pragma HLS INTERFACE s_axilite register port=row bundle=BankBundle
-//#pragma HLS INTERFACE s_axilite register port=column bundle=BankBundle
-//#pragma HLS INTERFACE s_axilite register port=data_in bundle=BankBundle
-//#pragma HLS INTERFACE s_axilite register port=data_out bundle=BankBundle
-//#pragma HLS INTERFACE s_axilite register port=return bundle=BankBundle
-
-//*
-
-// seperate input signals (shift and mask)
-
-	unsigned char busPacketType = input % 8;
-	unsigned row = (input >> 3) % 256;
-	unsigned column = (input >> 11) % 256;
-	unsigned char data_in = (input >> 19) % 256;
+	unsigned char busPacketType = input.busPacketType;
+	unsigned row = input.row;
+	unsigned column = input.column;
+	unsigned char data_in = input.data_in;
 
 	/*	// decide which memory to use (for the sake of saving FPGA resource) done before to split memory into BRAM and LUT config (IGNORE)
 	 //	bool LUT_use = (row > 255);
@@ -180,3 +157,17 @@ void Bank(unsigned input, unsigned char& data_out) {
 	}
 }
 
+//void Bank(BusPacketType busPacketType, unsigned row, unsigned column, unsigned char data_in, unsigned char& data_out) {}
+
+//#pragma HLS INTERFACE s_axilite register port=busPacketType bundle=Bank
+//#pragma HLS INTERFACE s_axilite register port=row bundle=Bank
+//#pragma HLS INTERFACE s_axilite register port=column bundle=Bank
+//#pragma HLS INTERFACE s_axilite register port=data_in bundle=Bank
+//#pragma HLS INTERFACE s_axilite register port=data_out bundle=Bank
+//#pragma HLS INTERFACE s_axilite register port=return bundle=Bank
+
+//separate input signals (shift and mask)
+//unsigned char busPacketType = input % 8;
+//unsigned row = (input >> 3) % 256;
+//unsigned column = (input >> 11) % 256;
+//unsigned char data_in = (input >> 19) % 256;
