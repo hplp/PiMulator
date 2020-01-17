@@ -48,8 +48,8 @@
 #include "xbank.h"
 
 // Software or Hardware Test
-#define SOFTWARE
-//#define HARDWARE
+//#define SOFTWARE
+#define HARDWARE
 
 // Whether to report timing
 #define REPORT_TIMING
@@ -61,7 +61,8 @@
 #define printf xil_printf
 
 // Helps format input for Bank Interface
-bank_in format_input(BusPacketType busPacketType, unsigned char row, unsigned char column, unsigned char data_in) {
+bank_in format_input(BusPacketType busPacketType, unsigned char row,
+		unsigned char column, unsigned char data_in) {
 	bank_in input;
 	input.busPacketType = busPacketType;
 	input.row = row;
@@ -208,7 +209,8 @@ int main() {
 
 		for (unsigned j = 0; j < NUM_COLS; j++) {
 			// (2) Write bank
-			Bank(format_input(WRITE, i, j, (unsigned char) ((i + j) % 256)), data_o);
+			Bank(format_input(WRITE, i, j, (unsigned char) ((i + j) % 256)),
+					data_o);
 		}
 
 		// (3) PRECHARGE row buffer
@@ -227,7 +229,9 @@ int main() {
 			// Check
 #ifdef CHECK
 			if (data_o != (i + j) % 256) {
-				printf("Mismatch at (%d, %d), Data is supposed to be %d, but it is %d\n", i, j, (i + j) % 256, data_o);
+				printf(
+						"Mismatch at (%d, %d), Data is supposed to be %d, but it is %d\n",
+						i, j, (i + j) % 256, data_o);
 				return 0;
 			} //else printf("Equal at (%d, %d), %d = %d\n", i, j, (i + j) % 256, data_o);
 #endif
@@ -251,6 +255,7 @@ int main() {
 #endif
 	printf("took %u CC.\n", (unsigned) (difference));
 #endif
+
 	printf("End of script.\n");
 	return 0;
 }
