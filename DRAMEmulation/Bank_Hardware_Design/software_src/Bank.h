@@ -1,14 +1,20 @@
-//#include "SystemConfiguration.h"
 #include "Constants.h"
 #include "Definitions.h"
 
-#ifndef BANK_H
-#define BANK_H
-#ifdef BANK_H
-// helps format input for Bank Interface
-#define format_input(data_in,column,row,busPacketType) (((((((0|data_in) << 8) | column) << 8) | row) << 3) | busPacketType)
-// Bank Function that is to be mapped to Hardware IP
-void Bank(unsigned input, unsigned char& data_out);
+enum BusPacketType {
+	READ, READ_P, WRITE, WRITE_P, ACTIVATE, PRECHARGE, REFRESH, DATA
+};
 
-#endif
-#endif
+//1024x8192 is the Micron standard
+#define NUM_ROWS 256
+#define NUM_COLS 256
+
+typedef struct {
+	BusPacketType busPacketType;
+	unsigned char row;
+	unsigned char column;
+	unsigned char data_in;
+} bank_in;
+
+// Bank Function that is to be mapped to Hardware IP
+void Bank(bank_in input, unsigned char& data_out);
