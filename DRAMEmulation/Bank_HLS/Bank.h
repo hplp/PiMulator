@@ -1,5 +1,6 @@
 #include <iostream>
 using namespace std;
+
 enum BusPacketType {
 	READ, READ_P, WRITE, WRITE_P, ACTIVATE, PRECHARGE, REFRESH, DATA
 };

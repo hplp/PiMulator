@@ -16,4 +16,6 @@ Bank_Hardware:
 
 .PHONY: clean
 clean:
-	rm -rf Bank_Hardware
+	#rm -rf Bank_Hardware
+	rm -rf NA
+	rm -f vivado.*
