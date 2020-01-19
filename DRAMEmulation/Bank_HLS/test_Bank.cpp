@@ -29,10 +29,10 @@ int main() {
 	bank_in input;
 
 	for (unsigned int i = 0; i < NUM_ROWS; i++) {
+		input.row = (unsigned char) i;
 		for (unsigned int j = 0; j < NUM_COLS; j++) {
 
 			input.busPacketType = WRITE;
-			input.row = (unsigned char) i;
 			input.column = (unsigned char) j;
 			input.data_in = (unsigned char) ((i + j) % 256);
 
@@ -44,7 +44,7 @@ int main() {
 			Bank(input, data_out);
 
 			if (data_out != (unsigned char) ((i + j) % 256)) {
-				cout << "Wrong at iteration (" << (int) i << ", " << (int) j << ")" << endl;
+				cout << "Wrong at iteration (" << i << ", " << j << ")" << endl;
 				cout << "Data supposed to be " << (int) (unsigned char) ((i + j) % 256) << "\nData is: " << (int) data_out << endl;
 				return 0;
 			} else {
