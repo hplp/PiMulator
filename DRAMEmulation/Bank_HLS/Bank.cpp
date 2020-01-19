@@ -58,13 +58,13 @@
 void Bank(bank_in input, unsigned char& data_out) {
 
 #ifdef AXILite
-// axi lite interface
+// AXI Lite interface
 #pragma HLS INTERFACE s_axilite register port=input bundle=Bank
 #pragma HLS INTERFACE s_axilite register port=data_out bundle=Bank
 #endif
 
 #ifdef AXIStream
-// axi stream interface
+// AXI Stream interface
 #pragma HLS INTERFACE axis port=input
 #pragma HLS INTERFACE axis port=data_out
 #endif
@@ -76,17 +76,14 @@ void Bank(bank_in input, unsigned char& data_out) {
 	unsigned char column = input.column;
 	unsigned char data_in = input.data_in;
 
-	/*
-	 // decide which memory to use (for the sake of saving FPGA resource) done before to split memory into BRAM and LUT config (IGNORE)
-	 //	bool LUT_use = (row > 255);
-	 //	if (LUT_use) {
-	 //		row = row % 256;
-	 //	}
-	 //	if (EN)
-	 //	{
-	 //		printf("busPacketType: %d, row: %d, column: %d, data_in: %d \n ",busPacketType,row,column,data_in);
-	 //	}
-	 */
+// Decide which memory to use (for the sake of saving FPGA resource) done before to split memory into BRAM and LUT config (IGNORE)
+//	bool LUT_use = (row > 255);
+//	if (LUT_use) {
+//		row = row % 256;
+//	}
+//	if (EN)	{
+//		printf("busPacketType: %d, row: %d, column: %d, data_in: %d \n ",busPacketType,row,column,data_in);
+//	}
 
 // Main Memory
 	static unsigned char rowEntries[NUM_ROWS][NUM_COLS];
