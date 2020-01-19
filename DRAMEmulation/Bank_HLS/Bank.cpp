@@ -50,32 +50,31 @@
  *
  *	PS: please see ? and TODO in code where things might need to be checked or worked on
  *
- *  The following code models a DDR3 Bank as a C++ function that will undergo HLS synthesis
- *
  ****************************************************************************************/
 
+// The following code models a DDR3 Bank as a C++ function that will undergo HLS synthesis
 #include "Bank.h"
 
-void Bank(bank_in b_input, unsigned char& data_out) {
+void Bank(bank_in input, unsigned char& data_out) {
 
 #ifdef AXILite
 // axi lite interface
-#pragma HLS INTERFACE s_axilite register port=b_input bundle=Bank
+#pragma HLS INTERFACE s_axilite register port=input bundle=Bank
 #pragma HLS INTERFACE s_axilite register port=data_out bundle=Bank
 #endif
 
 #ifdef AXIStream
 // axi stream interface
-#pragma HLS INTERFACE axis port=b_input
+#pragma HLS INTERFACE axis port=input
 #pragma HLS INTERFACE axis port=data_out
 #endif
 
 #pragma HLS INTERFACE s_axilite register port=return bundle=Bank
 
-	BusPacketType busPacketType = b_input.busPacketType;
-	unsigned char row = b_input.row;
-	unsigned char column = b_input.column;
-	unsigned char data_in = b_input.data_in;
+	BusPacketType busPacketType = input.busPacketType;
+	unsigned char row = input.row;
+	unsigned char column = input.column;
+	unsigned char data_in = input.data_in;
 
 	/*
 	 // decide which memory to use (for the sake of saving FPGA resource) done before to split memory into BRAM and LUT config (IGNORE)
