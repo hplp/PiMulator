@@ -19,5 +19,3 @@ typedef struct {
 
 #define TEST2
 #define AXIStream // AXILite AXIStream
-
-#define LEN NUM_COLS
