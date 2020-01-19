@@ -66,19 +66,16 @@ void Bank(bank_in input, unsigned char& data_out) {
 	unsigned char column = input.column;
 	unsigned char data_in = input.data_in;
 
-	/*	// decide which memory to use (for the sake of saving FPGA resource) done before to split memory into BRAM and LUT config (IGNORE)
-	 //	bool LUT_use = (row > 255);
-	 //	if (LUT_use) {
-	 //		row = row % 256;
-	 //	}
-	 //	if (EN)
-	 //	{
-	 //		printf("busPacketType: %d, row: %d, column: %d, data_in: %d \n ",busPacketType,row,column,data_in);
-	 //	}
-	 //*/
+// Decide which memory to use (for the sake of saving FPGA resource) done before to split memory into BRAM and LUT config (IGNORE)
+//	bool LUT_use = (row > 255);
+//	if (LUT_use) {
+//		row = row % 256;
+//	}
+//	if (EN) {
+//		printf("busPacketType: %d, row: %d, column: %d, data_in: %d \n ", busPacketType, row, column, data_in);
+//	}
 
-// Memory
-// main memory
+// Main Memory
 	static unsigned char rowEntries[NUM_ROWS][NUM_COLS];
 #pragma HLS array_partition variable=rowEntries complete dim=2
 
@@ -103,19 +100,19 @@ void Bank(bank_in input, unsigned char& data_out) {
 		for (int j = 0; j < NUM_COLS; j++) {
 #pragma HLS unroll
 			rowBuffer[j] = rowEntries[row][j];
-			//			rowBuffer[j] =
-			//					(LUT_use) ?
-			//							rowEntries_LUT[row][j] : rowEntries_BRAM[row][j];
+			// rowBuffer[j] = (LUT_use) ? rowEntries_LUT[row][j] : rowEntries_BRAM[row][j];
 		}
 	}
+
 	// READ
 	//* read from row buffer
 	if (busPacketType == READ || busPacketType == READ_P) {
 		// extract column
 		data_out = rowBuffer[column];
-		//the return packet should be a data packet, not a read packet
+		// the return packet should be a data packet, not a read packet
 		busPacketType = DATA;
 	}
+
 	// WRITE
 	if (busPacketType == WRITE || busPacketType == WRITE_P) {
 		// write column to row buffer
@@ -127,6 +124,7 @@ void Bank(bank_in input, unsigned char& data_out) {
 			rowEntries[row][j] = rowBuffer[j];
 		}
 	}
+
 	// PRECHARGE
 	//* double check: clear out contents of row buffer, write all zeros ?
 	if (busPacketType == PRECHARGE) {
@@ -135,11 +133,10 @@ void Bank(bank_in input, unsigned char& data_out) {
 			rowBuffer[j] = 0;
 		}
 	}
-	// REFRESH
 
+	// REFRESH
 	//* doube check: read all contents and write all contents back (read / write all rows via row buffer)?
 	//* this latency will be significantly improved when we have sub-arrays
-
 	if (busPacketType == REFRESH) {
 
 		Refresh_Loop: for (int i = 0; i < NUM_ROWS; i++) {
@@ -156,18 +153,3 @@ void Bank(bank_in input, unsigned char& data_out) {
 		}
 	}
 }
-
-//void Bank(BusPacketType busPacketType, unsigned row, unsigned column, unsigned char data_in, unsigned char& data_out) {}
-
-//#pragma HLS INTERFACE s_axilite register port=busPacketType bundle=Bank
-//#pragma HLS INTERFACE s_axilite register port=row bundle=Bank
-//#pragma HLS INTERFACE s_axilite register port=column bundle=Bank
-//#pragma HLS INTERFACE s_axilite register port=data_in bundle=Bank
-//#pragma HLS INTERFACE s_axilite register port=data_out bundle=Bank
-//#pragma HLS INTERFACE s_axilite register port=return bundle=Bank
-
-//separate input signals (shift and mask)
-//unsigned char busPacketType = input % 8;
-//unsigned row = (input >> 3) % 256;
-//unsigned column = (input >> 11) % 256;
-//unsigned char data_in = (input >> 19) % 256;
