@@ -61,7 +61,7 @@ void Bank(bank_in input, unsigned char& data_out) {
 #pragma HLS INTERFACE s_axilite register port=data_out bundle=Bank
 #pragma HLS INTERFACE s_axilite register port=return bundle=Bank
 
-	unsigned char busPacketType = input.busPacketType;
+	BusPacketType busPacketType = input.busPacketType;
 	unsigned row = input.row;
 	unsigned column = input.column;
 	unsigned char data_in = input.data_in;
