@@ -2,7 +2,7 @@
 using namespace std;
 
 enum BusPacketType {
-    READ, READ_P, WRITE, WRITE_P, ACTIVATE, PRECHARGE, REFRESH, DATA
+	READ, READ_P, WRITE, WRITE_P, ACTIVATE, PRECHARGE, REFRESH, DATA
 };
 
 //1024x8192 is the Micron standard
@@ -10,14 +10,14 @@ enum BusPacketType {
 #define NUM_COLS 256
 
 typedef struct {
-    BusPacketType busPacketType;
-    unsigned char row;
-    unsigned char column;
-    unsigned char data_in;
-    bool TLAST;
+	BusPacketType busPacketType;
+	unsigned char row;
+	unsigned char column;
+	unsigned char data_in;
+	bool TLAST;
 } bank_in;
 
-#define TEST2 // TEST1 TEST2
+#define TEST2
 #define AXIStream // AXILite AXIStream
 
 #define LEN NUM_COLS
