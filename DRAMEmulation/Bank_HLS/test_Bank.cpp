@@ -17,6 +17,8 @@ int main() {
 	cout << "[WRITE] Value: " << int(input.data_in) << " " << int(data_out) << endl;
 
 	input.busPacketType = READ;
+	input.data_in = 0;
+
 	Bank(input, data_out);
 	cout << "[READ] Value: " << int(input.data_in) << " " << int(data_out) << endl;
 #endif
@@ -27,30 +29,29 @@ int main() {
 	bank_in input;
 
 	for (unsigned int i = 0; i < NUM_ROWS; i++) {
-		input.row = i;
+		input.row = (unsigned char) i;
 		for (unsigned int j = 0; j < NUM_COLS; j++) {
-			input.column = j;
-			input.data_in = (unsigned char) ((i + j) % 256);
 
 			input.busPacketType = WRITE;
+			input.column = (unsigned char) j;
+			input.data_in = (unsigned char) ((i + j) % 256);
+
 			Bank(input, data_out);
 
 			input.busPacketType = READ;
+			input.data_in = 0;
+
 			Bank(input, data_out);
 
 			if (data_out != (unsigned char) ((i + j) % 256)) {
-				cout << "Wrong at iteration " << i << ", " << j << endl;
+				cout << "Wrong at iteration (" << i << ", " << j << ")" << endl;
 				cout << "Data supposed to be " << (int) (unsigned char) ((i + j) % 256) << "\nData is: " << (int) data_out << endl;
 				return 0;
 			} else {
 				cout << ". ";
 			}
-
-			//cout << "Wrote: " << (int) (unsigned char) ((i + j) % 256) << " Read: " << int(data) << endl;
-
 		}
 	}
-
 	cout << "Success\n";
 #endif
 
