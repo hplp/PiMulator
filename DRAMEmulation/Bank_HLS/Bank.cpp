@@ -57,6 +57,7 @@
 #include "Bank.h"
 
 void Bank(bank_in b_input, unsigned char& data_out) {
+
 #ifdef AXILite
 // axi lite interface
 #pragma HLS INTERFACE s_axilite register port=b_input bundle=Bank
@@ -71,25 +72,25 @@ void Bank(bank_in b_input, unsigned char& data_out) {
 
 #pragma HLS INTERFACE s_axilite register port=return bundle=Bank
 
-    BusPacketType busPacketType = b_input.busPacketType;
-    unsigned char row = b_input.row;
-    unsigned char column = b_input.column;
-    unsigned char data_in = b_input.data_in;
+	BusPacketType busPacketType = b_input.busPacketType;
+	unsigned char row = b_input.row;
+	unsigned char column = b_input.column;
+	unsigned char data_in = b_input.data_in;
 
-    /*
-     // decide which memory to use (for the sake of saving FPGA resource) done before to split memory into BRAM and LUT config (IGNORE)
-     //	bool LUT_use = (row > 255);
-     //	if (LUT_use) {
-     //		row = row % 256;
-     //	}
-     //	if (EN)
-     //	{
-     //		printf("busPacketType: %d, row: %d, column: %d, data_in: %d \n ",busPacketType,row,column,data_in);
-     //	}
-     */
+	/*
+	 // decide which memory to use (for the sake of saving FPGA resource) done before to split memory into BRAM and LUT config (IGNORE)
+	 //	bool LUT_use = (row > 255);
+	 //	if (LUT_use) {
+	 //		row = row % 256;
+	 //	}
+	 //	if (EN)
+	 //	{
+	 //		printf("busPacketType: %d, row: %d, column: %d, data_in: %d \n ",busPacketType,row,column,data_in);
+	 //	}
+	 */
 
 // Main Memory
-    static unsigned char rowEntries[NUM_ROWS][NUM_COLS];
+	static unsigned char rowEntries[NUM_ROWS][NUM_COLS];
 #pragma HLS array_partition variable=rowEntries complete dim=2
 
 // for Resource Usage Limit we need to split main memory into (1) BRAM and (2) LUTRAM
@@ -102,70 +103,70 @@ void Bank(bank_in b_input, unsigned char& data_out) {
 //#pragma HLS RESOURCE variable=rowEntries_LUT core=RAM_1P_LUTRAM
 
 // Row Buffer
-    static unsigned char rowBuffer[NUM_COLS];
+	static unsigned char rowBuffer[NUM_COLS];
 #pragma HLS array_partition variable=rowBuffer complete dim=1
 
-    // commands execution (TODO: check and add commands if needed, modify when sub-arrays added)
+	// commands execution (TODO: check and add commands if needed, modify when sub-arrays added)
 
-    // ACTIVATE
-    if (busPacketType == ACTIVATE) {
-        //* upgrade row buffer
-        for (int j = 0; j < NUM_COLS; j++) {
+	// ACTIVATE
+	if (busPacketType == ACTIVATE) {
+		//* upgrade row buffer
+		for (int j = 0; j < NUM_COLS; j++) {
 #pragma HLS unroll
-            rowBuffer[j] = rowEntries[row][j];
-            // rowBuffer[j] = (LUT_use) ? rowEntries_LUT[row][j] : rowEntries_BRAM[row][j];
-        }
-    }
+			rowBuffer[j] = rowEntries[row][j];
+			// rowBuffer[j] = (LUT_use) ? rowEntries_LUT[row][j] : rowEntries_BRAM[row][j];
+		}
+	}
 
-    // READ
-    //* read from row buffer
-    if (busPacketType == READ || busPacketType == READ_P) {
-        // extract column
-        data_out = rowBuffer[column];
-        // the return packet should be a data packet, not a read packet
-        busPacketType = DATA;
-    }
+	// READ
+	//* read from row buffer
+	if (busPacketType == READ || busPacketType == READ_P) {
+		// extract column
+		data_out = rowBuffer[column];
+		// the return packet should be a data packet, not a read packet
+		busPacketType = DATA;
+	}
 
-    // WRITE
-    if (busPacketType == WRITE || busPacketType == WRITE_P) {
-        // write column to row buffer
-        rowBuffer[column] = data_in;
+	// WRITE
+	if (busPacketType == WRITE || busPacketType == WRITE_P) {
+		// write column to row buffer
+		rowBuffer[column] = data_in;
 
-        //write back row buffer
-        for (int j = 0; j < NUM_COLS; j++) {
+		//write back row buffer
+		for (int j = 0; j < NUM_COLS; j++) {
 #pragma HLS unroll
-            rowEntries[row][j] = rowBuffer[j];
-        }
-    }
+			rowEntries[row][j] = rowBuffer[j];
+		}
+	}
 
-    // PRECHARGE
-    //* double check: clear out contents of row buffer, write all zeros ?
-    if (busPacketType == PRECHARGE) {
-        for (int j = 0; j < NUM_COLS; j++) {
+	// PRECHARGE
+	//* double check: clear out contents of row buffer, write all zeros ?
+	if (busPacketType == PRECHARGE) {
+		for (int j = 0; j < NUM_COLS; j++) {
 #pragma HLS unroll
-            rowBuffer[j] = 0;
-        }
-    }
+			rowBuffer[j] = 0;
+		}
+	}
 
 #ifdef AXILite
-    // REFRESH
-    //* doube check: read all contents and write all contents back (read / write all rows via row buffer)?
-    //* this latency will be significantly improved when we have sub-arrays
-    if (busPacketType == REFRESH) {
+	// REFRESH
+	//* doube check: read all contents and write all contents back (read / write all rows via row buffer)?
+	//* this latency will be significantly improved when we have sub-arrays
+	if (busPacketType == REFRESH) {
 
-        Refresh_Loop: for (int i = 0; i < NUM_ROWS; i++) {
-            // read row into row buffer
-            for (int j = 0; j < NUM_COLS; j++) {
+		Refresh_Loop: for (int i = 0; i < NUM_ROWS; i++) {
+			// read row into row buffer
+			for (int j = 0; j < NUM_COLS; j++) {
 #pragma HLS unroll
-                rowBuffer[j] = rowEntries[i][j];
-            }
-            //write row buffer back
-            for (int j = 0; j < NUM_COLS; j++) {
+				rowBuffer[j] = rowEntries[i][j];
+			}
+			//write row buffer back
+			for (int j = 0; j < NUM_COLS; j++) {
 #pragma HLS unroll
-                rowEntries[i][j] = rowBuffer[j];
-            }
-        }
-    }
+				rowEntries[i][j] = rowBuffer[j];
+			}
+		}
+	}
 #endif
 }
 
