@@ -6,27 +6,26 @@ int main() {
 
 #ifdef TEST1
 	// One Value Test
-	unsigned char data = 0;
+	unsigned char data_out = 0;
 	bank_in input;
 	input.busPacketType = WRITE;
 	input.row = 0;
 	input.column = 0;
 	input.data_in = 30;
 
-	Bank(input, data);
-	cout << "[WRITE] Value: " << int(data) << endl;
+	Bank(input, data_out);
+	cout << "[WRITE] Value: " << int(input.data_in) << " " << int(data_out) << endl;
 
 	input.busPacketType = READ;
 	input.data_in = 0;
 
-	Bank(input, data);
-	cout << "[READ] Value: " << int(data) << endl;
+	Bank(input, data_out);
+	cout << "[READ] Value: " << int(input.data_in) << " " << int(data_out) << endl;
 #endif
 
 #ifdef TEST2
 	// Brute Force Test All
-	unsigned char data_out1 = 0;
-	unsigned char data_out2 = 0;
+	unsigned char data_out = 0;
 	bank_in input;
 
 	for (unsigned int i = 0; i < NUM_ROWS; i++) {
@@ -37,16 +36,16 @@ int main() {
 			input.column = (unsigned char) j;
 			input.data_in = (unsigned char) ((i + j) % 256);
 
-			Bank(input, data_out1);
+			Bank(input, data_out);
 
 			input.busPacketType = READ;
 			input.data_in = 0;
 
-			Bank(input, data_out2);
+			Bank(input, data_out);
 
-			if (data_out2 != (unsigned char) ((i + j) % 256)) {
+			if (data_out != (unsigned char) ((i + j) % 256)) {
 				cout << "Wrong at iteration (" << (int) i << ", " << (int) j << ")" << endl;
-				cout << "Data supposed to be " << (int) (unsigned char) ((i + j) % 256) << "\nData is: " << (int) data_out2 << endl;
+				cout << "Data supposed to be " << (int) (unsigned char) ((i + j) % 256) << "\nData is: " << (int) data_out << endl;
 				return 0;
 			} else {
 				cout << ". ";
@@ -58,23 +57,3 @@ int main() {
 
 	return 0;
 }
-
-//void Bank(BusPacketType busPacketType, unsigned row, unsigned column, unsigned char data_in, unsigned char& data_out);
-
-//unsigned get_input(unsigned busPacketType, unsigned row, unsigned column, unsigned data_in) {
-//	unsigned return_val=0;
-//	return_val = data_in;
-//	return_val <<= 9;
-//	return return_val;
-//	return data_in << 9;
-//	return ((((((0 | data_in) << 8) | column) << 8) | row) << 3) | busPacketType;
-//}
-//void Bank(unsigned input, unsigned char& data_out);
-
-//			Bank(WRITE, i, j, (unsigned char) ((i + j) % 256), data_out1);
-//			Bank(READ, i, j, 0, data_out2);
-//			Bank(get_input(WRITE, i, j, (unsigned char) ((i + j) % 256)), data_out1);
-//			Bank(get_input(READ, i, j, 0), data_out2);
-
-//Bank(WRITE, 0, 0, 30, data);
-//Bank(READ, 0, 0, 0, data);
