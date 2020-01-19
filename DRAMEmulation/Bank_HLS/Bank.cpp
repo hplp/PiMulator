@@ -62,8 +62,8 @@ void Bank(bank_in input, unsigned char& data_out) {
 #pragma HLS INTERFACE s_axilite register port=return bundle=Bank
 
 	BusPacketType busPacketType = input.busPacketType;
-	unsigned row = input.row;
-	unsigned column = input.column;
+	unsigned char row = input.row;
+	unsigned char column = input.column;
 	unsigned char data_in = input.data_in;
 
 	/*	// decide which memory to use (for the sake of saving FPGA resource) done before to split memory into BRAM and LUT config (IGNORE)
