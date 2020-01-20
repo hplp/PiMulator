@@ -17,5 +17,7 @@ typedef struct {
 	bool TLAST;
 } bank_in;
 
+void Bank(bank_in input, unsigned char& data_out);
+
 #define TEST2
 #define AXIStream // AXILite AXIStream

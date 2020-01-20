@@ -1,7 +1,5 @@
 #include "Bank.h"
 
-void Bank(bank_in input, unsigned char& data_out);
-
 int main() {
 
 #ifdef TEST1
