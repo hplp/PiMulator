@@ -14,7 +14,9 @@ typedef struct {
 	unsigned char row;
 	unsigned char column;
 	unsigned char data_in;
+#ifdef AXIStream
 	bool TLAST;
+#endif
 } bank_in;
 
 void Bank(bank_in input, unsigned char& data_out);

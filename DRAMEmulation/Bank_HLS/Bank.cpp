@@ -57,6 +57,8 @@
 
 void Bank(bank_in input, unsigned char& data_out) {
 
+#pragma HLS data_pack variable=input
+
 #ifdef AXILite
 // AXI Lite interface
 #pragma HLS INTERFACE s_axilite register port=input bundle=Bank
