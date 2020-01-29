@@ -30,9 +30,9 @@ if {$TARGET=="xc7z020clg400-1"} {
     create_clock -period 4 -name default
 }
 
-csim_design
+csim_design -clean -compiler gcc
 csynth_design
-#cosim_design
+cosim_design -setup -O -reduce_diskspace -compiler gcc -trace_level port
 export_design -rtl verilog -format ip_catalog -vendor "HPLP" -library "PiMulator"
 
 exit

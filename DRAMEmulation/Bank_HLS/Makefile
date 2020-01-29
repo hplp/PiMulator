@@ -4,7 +4,7 @@
 # for Pynq-Z1 board
 #TARGET=xc7z020clg400-1
 
-# for UltraZed-EG board (requires ES1)
+# for UltraZed-EG board (requires ES1 and Vivado 2017.4)
 TARGET=xczu3eg-sfva625-1-i-es1
 
 #
