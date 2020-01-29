@@ -48,8 +48,7 @@
 #include "xbank.h"
 
 // Software or Hardware Test
-//#define SOFTWARE
-#define HARDWARE
+#define SOFTWARE // SOFTWARE HARDWARE
 
 // Whether to report timing
 #define REPORT_TIMING
@@ -61,8 +60,11 @@
 #define printf xil_printf
 
 // Helps format input for Bank Interface
-bank_in format_input(BusPacketType busPacketType, unsigned char row,
-		unsigned char column, unsigned char data_in) {
+#ifdef HARDWARE
+#define format_input(busPacketType,row,column,data_in) (((((((0|data_in) << 8) | column) << 8) | row) << 8) | busPacketType)
+#endif
+#ifdef SOFTWARE
+bank_in format_input(BusPacketType busPacketType, unsigned char row, unsigned char column, unsigned char data_in) {
 	bank_in input;
 	input.busPacketType = busPacketType;
 	input.row = row;
@@ -71,6 +73,7 @@ bank_in format_input(BusPacketType busPacketType, unsigned char row,
 
 	return input;
 }
+#endif
 
 // Hardware-related (only needed for HARDWARE test)
 #ifdef HARDWARE
@@ -81,16 +84,16 @@ void setup(XBank *do_xbank) {
 
 	XBank_Config *do_xbank_cfg;
 	do_xbank_cfg = XBank_LookupConfig(
-			XPAR_XBANK_0_DEVICE_ID);
+	XPAR_XBANK_0_DEVICE_ID);
 
 	if (!do_xbank_cfg) {
-		xil_printf("Error loading configuration for do_xbank_cfg \n\r");
+		printf("Error loading configuration for do_xbank_cfg \n\r");
 		return;
 	}
 
 	status = XBank_CfgInitialize(do_xbank, do_xbank_cfg);
 	if (status != XST_SUCCESS) {
-		xil_printf("Error initializing for do_xbank \n\r");
+		printf("Error initializing for do_xbank \n\r");
 		return;
 	}
 
@@ -102,25 +105,18 @@ void wait(XBank *do_xbank) {
 	XBank_Start(do_xbank);
 	// Wait until it's done (optional here)
 	while (!XBank_IsDone(do_xbank))
-	;
+		;
 }
 
 // Following are functions to interface with Bank
-// Set each Bank input from bank_in
-void XBank_Set_inputs(XBank *do_xbank, bank_in input) {
-	XBank_Set_input_busPacketType(do_xbank, input.busPacketType);
-	XBank_Set_input_row(do_xbank, input.row);
-	XBank_Set_input_column(do_xbank, input.column);
-	XBank_Set_input_data_in(do_xbank, input.data_in);
-}
 // Input Values to Bank (WRITE, ACTIVATE, REFRESH, PRECHARGE)
-void toBank(XBank *do_xbank, bank_in input) {
-	XBank_Set_inputs(do_xbank, input);
+void toBank(XBank *do_xbank, u32 input) {
+	XBank_Set_bankpacket_in(do_xbank, input);
 	wait(do_xbank);
 }
 // Get Values to Bank (READ)
-u32 fromBank(XBank *do_xbank, bank_in input) {
-	XBank_Set_inputs(do_xbank, input);
+u32 fromBank(XBank *do_xbank, u32 input) {
+	XBank_Set_bankpacket_in(do_xbank, input);
 	wait(do_xbank);
 	return XBank_Get_data_out(do_xbank);
 }
@@ -142,7 +138,6 @@ int main() {
 	//
 	xil_printf("Start ...\n");
 	unsigned char data_o;
-	bank_in input = { ACTIVATE, 0, 0, 0 };
 
 	XTime tStart, tEnd, difference;
 
@@ -159,14 +154,14 @@ int main() {
 	// Test 1: Write / Read  all memory location
 
 	// Write all memory location
-	for (u32 i = 0; i < NUM_ROWS; i++) {
+	for (unsigned short i = 0; i < NUM_ROWS; i++) {
 
 		// (1) Activate row
 		toBank(&do_xbank, format_input(ACTIVATE, i, 0, 0));
 
-		for (u32 j = 0; j < NUM_COLS; j++) {
+		for (unsigned short j = 0; j < NUM_COLS; j++) {
 			// (2) Write bank
-			toBank(&do_xbank, format_input(WRITE, i, j, (unsigned char) ((i + j) % 256)));
+			toBank(&do_xbank, format_input(WRITE, i, j, (u32 ) ((i + j) % 256)));
 		}
 
 		// (3) PRECHARGE row buffer
@@ -174,11 +169,11 @@ int main() {
 	}
 
 	// Read all memory location & check
-	for (u32 i = 0; i < NUM_ROWS; i++) {
+	for (unsigned short i = 0; i < NUM_ROWS; i++) {
 		// (1) Activate row
 		toBank(&do_xbank, format_input(ACTIVATE, i, 0, 0));
 
-		for (u32 j = 0; j < NUM_COLS; j++) {
+		for (unsigned short j = 0; j < NUM_COLS; j++) {
 			// (2) READ bank
 			data_o = fromBank(&do_xbank, format_input(READ, i, j, 0));
 
@@ -187,7 +182,7 @@ int main() {
 			if (data_o != (i + j) % 256) {
 				printf("Mismatch at (%d, %d), Data is supposed to be %d, but it is %d\n", i, j, (i + j) % 256, data_o);
 				return 0;
-			} //else printf("Equal at (%d, %d), %d = %d\n", i, j, (i + j) % 256, data_o);
+			} // else printf("Equal at (%d, %d), %d = %d\n", i, j, (i + j) % 256, data_o);
 #endif
 
 		}
@@ -209,8 +204,7 @@ int main() {
 
 		for (unsigned j = 0; j < NUM_COLS; j++) {
 			// (2) Write bank
-			Bank(format_input(WRITE, i, j, (unsigned char) ((i + j) % 256)),
-					data_o);
+			Bank(format_input(WRITE, i, j, (unsigned char) ((i + j) % 256)), data_o);
 		}
 
 		// (3) PRECHARGE row buffer
@@ -218,20 +212,18 @@ int main() {
 	}
 
 	// Read all memory location & check that contents are correct
-	for (unsigned i = 0; i < NUM_ROWS; i++) {
+	for (unsigned short i = 0; i < NUM_ROWS; i++) {
 		// (1) Activate row
 		Bank(format_input(ACTIVATE, i, 0, 0), data_o);
 
-		for (unsigned j = 0; j < NUM_COLS; j++) {
+		for (unsigned short j = 0; j < NUM_COLS; j++) {
 			// (2) Read bank
 			Bank(format_input(READ, i, j, 0), data_o);
 
 			// Check
 #ifdef CHECK
 			if (data_o != (i + j) % 256) {
-				printf(
-						"Mismatch at (%d, %d), Data is supposed to be %d, but it is %d\n",
-						i, j, (i + j) % 256, data_o);
+				printf("Mismatch at (%d, %d), Data is supposed to be %d, but it is %d\n", i, j, (i + j) % 256, data_o);
 				return 0;
 			} //else printf("Equal at (%d, %d), %d = %d\n", i, j, (i + j) % 256, data_o);
 #endif
@@ -255,7 +247,6 @@ int main() {
 #endif
 	printf("took %u CC.\n", (unsigned) (difference));
 #endif
-
 	printf("End of script.\n");
 	return 0;
 }

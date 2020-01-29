@@ -34,7 +34,7 @@
 
 void Bank(bank_in input, unsigned char& data_out) {
 
-	BusPacketType busPacketType = input.busPacketType;
+	unsigned char busPacketType = input.busPacketType;
 	unsigned row = input.row;
 	unsigned column = input.column;
 	unsigned char data_in = input.data_in;
