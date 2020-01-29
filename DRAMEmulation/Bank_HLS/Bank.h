@@ -16,6 +16,6 @@ typedef struct {
 	unsigned char data_in;
 } bank_in;
 
-void Bank(bank_in input, unsigned char& data_out);
+void Bank(bank_in bankpacket_in, unsigned char& data_out);
 
 #define TEST2
