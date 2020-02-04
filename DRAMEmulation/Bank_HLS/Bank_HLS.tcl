@@ -9,8 +9,8 @@
 
 open_project -reset Bank_HLS
 set_top Bank
-add_files Bank.h
 add_files Bank.cpp
+add_files Bank.h
 add_files -tb test_Bank.cpp -cflags "-Wno-unknown-pragmas"
 
 variable TARGET [lindex $argv 2]
@@ -20,14 +20,19 @@ if {$TARGET=="xc7z020clg400-1"} {
     # Pynq-Z1 Solution
     puts "Pynq-Z1 solution"
     open_solution -reset "Pynq_Solution"
-    set_part {xc7z020clg400-1} -tool vivado
+    set_part $TARGET -tool vivado
     create_clock -period 10 -name default
 } elseif {$TARGET=="xczu3eg-sfva625-1-i-es1"} {
     # UltraZed 3EG Solution
     puts "UltraZed-EG solution"
     open_solution -reset "UZ_Solution"
-    set_part {xczu3eg-sfva625-1-i-es1} -tool vivado
+    set_part $TARGET -tool vivado
     create_clock -period 4 -name default
+} else {
+    puts "Attempting solution for $TARGET"
+    open_solution -reset "t_solution"
+    set_part $TARGET -tool vivado
+    create_clock -period 10 -name default
 }
 
 csim_design -clean -compiler gcc
