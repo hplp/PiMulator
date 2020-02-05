@@ -48,7 +48,7 @@
 #include "xbank.h"
 
 // Software or Hardware Test
-#define SOFTWARE // SOFTWARE HARDWARE
+#define HARDWARE // SOFTWARE HARDWARE
 
 // Whether to report timing
 #define REPORT_TIMING
