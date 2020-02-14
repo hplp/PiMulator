@@ -10,21 +10,32 @@ class Application(tk.Frame):
         self.create_widgets()
 
     def create_widgets(self):
-        self.hi_there = tk.Button(self)
-        self.hi_there["text"] = "Hello World\n(click me)"
-        self.hi_there["command"] = self.say_hi
-        self.hi_there.pack(side="top")
+        # self.Frame1 = tk.Frame(self, width=200, height=150, background="Blue")
+        # self.Frame1.grid(row=0, column=0)
 
-        self.quit = tk.Button(self, text="QUIT", fg="red",
-                              command=self.master.destroy)
+        # frame2=Frame(master, width=200, height=150, background="Red")
+        # frame2.grid(row=1, column=0)
+
+        # frame3=Frame(master, width=200, height=150, background="Green")
+        # frame3.grid(row=0, column=1)
+
+        # frame4=Frame(master, width=200, height=150, background="Yellow")
+        # frame4.grid(row=1, column=1)
+        self.Button_run = tk.Button(self)
+        self.Button_run["text"] = "Run"
+        self.Button_run["command"] = self.PiM_run
+        self.Button_run.pack(side="top")
+
+        self.quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy)
         self.quit.pack(side="bottom")
 
-    def say_hi(self):
-        print("hi there, everyone!")
+    def PiM_run(self):
+        print("Starting PiMulator...")
 
 root = tk.Tk()
+root.geometry("1120x840")
+root.title("PiMulator")
 app = Application(master=root)
 app.mainloop()
 
-
-print("DONE")
+print("Good bye!")
