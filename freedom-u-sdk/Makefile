@@ -1,6 +1,6 @@
 # RISCV should either be unset, or set to point to a directory that contains
 # a toolchain install tree that was built via other means.
-RISCV ?= $(CURDIR)/toolchain
+RISCV ?= /home/erwin/riscv-toolchain/toolchain
 PATH := $(RISCV)/bin:$(PATH)
 ISA ?= rv64imafdc
 ABI ?= lp64d
@@ -12,7 +12,7 @@ wrkdir := $(CURDIR)/work
 
 toolchain_srcdir := $(srcdir)/riscv-gnu-toolchain
 toolchain_wrkdir := $(wrkdir)/riscv-gnu-toolchain
-toolchain_dest := $(CURDIR)/toolchain
+toolchain_dest := /home/erwin/riscv-toolchain/toolchain
 
 buildroot_srcdir := $(srcdir)/buildroot
 buildroot_initramfs_wrkdir := $(wrkdir)/buildroot_initramfs
