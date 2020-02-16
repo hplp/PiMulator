@@ -1,0 +1,71 @@
+interface csc2cmac_data_if
+  flow valid
+  field batch_index 5
+  field stripe_st 1
+  field stripe_end 1
+  field channel_end 1
+  field layer_end 1
+  field mask NVDLA_MAC_ATOMIC_C_SIZE
+  field data[NVDLA_MAC_ATOMIC_C_SIZE] NVDLA_BPE
+
+interface csc2cmac_wt_if
+  flow valid
+  field data[NVDLA_MAC_ATOMIC_C_SIZE]  NVDLA_BPE
+  field mask NVDLA_MAC_ATOMIC_C_SIZE
+  field sel NVDLA_MAC_ATOMIC_K_SIZE_DIV2
+
+interface cmac2cacc_if
+  flow valid
+  field data[NVDLA_MAC_ATOMIC_K_SIZE_DIV2] NVDLA_MAC_RESULT_WIDTH
+  field mask  NVDLA_MAC_ATOMIC_K_SIZE_DIV2
+  field mode  1
+  field batch_index 5
+  field stripe_st 1
+  field stripe_end 1
+  field channel_end 1
+  field layer_end 1
+
+interface cacc2sdp_if
+  flow valid_ready
+  field pd[NVDLA_SDP_MAX_THROUGHPUT]  NVDLA_CACC_SDP_SINGLE_THROUGHPUT
+  field pd_batch_end  1
+  field pd_layer_end  1
+
+
+interface sdp2pdp_if
+  flow valid_ready
+  field pd[NVDLA_SDP_MAX_THROUGHPUT] NVDLA_BPE
+
+group DMA_READ_REQ
+  field addr NVDLA_MEM_ADDRESS_WIDTH
+  field size NVDLA_DMA_RD_SIZE
+
+group DMA_READ_RSP
+  field data NVDLA_MEMIF_WIDTH
+  field mask NVDLA_DMA_MASK_BIT
+
+group DMA_WR_REQ
+  field addr NVDLA_MEM_ADDRESS_WIDTH
+  field size NVDLA_DMA_WR_SIZE
+
+group DMA_WR_DATA
+  field data NVDLA_MEMIF_WIDTH
+  field mask NVDLA_DMA_MASK_BIT
+
+interface nvdla_dma_rd_req
+    flow    valid_ready
+    packet  DMA_READ_REQ
+
+interface nvdla_dma_rd_rsp
+    flow    valid_ready
+    packet  DMA_READ_RSP
+
+interface nvdla_dma_wr_req
+    flow    valid_ready
+    packet  DMA_WR_REQ DMA_WR_DATA
+
+interface nvdla_dma_wr_rsp
+    field   complete 1
+
+
+
