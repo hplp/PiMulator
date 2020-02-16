@@ -1,0 +1,21 @@
+[submodule "riscv-binutils"]
+	path = riscv-binutils
+	url = ../riscv-binutils-gdb.git
+[submodule "riscv-gcc"]
+	path = riscv-gcc
+	url = ../riscv-gcc.git
+[submodule "riscv-glibc"]
+	path = riscv-glibc
+	url = ../riscv-glibc.git
+[submodule "riscv-dejagnu"]
+	path = riscv-dejagnu
+	url = ../riscv-dejagnu.git
+[submodule "riscv-newlib"]
+	path = riscv-newlib
+	url = ../riscv-newlib.git
+[submodule "riscv-qemu"]
+	path = riscv-qemu
+	url = ../riscv-qemu.git
+[submodule "riscv-gdb"]
+	path = riscv-gdb
+	url = ../riscv-binutils-gdb.git

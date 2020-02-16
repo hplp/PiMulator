@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 
 import tkinter as tk
+from tkinter import *
+
+root = tk.Tk()
+mylabel=Label(root,text="Hello World!")
+
+mylabel.pack()
+root.mainloop()
+
 
 class Application(tk.Frame):
     def __init__(self, master=None):
@@ -32,9 +40,11 @@ class Application(tk.Frame):
     def PiM_run(self):
         print("Starting PiMulator...")
 
+
 root = tk.Tk()
 root.geometry("1120x840")
 root.title("PiMulator")
+
 app = Application(master=root)
 app.mainloop()
 

@@ -1,0 +1,4 @@
+# sha256 for python-can from https://pypi.org/project/python-can/#files
+# sha256 for LICENSE.txt locally computed
+sha256  b5e93b2ee32bdd597d9d908afe5171c402a04c9678ba47b60f33506738b1375b  python-can-2.2.1.tar.gz
+sha256  ea7d049c7705dc13afc202dd18e1827f3484f8212fd3fa7b82fc4a0c363432c9  LICENSE.txt

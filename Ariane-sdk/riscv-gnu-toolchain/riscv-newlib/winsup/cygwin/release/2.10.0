@@ -1,0 +1,36 @@
+What's new:
+-----------
+
+- New open(2) flags O_TMPFILE and O_NOATIME.
+
+- scanf/wscanf now handle the POSIX %m modifier.
+
+- scanf now handles the %l[ conversion.
+
+- New APIs: sigtimedwait, wmempcpy.
+
+
+What changed:
+-------------
+
+
+Bug Fixes
+---------
+
+- Fix a problem in unlink on NFS.
+  Addresses: Shows up in GAWK testsuite test "testext"
+
+- Fix errno setting bug in posix_fadvise and posix_fallocate.
+  Addresses: https://cygwin.com/ml/cygwin-patches/2017-q4/msg00026.html
+
+- Fix two bugs in the limit of large numbers of sockets.
+  Addresses: https://cygwin.com/ml/cygwin/2017-11/msg00052.html
+
+- Fix a fork failure with private anonymous mmaps.
+  Addresses: https://cygwin.com/ml/cygwin/2017-12/msg00061.html
+
+- Remove a call to fflush from ftell{o}, which may result in wrong offsets.
+  Addresses: https://cygwin.com/ml/cygwin/2017-12/msg00151.html
+
+- Fix file pointer computation after short writes on block devices.
+  Addresses: https://cygwin.com/ml/cygwin/2017-12/msg00151.html
