@@ -1,0 +1,295 @@
+diff -Nur tyrquake-20171127.orig/Makefile tyrquake-20171127/Makefile
+--- tyrquake-20171127.orig/Makefile	2017-11-27 19:54:41.527253035 -0800
++++ tyrquake-20171127/Makefile	2017-11-27 19:55:25.383126992 -0800
+@@ -348,11 +348,11 @@
+ 	fi
+ 
+ cmd_cc_dep_c = \
+-	$(CC) -MM -MT $@ $(CPPFLAGS) -o $(@D)/.$(@F).d $< && \
++	$(CC) -MM -MT $@ $(TYRCPPFLAGS) -o $(@D)/.$(@F).d $< && \
+ 	$(cmd_fixdep)
+ 
+ quiet_cmd_cc_o_c = '  CC       $@'
+-      cmd_cc_o_c = $(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
++      cmd_cc_o_c = $(CC) -c $(TYRCPPFLAGS) $(CFLAGS) -o $@ $<
+ 
+ define do_cc_o_c
+ 	@$(do_mkdir);
+@@ -364,7 +364,7 @@
+ cmd_cc_dep_m = $(cmd_cc_dep_c)
+ 
+ quiet_cmd_cc_o_m = '  CC       $@'
+-      cmd_cc_o_m = $(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
++      cmd_cc_o_m = $(CC) -c $(TYRCPPFLAGS) $(CFLAGS) -o $@ $<
+ 
+ define do_cc_o_m
+ 	@$(do_mkdir);
+@@ -374,7 +374,7 @@
+ endef
+ 
+ cmd_cc_dep_rc = \
+-	$(CC) -x c-header -MM -MT $@ $(CPPFLAGS) -o $(@D)/.$(@F).d $< ; \
++	$(CC) -x c-header -MM -MT $@ $(TYRCPPFLAGS) -o $(@D)/.$(@F).d $< ; \
+ 	$(cmd_fixdep)
+ 
+ quiet_cmd_windres_res_rc = '  WINDRES  $@'
+@@ -494,10 +494,10 @@
+ 
+ #  define rulesets for building object files
+ #  $(1) - the build directory
+-#  $(2) - CPPFLAGS
++#  $(2) - TYRCPPFLAGS
+ #  $(3) - CFLAGS
+ define NQCL_RULES
+-$(1)/%.o:	CPPFLAGS = $(2)
++$(1)/%.o:	TYRCPPFLAGS = $(2)
+ $(1)/%.o:	CFLAGS += $(3)
+ $(1)/%.o:	common/%.S	; $$(do_cc_o_c)
+ $(1)/%.o:	NQ/%.S		; $$(do_cc_o_c)
+@@ -507,7 +507,7 @@
+ $(1)/%.res:	NQ/%.rc		; $$(do_windres_res_rc)
+ endef
+ define QWCL_RULES
+-$(1)/%.o:	CPPFLAGS = $(2)
++$(1)/%.o:	TYRCPPFLAGS = $(2)
+ $(1)/%.o:	CFLAGS += $(3)
+ $(1)/%.o:	common/%.S	; $$(do_cc_o_c)
+ $(1)/%.o:	QW/client/%.S	; $$(do_cc_o_c)
+@@ -519,7 +519,7 @@
+ $(1)/%.res:	QW/client/%.rc	; $$(do_windres_res_rc)
+ endef
+ define QWSV_RULES
+-$(1)/%.o:	CPPFLAGS = $(2)
++$(1)/%.o:	TYRCPPFLAGS = $(2)
+ $(1)/%.o:	CFLAGS += $(3)
+ $(1)/%.o:	QW/server/%.S	; $$(do_cc_o_c)
+ $(1)/%.o:	QW/common/%.S	; $$(do_cc_o_c)
+@@ -534,19 +534,19 @@
+ # $(1) - build sub-directory
+ # $(2) - extra cflags for arch
+ define TARGET_RULES
+-$(eval $(call NQCL_RULES,$$(BUILD_DIR)/$(1)/nqsw,$$(ALL_NQSW_CPPFLAGS),$(2)))
+-$(eval $(call NQCL_RULES,$$(BUILD_DIR)/$(1)/nqgl,$$(ALL_NQGL_CPPFLAGS),$(2)))
+-$(eval $(call QWCL_RULES,$$(BUILD_DIR)/$(1)/qwsw,$$(ALL_QWSW_CPPFLAGS),$(2)))
+-$(eval $(call QWCL_RULES,$$(BUILD_DIR)/$(1)/qwgl,$$(ALL_QWGL_CPPFLAGS),$(2)))
+-$(eval $(call QWSV_RULES,$$(BUILD_DIR)/$(1)/qwsv,$$(ALL_QWSV_CPPFLAGS),$(2)))
++$(eval $(call NQCL_RULES,$$(BUILD_DIR)/$(1)/nqsw,$$(ALL_NQSW_TYRCPPFLAGS),$(2)))
++$(eval $(call NQCL_RULES,$$(BUILD_DIR)/$(1)/nqgl,$$(ALL_NQGL_TYRCPPFLAGS),$(2)))
++$(eval $(call QWCL_RULES,$$(BUILD_DIR)/$(1)/qwsw,$$(ALL_QWSW_TYRCPPFLAGS),$(2)))
++$(eval $(call QWCL_RULES,$$(BUILD_DIR)/$(1)/qwgl,$$(ALL_QWGL_TYRCPPFLAGS),$(2)))
++$(eval $(call QWSV_RULES,$$(BUILD_DIR)/$(1)/qwsv,$$(ALL_QWSV_TYRCPPFLAGS),$(2)))
+ endef
+ 
+ # Standard build rules
+-$(eval $(call NQCL_RULES,$$(BUILD_DIR)/nqsw,$$(ALL_NQSW_CPPFLAGS),))
+-$(eval $(call NQCL_RULES,$$(BUILD_DIR)/nqgl,$$(ALL_NQGL_CPPFLAGS),))
+-$(eval $(call QWCL_RULES,$$(BUILD_DIR)/qwsw,$$(ALL_QWSW_CPPFLAGS),))
+-$(eval $(call QWCL_RULES,$$(BUILD_DIR)/qwgl,$$(ALL_QWGL_CPPFLAGS),))
+-$(eval $(call QWSV_RULES,$$(BUILD_DIR)/qwsv,$$(ALL_QWSV_CPPFLAGS),))
++$(eval $(call NQCL_RULES,$$(BUILD_DIR)/nqsw,$$(ALL_NQSW_TYRCPPFLAGS),))
++$(eval $(call NQCL_RULES,$$(BUILD_DIR)/nqgl,$$(ALL_NQGL_TYRCPPFLAGS),))
++$(eval $(call QWCL_RULES,$$(BUILD_DIR)/qwsw,$$(ALL_QWSW_TYRCPPFLAGS),))
++$(eval $(call QWCL_RULES,$$(BUILD_DIR)/qwgl,$$(ALL_QWGL_TYRCPPFLAGS),))
++$(eval $(call QWSV_RULES,$$(BUILD_DIR)/qwsv,$$(ALL_QWSV_TYRCPPFLAGS),))
+ 
+ # OSX building for two intel archs, two ppc archs
+ $(eval $(call TARGET_RULES,osx-intel-32,-arch i386 -mmacosx-version-min=10.5))
+@@ -600,7 +600,7 @@
+ # The suffix describes where the list is used
+ #  _OBJS     - list of object files used as dependency and for linker
+ #  _LIBS     - list of libs to pass to the linker
+-#  _CPPFLAGS - C preprocessor flags, e.g. include directories or defines
++#  _TYRCPPFLAGS - C preprocessor flags, e.g. include directories or defines
+ #  _LFLAGS   - linker flags, e.g. library directories
+ #
+ # Then we have configuration options which will alter the content of the lists:
+@@ -744,37 +744,37 @@
+ 	world.o
+ 
+ # ----------------------------------------------------------------------------
+-# Start off the CPPFLAGS, config independent stuff
++# Start off the TYRCPPFLAGS, config independent stuff
+ # ----------------------------------------------------------------------------
+ 
+ # Defines
+-COMMON_CPPFLAGS += -DTYR_VERSION=$(TYR_VERSION_NUM) -DQBASEDIR="$(QBASEDIR)"
+-NQCL_CPPFLAGS   += -DNQ_HACK
+-QW_CPPFLAGS     += -DQW_HACK
+-QWSV_CPPFLAGS   += -DSERVERONLY
+-GL_CPPFLAGS     += -DGLQUAKE
++COMMON_TYRCPPFLAGS += -DTYR_VERSION=$(TYR_VERSION_NUM) -DQBASEDIR="$(QBASEDIR)"
++NQCL_TYRCPPFLAGS   += -DNQ_HACK
++QW_TYRCPPFLAGS     += -DQW_HACK
++QWSV_TYRCPPFLAGS   += -DSERVERONLY
++GL_TYRCPPFLAGS     += -DGLQUAKE
+ ifeq ($(DEBUG),Y)
+-COMMON_CPPFLAGS += -DDEBUG
++COMMON_TYRCPPFLAGS += -DDEBUG
+ else
+-COMMON_CPPFLAGS += -DNDEBUG
++COMMON_TYRCPPFLAGS += -DNDEBUG
+ endif
+ 
+ # Includes
+-COMMON_CPPFLAGS += -iquote $(TOPDIR)/include
+-COMMON_CPPFLAGS += $(if $(LOCALBASE),-idirafter $(LOCALBASE)/include,)
++COMMON_TYRCPPFLAGS += -iquote $(TOPDIR)/include
++COMMON_TYRCPPFLAGS += $(if $(LOCALBASE),-idirafter $(LOCALBASE)/include,)
+ COMMON_LFLAGS   += $(if $(LOCALBASE),$(call libdir-check,$(LOCALBASE)/lib,),)
+-NQCL_CPPFLAGS   += -iquote $(TOPDIR)/NQ
+-QW_CPPFLAGS     += -iquote $(TOPDIR)/QW/client
+-QWSV_CPPFLAGS   += -iquote $(TOPDIR)/QW/server
++NQCL_TYRCPPFLAGS   += -iquote $(TOPDIR)/NQ
++QW_TYRCPPFLAGS     += -iquote $(TOPDIR)/QW/client
++QWSV_TYRCPPFLAGS   += -iquote $(TOPDIR)/QW/server
+ 
+ # If we are on OSX (Darwin) and this is not the GLX target, we will link with
+ # "-framework OpenGL" instead. Otherwise, link with libGL as normal
+ # => if ($TARGET_OS == UNIX && $TARGET_UNIX == darwin && $VID_TARGET != x11)...
+ ifeq ($(filter-out UNIX,$(TARGET_OS))$(filter-out darwin,$(TARGET_UNIX))$(filter x11,$(VID_TARGET)),)
+-GL_CPPFLAGS     += -DAPPLE_OPENGL
++GL_TYRCPPFLAGS     += -DAPPLE_OPENGL
+ GL_LFLAGS       += -framework OpenGL
+ else
+-GL_CPPFLAGS     += $(if $(OGLBASE),-idirafter $(OGLBASE)/include,)
++GL_TYRCPPFLAGS     += $(if $(OGLBASE),-idirafter $(OGLBASE)/include,)
+ GL_LFLAGS       += $(if $(OGLBASE),$(call libdir-check,$(OGLBASE)/lib,),)
+ endif
+ 
+@@ -783,7 +783,7 @@
+ # ----------------------------------------------------------------------------
+ 
+ ifeq ($(USE_X86_ASM),Y)
+-COMMON_CPPFLAGS += -DUSE_X86_ASM
++COMMON_TYRCPPFLAGS += -DUSE_X86_ASM
+ COMMON_OBJS += sys_wina.o math.o
+ CL_OBJS   += snd_mixa.o
+ COMMON_OBJS += modela.o
+@@ -810,7 +810,7 @@
+ # ----------------------------------------------------------------------------
+ 
+ ifneq (,$(findstring $(TARGET_OS),WIN32 WIN64))
+-COMMON_CPPFLAGS += -DWIN32_LEAN_AND_MEAN
++COMMON_TYRCPPFLAGS += -DWIN32_LEAN_AND_MEAN
+ COMMON_OBJS += net_wins.o sys_win.o
+ CL_OBJS     += winquake.res
+ NQCL_OBJS   += conproc.o net_win.o
+@@ -824,14 +824,14 @@
+ QWSV_LFLAGS += -mconsole
+ endif
+ ifeq ($(TARGET_OS),UNIX)
+-COMMON_CPPFLAGS += -DELF
++COMMON_TYRCPPFLAGS += -DELF
+ COMMON_OBJS += net_udp.o sys_unix.o
+ COMMON_LIBS += m
+ NQCL_OBJS   += net_bsd.o
+ 
+ # FIXME - stupid hack
+ ifeq ($(APP_BUNDLE),Y)
+-COMMON_CPPFLAGS += -Dmain=SDL_main
++COMMON_TYRCPPFLAGS += -Dmain=SDL_main
+ endif
+ 
+ # If we are on OSX (Darwin) and this is not the GLX target, we will link with
+@@ -853,22 +853,22 @@
+ # ----------------
+ 
+ ifeq ($(VID_TARGET),x11)
+-CL_CPPFLAGS += -DX11
++CL_TYRCPPFLAGS += -DX11
+ CL_OBJS += x11_core.o
+ SW_OBJS += vid_x.o
+ GL_OBJS += vid_glx.o
+ CL_LIBS += X11 Xext Xxf86vm
+ ifeq ($(USE_XF86DGA),Y)
+-CL_CPPFLAGS += -DUSE_XF86DGA
++CL_TYRCPPFLAGS += -DUSE_XF86DGA
+ CL_LIBS += Xxf86dga
+ endif
+ ifneq ($(X11BASE),)
+-CL_CPPFLAGS += -idirafter $(X11BASE)/include
++CL_TYRCPPFLAGS += -idirafter $(X11BASE)/include
+ CL_LFLAGS += $(call libdir-check,$(X11BASE)/lib)
+ endif
+ endif
+ ifeq ($(VID_TARGET),win)
+-CL_CPPFLAGS += -idirafter $(DX_INC)
++CL_TYRCPPFLAGS += -idirafter $(DX_INC)
+ SW_OBJS += vid_win.o
+ GL_OBJS += vid_wgl.o
+ CL_LIBS += gdi32
+@@ -877,7 +877,7 @@
+ ifeq ($(VID_TARGET),sdl)
+ SW_OBJS += vid_sdl.o sdl_common.o
+ GL_OBJS += vid_sgl.o sdl_common.o
+-CL_CPPFLAGS += $(SDL_CFLAGS)
++CL_TYRCPPFLAGS += $(SDL_CFLAGS)
+ CL_LFLAGS += $(SDL_LFLAGS)
+ endif
+ 
+@@ -926,7 +926,7 @@
+ CL_OBJS += snd_null.o
+ endif
+ ifeq ($(SND_TARGET),win)
+-CL_CPPFLAGS += -idirafter $(DX_INC)
++CL_TYRCPPFLAGS += -idirafter $(DX_INC)
+ CL_OBJS += snd_win.o
+ # FIXME - direct sound libs?
+ endif
+@@ -939,7 +939,7 @@
+ endif
+ ifeq ($(SND_TARGET),sdl)
+ CL_OBJS += snd_sdl.o sdl_common.o
+-CL_CPPFLAGS += $(SDL_CFLAGS)
++CL_TYRCPPFLAGS += $(SDL_CFLAGS)
+ CL_LFLAGS += $(SDL_LFLAGS)
+ endif
+ 
+@@ -953,11 +953,11 @@
+ qwgl-list = $(COMMON_$(1)) $(CL_$(1)) $(QW_$(1)) $(QWCL_$(1)) $(GL_$(1)) $(QWGL_$(1))
+ qwsv-list = $(COMMON_$(1)) $(SV_$(1)) $(QW_$(1)) $(QWSV_$(1))
+ 
+-ALL_NQSW_CPPFLAGS := $(call nqsw-list,CPPFLAGS)
+-ALL_NQGL_CPPFLAGS := $(call nqgl-list,CPPFLAGS)
+-ALL_QWSW_CPPFLAGS := $(call qwsw-list,CPPFLAGS)
+-ALL_QWGL_CPPFLAGS := $(call qwgl-list,CPPFLAGS)
+-ALL_QWSV_CPPFLAGS := $(call qwsv-list,CPPFLAGS)
++ALL_NQSW_TYRCPPFLAGS := $(call nqsw-list,TYRCPPFLAGS)
++ALL_NQGL_TYRCPPFLAGS := $(call nqgl-list,TYRCPPFLAGS)
++ALL_QWSW_TYRCPPFLAGS := $(call qwsw-list,TYRCPPFLAGS)
++ALL_QWGL_TYRCPPFLAGS := $(call qwgl-list,TYRCPPFLAGS)
++ALL_QWSV_TYRCPPFLAGS := $(call qwsv-list,TYRCPPFLAGS)
+ 
+ ALL_NQSW_OBJS := $(sort $(call nqsw-list,OBJS))
+ ALL_NQGL_OBJS := $(sort $(call nqgl-list,OBJS))
+@@ -1100,8 +1100,8 @@
+ # OSX Launcher - Application stub which launches the main quake executable
+ # ----------------------------------------------------------------------------
+ 
+-LAUNCHER_CPPFLAGS := $(COMMON_CPPFLAGS)
+-LAUNCHER_CPPFLAGS += $(SDL_CFLAGS)
++LAUNCHER_TYRCPPFLAGS := $(COMMON_TYRCPPFLAGS)
++LAUNCHER_TYRCPPFLAGS += $(SDL_CFLAGS)
+ LAUNCHER_LFLAGS = $(ALL_$(1)_LFLAGS) -lobjc -framework Cocoa
+ LAUNCHER_DIR = $(BUILD_DIR)/launcher
+ 
+@@ -1168,14 +1168,14 @@
+ define LAUNCHER_ARCH_RULES
+ # The launcher uses a hack to rename 'main' to SDL_main - so need to compile
+ # separate versions of the sys_unix.o files for each app
+-$$(BUILD_DIR)/$(1)/launcher/sys_unix-nqsw.o: CPPFLAGS = $$(ALL_NQSW_CPPFLAGS) -Dmain=SDL_main
+-$$(BUILD_DIR)/$(1)/launcher/sys_unix-nqgl.o: CPPFLAGS = $$(ALL_NQGL_CPPFLAGS) -Dmain=SDL_main
+-$$(BUILD_DIR)/$(1)/launcher/sys_unix-qwsw.o: CPPFLAGS = $$(ALL_QWSW_CPPFLAGS) -Dmain=SDL_main
+-$$(BUILD_DIR)/$(1)/launcher/sys_unix-qwgl.o: CPPFLAGS = $$(ALL_QWGL_CPPFLAGS) -Dmain=SDL_main
++$$(BUILD_DIR)/$(1)/launcher/sys_unix-nqsw.o: TYRCPPFLAGS = $$(ALL_NQSW_TYRCPPFLAGS) -Dmain=SDL_main
++$$(BUILD_DIR)/$(1)/launcher/sys_unix-nqgl.o: TYRCPPFLAGS = $$(ALL_NQGL_TYRCPPFLAGS) -Dmain=SDL_main
++$$(BUILD_DIR)/$(1)/launcher/sys_unix-qwsw.o: TYRCPPFLAGS = $$(ALL_QWSW_TYRCPPFLAGS) -Dmain=SDL_main
++$$(BUILD_DIR)/$(1)/launcher/sys_unix-qwgl.o: TYRCPPFLAGS = $$(ALL_QWGL_TYRCPPFLAGS) -Dmain=SDL_main
+ $$(BUILD_DIR)/$(1)/launcher/sys_unix-%.o: common/sys_unix.c; $$(do_cc_o_c)
+ 
+ # The shared launcher objects (from .m) just use the common cflags
+-$$(BUILD_DIR)/$(1)/launcher/%.o: CPPFLAGS = $$(COMMON_CPPFLAGS) $$(SDL_CFLAGS)
++$$(BUILD_DIR)/$(1)/launcher/%.o: TYRCPPFLAGS = $$(COMMON_TYRCPPFLAGS) $$(SDL_CFLAGS)
+ $$(BUILD_DIR)/$(1)/launcher/%.o: CFLAGS += $(2)
+ $$(BUILD_DIR)/$(1)/launcher/%.o: launcher/osx/%.m ; $$(do_cc_o_m)
+ 

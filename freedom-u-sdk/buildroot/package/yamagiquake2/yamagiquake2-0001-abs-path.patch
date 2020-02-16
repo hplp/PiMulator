@@ -1,0 +1,21 @@
+diff -Nur yamagiquake2-7.10.orig/Makefile yamagiquake2-7.10/Makefile
+--- yamagiquake2-7.10.orig/Makefile	2018-03-09 12:48:30.865776933 -0800
++++ yamagiquake2-7.10/Makefile	2018-03-09 12:49:07.801773280 -0800
+@@ -245,7 +245,7 @@
+ 
+ # Base include path.
+ ifeq ($(YQ2_OSTYPE),Linux)
+-INCLUDE := -I/usr/include
++INCLUDE :=
+ else ifeq ($(YQ2_OSTYPE),FreeBSD)
+ INCLUDE := -I/usr/local/include
+ else ifeq ($(YQ2_OSTYPE),OpenBSD)
+@@ -263,7 +263,7 @@
+ 
+ # Base LDFLAGS.
+ ifeq ($(YQ2_OSTYPE),Linux)
+-LDFLAGS := -L/usr/lib -lm -ldl -rdynamic
++LDFLAGS := -lm -ldl -rdynamic
+ else ifeq ($(YQ2_OSTYPE),FreeBSD)
+ LDFLAGS := -L/usr/local/lib -lm
+ else ifeq ($(YQ2_OSTYPE),OpenBSD)

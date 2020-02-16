@@ -1,0 +1,585 @@
+diff -Nur yamagiquake2-7.10.orig/Makefile yamagiquake2-7.10/Makefile
+--- yamagiquake2-7.10.orig/Makefile	2018-03-09 12:50:58.961762284 -0800
++++ yamagiquake2-7.10/Makefile	2018-03-09 12:56:07.969731714 -0800
+@@ -147,7 +147,7 @@
+ 
+ # ----------
+ 
+-# Base CFLAGS.
++# Base YQCFLAGS.
+ #
+ # -O2 are enough optimizations.
+ #
+@@ -165,24 +165,24 @@
+ # -MMD to generate header dependencies. (They cannot be
+ #  generated if building universal binaries on OSX)
+ ifeq ($(YQ2_OSTYPE), Darwin)
+-CFLAGS := -O2 -fno-strict-aliasing -fomit-frame-pointer \
++YQCFLAGS := -O2 -fno-strict-aliasing -fomit-frame-pointer \
+ 		  -Wall -pipe -g -fwrapv
+-CFLAGS += $(OSX_ARCH)
++YQCFLAGS += $(OSX_ARCH)
+ else
+-CFLAGS := -std=gnu99 -O2 -fno-strict-aliasing \
++YQCFLAGS := -std=gnu99 -O2 -fno-strict-aliasing \
+ 		  -Wall -pipe -g -ggdb -MMD -fwrapv
+ endif
+ 
+ # ----------
+ 
+ # Defines the operating system and architecture
+-CFLAGS += -DYQ2OSTYPE=\"$(YQ2_OSTYPE)\" -DYQ2ARCH=\"$(YQ2_ARCH)\"
++YQCFLAGS += -DYQ2OSTYPE=\"$(YQ2_OSTYPE)\" -DYQ2ARCH=\"$(YQ2_ARCH)\"
+ 
+ # ----------
+ 
+ # https://reproducible-builds.org/specs/source-date-epoch/
+ ifdef SOURCE_DATE_EPOCH
+-CFLAGS += -DBUILD_DATE=\"$(shell date --utc --date="@${SOURCE_DATE_EPOCH}" +"%b %_d %Y" | sed -e 's/ /\\ /g')\"
++YQCFLAGS += -DBUILD_DATE=\"$(shell date --utc --date="@${SOURCE_DATE_EPOCH}" +"%b %_d %Y" | sed -e 's/ /\\ /g')\"
+ endif
+ 
+ # ----------
+@@ -192,23 +192,23 @@
+ # Would be nice if Clang had something comparable.
+ ifeq ($(YQ2_ARCH), i386)
+ ifeq ($(COMPILER), gcc)
+-CFLAGS += -ffloat-store
++YQCFLAGS += -ffloat-store
+ endif
+ endif
+ 
+ # Force SSE math on x86_64. All sane compilers should do this
+ # anyway, just to protect us from broken Linux distros.
+ ifeq ($(YQ2_ARCH), x86_64)
+-CFLAGS += -mfpmath=sse
++YQCFLAGS += -mfpmath=sse
+ endif
+ 
+ # ----------
+ 
+ # Systemwide installation
+ ifeq ($(WITH_SYSTEMWIDE),yes)
+-CFLAGS += -DSYSTEMWIDE
++YQCFLAGS += -DSYSTEMWIDE
+ ifneq ($(WITH_SYSTEMDIR),"")
+-CFLAGS += -DSYSTEMDIR=\"$(WITH_SYSTEMDIR)\"
++YQCFLAGS += -DSYSTEMDIR=\"$(WITH_SYSTEMDIR)\"
+ endif
+ endif
+ 
+@@ -222,21 +222,21 @@
+ 
+ # ----------
+ 
+-# Extra CFLAGS for SDL
++# Extra YQCFLAGS for SDL
+ ifeq ($(WITH_SDL2),yes)
+-SDLCFLAGS := $(shell sdl2-config --cflags)
++SDLYQCFLAGS := $(shell sdl2-config --cflags)
+ else # not SDL2
+-SDLCFLAGS := $(shell sdl-config --cflags)
++SDLYQCFLAGS := $(shell sdl-config --cflags)
+ endif # SDL2
+ 
+ # ----------
+ 
+-# Extra CFLAGS for X11
++# Extra YQCFLAGS for X11
+ ifneq ($(YQ2_OSTYPE), Windows)
+ ifneq ($(YQ2_OSTYPE), Darwin)
+ ifeq ($(WITH_X11GAMMA),yes)
+-X11CFLAGS := $(shell pkg-config x11 --cflags)
+-X11CFLAGS += $(shell pkg-config xxf86vm --cflags)
++X11YQCFLAGS := $(shell pkg-config x11 --cflags)
++X11YQCFLAGS += $(shell pkg-config xxf86vm --cflags)
+ endif
+ endif
+ endif
+@@ -261,53 +261,53 @@
+ 
+ # ----------
+ 
+-# Base LDFLAGS.
++# Base YQLDFLAGS.
+ ifeq ($(YQ2_OSTYPE),Linux)
+-LDFLAGS := -lm -ldl -rdynamic
++YQLDFLAGS := -lm -ldl -rdynamic
+ else ifeq ($(YQ2_OSTYPE),FreeBSD)
+-LDFLAGS := -L/usr/local/lib -lm
++YQLDFLAGS := -L/usr/local/lib -lm
+ else ifeq ($(YQ2_OSTYPE),OpenBSD)
+-LDFLAGS := -L/usr/local/lib -lm
++YQLDFLAGS := -L/usr/local/lib -lm
+ else ifeq ($(YQ2_OSTYPE),Windows)
+-LDFLAGS := -L/usr/lib -lws2_32 -lwinmm -static-libgcc
++YQLDFLAGS := -L/usr/lib -lws2_32 -lwinmm -static-libgcc
+ else ifeq ($(YQ2_OSTYPE), Darwin)
+-LDFLAGS := $(OSX_ARCH) -lm
++YQLDFLAGS := $(OSX_ARCH) -lm
+ endif
+ 
+-CFLAGS += -fvisibility=hidden
+-LDFLAGS += -fvisibility=hidden
++YQCFLAGS += -fvisibility=hidden
++YQLDFLAGS += -fvisibility=hidden
+ 
+ ifneq ($(YQ2_OSTYPE), $(filter $(YQ2_OSTYPE), Darwin OpenBSD))
+ # for some reason the OSX & OpenBSD linker doesn't support this
+-LDFLAGS += -Wl,--no-undefined
++YQLDFLAGS += -Wl,--no-undefined
+ endif
+ 
+ # ----------
+ 
+-# Extra LDFLAGS for SDL
++# Extra YQLDFLAGS for SDL
+ ifeq ($(YQ2_OSTYPE), Darwin)
+ ifeq ($(WITH_SDL2),yes)
+-SDLLDFLAGS := -lSDL2
++SDLYQLDFLAGS := -lSDL2
+ else # not SDL2
+-SDLLDFLAGS := -lSDL -framework OpenGL -framework Cocoa
++SDLYQLDFLAGS := -lSDL -framework OpenGL -framework Cocoa
+ endif # SDL2
+ else # not Darwin
+ ifeq ($(WITH_SDL2),yes)
+-SDLLDFLAGS := $(shell sdl2-config --libs)
++SDLYQLDFLAGS := $(shell sdl2-config --libs)
+ else # not SDL2
+-SDLLDFLAGS := $(shell sdl-config --libs)
++SDLYQLDFLAGS := $(shell sdl-config --libs)
+ endif # SDL2
+ endif # Darwin
+ 
+ # ----------
+ 
+-# Extra LDFLAGS for X11
++# Extra YQLDFLAGS for X11
+ ifneq ($(YQ2_OSTYPE), Windows)
+ ifneq ($(YQ2_OSTYPE), Darwin)
+ ifeq ($(WITH_X11GAMMA),yes)
+-X11LDFLAGS := $(shell pkg-config x11 --libs)
+-X11LDFLAGS += $(shell pkg-config xxf86vm --libs)
+-X11LDFLAGS += $(shell pkg-config xrandr --libs)
++X11YQLDFLAGS := $(shell pkg-config x11 --libs)
++X11YQLDFLAGS += $(shell pkg-config xxf86vm --libs)
++X11YQLDFLAGS += $(shell pkg-config xrandr --libs)
+ endif
+ endif
+ endif
+@@ -389,31 +389,31 @@
+ build/client/%.o: %.c
+ 	@echo "===> CC $<"
+ 	${Q}mkdir -p $(@D)
+-	${Q}$(CC) -c $(CFLAGS) $(SDLCFLAGS) $(INCLUDE) -o $@ $<
++	${Q}$(CC) -c $(YQCFLAGS) $(SDLYQCFLAGS) $(INCLUDE) -o $@ $<
+ 
+ ifeq ($(WITH_CDA),yes)
+-release/quake2.exe : CFLAGS += -DCDA
++release/quake2.exe : YQCFLAGS += -DCDA
+ endif
+ 
+ ifeq ($(WITH_OGG),yes)
+-release/quake2.exe : CFLAGS += -DOGG
+-release/quake2.exe : LDFLAGS += -lvorbisfile -lvorbis -logg
++release/quake2.exe : YQCFLAGS += -DOGG
++release/quake2.exe : YQLDFLAGS += -lvorbisfile -lvorbis -logg
+ endif
+ 
+ ifeq ($(WITH_OPENAL),yes)
+-release/quake2.exe : CFLAGS += -DUSE_OPENAL -DDEFAULT_OPENAL_DRIVER='"openal32.dll"' -DDLOPEN_OPENAL
++release/quake2.exe : YQCFLAGS += -DUSE_OPENAL -DDEFAULT_OPENAL_DRIVER='"openal32.dll"' -DDLOPEN_OPENAL
+ endif
+ 
+ ifeq ($(WITH_ZIP),yes)
+-release/quake2.exe : CFLAGS += -DZIP -DNOUNCRYPT
+-release/quake2.exe : LDFLAGS += -lz
++release/quake2.exe : YQCFLAGS += -DZIP -DNOUNCRYPT
++release/quake2.exe : YQLDFLAGS += -lz
+ endif
+ 
+ ifeq ($(WITH_SDL2),yes)
+-release/quake2.exe : CFLAGS += -DSDL2
++release/quake2.exe : YQCFLAGS += -DSDL2
+ endif
+ 
+-release/quake2.exe : LDFLAGS += -mwindows
++release/quake2.exe : YQLDFLAGS += -mwindows
+ 
+ else # not Windows
+ 
+@@ -425,7 +425,7 @@
+ build/client/%.o: %.c
+ 	@echo "===> CC $<"
+ 	${Q}mkdir -p $(@D)
+-	${Q}$(CC) -c $(CFLAGS) $(SDLCFLAGS) $(INCLUDE) -o $@ $<
++	${Q}$(CC) -c $(YQCFLAGS) $(SDLYQCFLAGS) $(INCLUDE) -o $@ $<
+ 
+ ifeq ($(YQ2_OSTYPE), Darwin)
+ build/client/%.o : %.m
+@@ -434,72 +434,72 @@
+ 	${Q}$(CC) $(OSX_ARCH) -x objective-c -c $< -o $@
+ endif
+ 
+-release/quake2 : CFLAGS += -Wno-unused-result
++release/quake2 : YQCFLAGS += -Wno-unused-result
+ 
+ ifeq ($(WITH_CDA),yes)
+-release/quake2 : CFLAGS += -DCDA
++release/quake2 : YQCFLAGS += -DCDA
+ endif
+ 
+ ifeq ($(WITH_OGG),yes)
+-release/quake2 : CFLAGS += -DOGG
+-release/quake2 : LDFLAGS += -lvorbis -lvorbisfile -logg
++release/quake2 : YQCFLAGS += -DOGG
++release/quake2 : YQLDFLAGS += -lvorbis -lvorbisfile -logg
+ endif
+ 
+ ifeq ($(WITH_OPENAL),yes)
+ ifeq ($(DLOPEN_OPENAL),yes)
+ ifeq ($(YQ2_OSTYPE), OpenBSD)
+-release/quake2 : CFLAGS += -DUSE_OPENAL -DDEFAULT_OPENAL_DRIVER='"libopenal.so"' -DDLOPEN_OPENAL
++release/quake2 : YQCFLAGS += -DUSE_OPENAL -DDEFAULT_OPENAL_DRIVER='"libopenal.so"' -DDLOPEN_OPENAL
+ else ifeq ($(YQ2_OSTYPE), Darwin)
+-release/quake2 : CFLAGS += -DUSE_OPENAL -DDEFAULT_OPENAL_DRIVER='"libopenal.dylib"' -I/usr/local/opt/openal-soft/include -DDLOPEN_OPENAL
+-release/quake2 : LDFLAGS += -L/usr/local/opt/openal-soft/lib -rpath /usr/local/opt/openal-soft/lib
++release/quake2 : YQCFLAGS += -DUSE_OPENAL -DDEFAULT_OPENAL_DRIVER='"libopenal.dylib"' -I/usr/local/opt/openal-soft/include -DDLOPEN_OPENAL
++release/quake2 : YQLDFLAGS += -L/usr/local/opt/openal-soft/lib -rpath /usr/local/opt/openal-soft/lib
+ else
+-release/quake2 : CFLAGS += -DUSE_OPENAL -DDEFAULT_OPENAL_DRIVER='"libopenal.so.1"' -DDLOPEN_OPENAL
++release/quake2 : YQCFLAGS += -DUSE_OPENAL -DDEFAULT_OPENAL_DRIVER='"libopenal.so.1"' -DDLOPEN_OPENAL
+ endif
+ else # !DLOPEN_OPENAL
+-release/quake2 : CFLAGS += -DUSE_OPENAL
+-release/quake2 : LDFLAGS += -lopenal
++release/quake2 : YQCFLAGS += -DUSE_OPENAL
++release/quake2 : YQLDFLAGS += -lopenal
+ ifeq ($(YQ2_OSTYPE), Darwin)
+-release/quake2 : CFLAGS += -I/usr/local/opt/openal-soft/include
+-release/quake2 : LDFLAGS += -L/usr/local/opt/openal-soft/lib -rpath /usr/local/opt/openal-soft/lib
++release/quake2 : YQCFLAGS += -I/usr/local/opt/openal-soft/include
++release/quake2 : YQLDFLAGS += -L/usr/local/opt/openal-soft/lib -rpath /usr/local/opt/openal-soft/lib
+ endif # Darwin
+ endif # !DLOPEN_OPENAL
+ endif # WITH_OPENAL
+ 
+ ifeq ($(WITH_ZIP),yes)
+-release/quake2 : CFLAGS += -DZIP -DNOUNCRYPT
+-release/quake2 : LDFLAGS += -lz
++release/quake2 : YQCFLAGS += -DZIP -DNOUNCRYPT
++release/quake2 : YQLDFLAGS += -lz
+ endif
+ 
+ ifeq ($(WITH_X11GAMMA),yes)
+-release/quake2 : CFLAGS += -DX11GAMMA
++release/quake2 : YQCFLAGS += -DX11GAMMA
+ endif
+ 
+ ifeq ($(WITH_SDL2),yes)
+-release/quake2 : CFLAGS += -DSDL2
++release/quake2 : YQCFLAGS += -DSDL2
+ endif
+ 
+ ifneq ($(YQ2_OSTYPE), Darwin)
+-release/ref_gl1.so : LDFLAGS += -lGL
++release/ref_gl1.so : YQLDFLAGS += -lGL
+ endif
+ 
+ ifeq ($(YQ2_OSTYPE), FreeBSD)
+-release/quake2 : LDFLAGS += -Wl,-z,origin,-rpath='$$ORIGIN/lib'
++release/quake2 : YQLDFLAGS += -Wl,-z,origin,-rpath='$$ORIGIN/lib'
+ else ifeq ($(YQ2_OSTYPE), Linux)
+-release/quake2 : LDFLAGS += -Wl,-z,origin,-rpath='$$ORIGIN/lib'
++release/quake2 : YQLDFLAGS += -Wl,-z,origin,-rpath='$$ORIGIN/lib'
+ endif
+ 
+ ifeq ($(WITH_SYSTEMWIDE),yes)
+ ifneq ($(WITH_SYSTEMDIR),"")
+ ifeq ($(YQ2_OSTYPE), FreeBSD)
+-release/quake2 : LDFLAGS += -Wl,-z,origin,-rpath='$(WITH_SYSTEMDIR)/lib'
++release/quake2 : YQLDFLAGS += -Wl,-z,origin,-rpath='$(WITH_SYSTEMDIR)/lib'
+ else ifeq ($(YQ2_OSTYPE), Linux)
+-release/quake2 : LDFLAGS += -Wl,-z,origin,-rpath='$(WITH_SYSTEMDIR)/lib'
++release/quake2 : YQLDFLAGS += -Wl,-z,origin,-rpath='$(WITH_SYSTEMDIR)/lib'
+ endif
+ else
+ ifeq ($(YQ2_OSTYPE), FreeBSD)
+-release/quake2 : LDFLAGS += -Wl,-z,origin,-rpath='/usr/share/games/quake2/lib'
++release/quake2 : YQLDFLAGS += -Wl,-z,origin,-rpath='/usr/share/games/quake2/lib'
+ else ifeq ($(YQ2_OSTYPE), Linux)
+-release/quake2 : LDFLAGS += -Wl,-z,origin,-rpath='/usr/share/games/quake2/lib'
++release/quake2 : YQLDFLAGS += -Wl,-z,origin,-rpath='/usr/share/games/quake2/lib'
+ endif
+ endif
+ endif
+@@ -517,14 +517,14 @@
+ build/server/%.o: %.c
+ 	@echo "===> CC $<"
+ 	${Q}mkdir -p $(@D)
+-	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
++	${Q}$(CC) -c $(YQCFLAGS) $(INCLUDE) -o $@ $<
+ 
+-release/q2ded.exe : CFLAGS += -DDEDICATED_ONLY
+-release/q2ded.exe : LDFLAGS += -lz
++release/q2ded.exe : YQCFLAGS += -DDEDICATED_ONLY
++release/q2ded.exe : YQLDFLAGS += -lz
+ 
+ ifeq ($(WITH_ZIP),yes)
+-release/q2ded.exe : CFLAGS += -DZIP -DNOUNCRYPT
+-release/q2ded.exe : LDFLAGS += -lz
++release/q2ded.exe : YQCFLAGS += -DZIP -DNOUNCRYPT
++release/q2ded.exe : YQLDFLAGS += -lz
+ endif
+ else # not Windows
+ server:
+@@ -535,13 +535,13 @@
+ build/server/%.o: %.c
+ 	@echo "===> CC $<"
+ 	${Q}mkdir -p $(@D)
+-	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
++	${Q}$(CC) -c $(YQCFLAGS) $(INCLUDE) -o $@ $<
+ 
+-release/q2ded : CFLAGS += -DDEDICATED_ONLY -Wno-unused-result
++release/q2ded : YQCFLAGS += -DDEDICATED_ONLY -Wno-unused-result
+ 
+ ifeq ($(WITH_ZIP),yes)
+-release/q2ded : CFLAGS += -DZIP -DNOUNCRYPT
+-release/q2ded : LDFLAGS += -lz
++release/q2ded : YQCFLAGS += -DZIP -DNOUNCRYPT
++release/q2ded : YQLDFLAGS += -lz
+ endif
+ endif
+ 
+@@ -556,14 +556,14 @@
+ 	$(MAKE) release/ref_gl1.dll
+ 
+ ifeq ($(WITH_SDL2),yes)
+-release/ref_gl1.dll : CFLAGS += -DSDL2
++release/ref_gl1.dll : YQCFLAGS += -DSDL2
+ endif
+ 
+-release/ref_gl1.dll : LDFLAGS += -lopengl32 -shared
++release/ref_gl1.dll : YQLDFLAGS += -lopengl32 -shared
+ 
+ # don't want the dll to link against libSDL2main or libmingw32, and no -mwindows either
+ # that's for the .exe only
+-DLL_SDLLDFLAGS = $(subst -mwindows,,$(subst -lmingw32,,$(subst -lSDL2main,,$(SDLLDFLAGS))))
++DLL_SDLYQLDFLAGS = $(subst -mwindows,,$(subst -lmingw32,,$(subst -lSDL2main,,$(SDLYQLDFLAGS))))
+ 
+ else ifeq ($(YQ2_OSTYPE), Darwin)
+ 
+@@ -573,10 +573,10 @@
+ 
+ 
+ ifeq ($(WITH_SDL2),yes)
+-release/ref_gl1.dylib : CFLAGS += -DSDL2
++release/ref_gl1.dylib : YQCFLAGS += -DSDL2
+ endif
+ 
+-release/ref_gl1.dylib : LDFLAGS += -shared -framework OpenGL
++release/ref_gl1.dylib : YQLDFLAGS += -shared -framework OpenGL
+ 
+ else # not Windows or Darwin
+ 
+@@ -585,11 +585,11 @@
+ 	$(MAKE) release/ref_gl1.so
+ 
+ 
+-release/ref_gl1.so : CFLAGS += -fPIC
+-release/ref_gl1.so : LDFLAGS += -shared
++release/ref_gl1.so : YQCFLAGS += -fPIC
++release/ref_gl1.so : YQLDFLAGS += -shared
+ 
+ ifeq ($(WITH_SDL2),yes)
+-release/ref_gl1.so : CFLAGS += -DSDL2
++release/ref_gl1.so : YQCFLAGS += -DSDL2
+ endif
+ 
+ endif # OS specific ref_gl1 shit
+@@ -597,7 +597,7 @@
+ build/ref_gl1/%.o: %.c
+ 	@echo "===> CC $<"
+ 	${Q}mkdir -p $(@D)
+-	${Q}$(CC) -c $(CFLAGS) $(SDLCFLAGS) $(X11CFLAGS) $(INCLUDE) -o $@ $<
++	${Q}$(CC) -c $(YQCFLAGS) $(SDLYQCFLAGS) $(X11YQCFLAGS) $(INCLUDE) -o $@ $<
+ 
+ # ----------
+ 
+@@ -610,10 +610,10 @@
+ 	$(MAKE) release/ref_gl3.dll
+ 
+ ifeq ($(WITH_SDL2),yes)
+-release/ref_gl3.dll : CFLAGS += -DSDL2
++release/ref_gl3.dll : YQCFLAGS += -DSDL2
+ endif
+ 
+-release/ref_gl3.dll : LDFLAGS += -shared
++release/ref_gl3.dll : YQLDFLAGS += -shared
+ 
+ else ifeq ($(YQ2_OSTYPE), Darwin)
+ 
+@@ -623,10 +623,10 @@
+ 
+ 
+ ifeq ($(WITH_SDL2),yes)
+-release/ref_gl3.dylib : CFLAGS += -DSDL2
++release/ref_gl3.dylib : YQCFLAGS += -DSDL2
+ endif
+ 
+-release/ref_gl3.dylib : LDFLAGS += -shared
++release/ref_gl3.dylib : YQLDFLAGS += -shared
+ 
+ else # not Windows or Darwin
+ 
+@@ -635,11 +635,11 @@
+ 	$(MAKE) release/ref_gl3.so
+ 
+ 
+-release/ref_gl3.so : CFLAGS += -fPIC
+-release/ref_gl3.so : LDFLAGS += -shared
++release/ref_gl3.so : YQCFLAGS += -fPIC
++release/ref_gl3.so : YQLDFLAGS += -shared
+ 
+ ifeq ($(WITH_SDL2),yes)
+-release/ref_gl3.so : CFLAGS += -DSDL2
++release/ref_gl3.so : YQCFLAGS += -DSDL2
+ endif
+ 
+ endif # OS specific ref_gl3 shit
+@@ -647,7 +647,7 @@
+ build/ref_gl3/%.o: %.c
+ 	@echo "===> CC $<"
+ 	${Q}mkdir -p $(@D)
+-	${Q}$(CC) -c $(CFLAGS) $(SDLCFLAGS) $(INCLUDE) $(GLAD_INCLUDE) -o $@ $<
++	${Q}$(CC) -c $(YQCFLAGS) $(SDLYQCFLAGS) $(INCLUDE) $(GLAD_INCLUDE) -o $@ $<
+ 
+ # ----------
+ 
+@@ -661,9 +661,9 @@
+ build/baseq2/%.o: %.c
+ 	@echo "===> CC $<"
+ 	${Q}mkdir -p $(@D)
+-	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
++	${Q}$(CC) -c $(YQCFLAGS) $(INCLUDE) -o $@ $<
+ 
+-release/baseq2/game.dll : LDFLAGS += -shared
++release/baseq2/game.dll : YQLDFLAGS += -shared
+ else ifeq ($(YQ2_OSTYPE), Darwin)
+ game:
+ 	@echo "===> Building baseq2/game.dylib"
+@@ -673,10 +673,10 @@
+ build/baseq2/%.o: %.c
+ 	@echo "===> CC $<"
+ 	${Q}mkdir -p $(@D)
+-	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
++	${Q}$(CC) -c $(YQCFLAGS) $(INCLUDE) -o $@ $<
+ 
+-release/baseq2/game.dylib : CFLAGS += -fPIC
+-release/baseq2/game.dylib : LDFLAGS += -shared
++release/baseq2/game.dylib : YQCFLAGS += -fPIC
++release/baseq2/game.dylib : YQLDFLAGS += -shared
+ else # not Windows or Darwin
+ game:
+ 	@echo "===> Building baseq2/game.so"
+@@ -686,10 +686,10 @@
+ build/baseq2/%.o: %.c
+ 	@echo "===> CC $<"
+ 	${Q}mkdir -p $(@D)
+-	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
++	${Q}$(CC) -c $(YQCFLAGS) $(INCLUDE) -o $@ $<
+ 
+-release/baseq2/game.so : CFLAGS += -fPIC -Wno-unused-result
+-release/baseq2/game.so : LDFLAGS += -shared
++release/baseq2/game.so : YQCFLAGS += -fPIC -Wno-unused-result
++release/baseq2/game.so : YQLDFLAGS += -shared
+ endif
+ 
+ # ----------
+@@ -971,72 +971,72 @@
+ ifeq ($(YQ2_OSTYPE), Windows)
+ release/quake2.exe : $(CLIENT_OBJS) icon
+ 	@echo "===> LD $@"
+-	${Q}$(CC) build/icon/icon.res $(CLIENT_OBJS) $(LDFLAGS) $(SDLLDFLAGS) -o $@
++	${Q}$(CC) build/icon/icon.res $(CLIENT_OBJS) $(YQLDFLAGS) $(SDLYQLDFLAGS) -o $@
+ 	$(Q)strip $@
+ else
+ release/quake2 : $(CLIENT_OBJS)
+ 	@echo "===> LD $@"
+-	${Q}$(CC) $(CLIENT_OBJS) $(LDFLAGS) $(SDLLDFLAGS) $(X11LDFLAGS) -o $@
++	${Q}$(CC) $(CLIENT_OBJS) $(YQLDFLAGS) $(SDLYQLDFLAGS) $(X11YQLDFLAGS) -o $@
+ endif
+ 
+ # release/q2ded
+ ifeq ($(YQ2_OSTYPE), Windows)
+ release/q2ded.exe : $(SERVER_OBJS) icon
+ 	@echo "===> LD $@.exe"
+-	${Q}$(CC) build/icon/icon.res $(SERVER_OBJS) $(LDFLAGS) -o $@
++	${Q}$(CC) build/icon/icon.res $(SERVER_OBJS) $(YQLDFLAGS) -o $@
+ 	$(Q)strip $@
+ else
+ release/q2ded : $(SERVER_OBJS)
+ 	@echo "===> LD $@"
+-	${Q}$(CC) $(SERVER_OBJS) $(LDFLAGS) -o $@
++	${Q}$(CC) $(SERVER_OBJS) $(YQLDFLAGS) -o $@
+ endif
+ 
+ # release/ref_gl1.so
+ ifeq ($(YQ2_OSTYPE), Windows)
+ release/ref_gl1.dll : $(REFGL1_OBJS)
+ 	@echo "===> LD $@"
+-	${Q}$(CC) $(REFGL1_OBJS) $(LDFLAGS) $(DLL_SDLLDFLAGS) -o $@
++	${Q}$(CC) $(REFGL1_OBJS) $(YQLDFLAGS) $(DLL_SDLYQLDFLAGS) -o $@
+ 	$(Q)strip $@
+ else ifeq ($(YQ2_OSTYPE), Darwin)
+ release/ref_gl1.dylib : $(REFGL1_OBJS)
+ 	@echo "===> LD $@"
+-	${Q}$(CC) $(REFGL1_OBJS) $(LDFLAGS) $(SDLLDFLAGS) -o $@
++	${Q}$(CC) $(REFGL1_OBJS) $(YQLDFLAGS) $(SDLYQLDFLAGS) -o $@
+ else
+ release/ref_gl1.so : $(REFGL1_OBJS)
+ 	@echo "===> LD $@"
+-	${Q}$(CC) $(REFGL1_OBJS) $(LDFLAGS) $(SDLLDFLAGS) -o $@
++	${Q}$(CC) $(REFGL1_OBJS) $(YQLDFLAGS) $(SDLYQLDFLAGS) -o $@
+ endif
+ 
+ # release/ref_gl3.so
+ ifeq ($(YQ2_OSTYPE), Windows)
+ release/ref_gl3.dll : $(REFGL3_OBJS)
+ 	@echo "===> LD $@"
+-	${Q}$(CC) $(REFGL3_OBJS) $(LDFLAGS) $(DLL_SDLLDFLAGS) -o $@
++	${Q}$(CC) $(REFGL3_OBJS) $(YQLDFLAGS) $(DLL_SDLYQLDFLAGS) -o $@
+ 	$(Q)strip $@
+ else ifeq ($(YQ2_OSTYPE), Darwin)
+ release/ref_gl3.dylib : $(REFGL3_OBJS)
+ 	@echo "===> LD $@"
+-	${Q}$(CC) $(REFGL3_OBJS) $(LDFLAGS) $(SDLLDFLAGS) -o $@
++	${Q}$(CC) $(REFGL3_OBJS) $(YQLDFLAGS) $(SDLYQLDFLAGS) -o $@
+ else
+ release/ref_gl3.so : $(REFGL3_OBJS)
+ 	@echo "===> LD $@"
+-	${Q}$(CC) $(REFGL3_OBJS) $(LDFLAGS) $(SDLLDFLAGS) -o $@
++	${Q}$(CC) $(REFGL3_OBJS) $(YQLDFLAGS) $(SDLYQLDFLAGS) -o $@
+ endif
+ 
+ # release/baseq2/game.so
+ ifeq ($(YQ2_OSTYPE), Windows)
+ release/baseq2/game.dll : $(GAME_OBJS)
+ 	@echo "===> LD $@"
+-	${Q}$(CC) $(GAME_OBJS) $(LDFLAGS) -o $@
++	${Q}$(CC) $(GAME_OBJS) $(YQLDFLAGS) -o $@
+ 	$(Q)strip $@
+ else ifeq ($(YQ2_OSTYPE), Darwin)
+ release/baseq2/game.dylib : $(GAME_OBJS)
+ 	@echo "===> LD $@"
+-	${Q}$(CC) $(GAME_OBJS) $(LDFLAGS) -o $@
++	${Q}$(CC) $(GAME_OBJS) $(YQLDFLAGS) -o $@
+ else
+ release/baseq2/game.so : $(GAME_OBJS)
+ 	@echo "===> LD $@"
+-	${Q}$(CC) $(GAME_OBJS) $(LDFLAGS) -o $@
++	${Q}$(CC) $(GAME_OBJS) $(YQLDFLAGS) -o $@
+ endif
+ 
+ # ----------

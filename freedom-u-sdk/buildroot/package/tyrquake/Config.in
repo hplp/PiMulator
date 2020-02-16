@@ -1,0 +1,9 @@
+config BR2_PACKAGE_TYRQUAKE
+	bool "TyrQuake"
+	select BR2_PACKAGE_XORG7
+	select BR2_PACKAGE_MESA3D
+	select BR2_PACKAGE_XLIB_LIBXXF86VM
+	select BR2_PACKAGE_XLIB_LIBXXF86DGA
+	help
+
+	  A portable Quake.

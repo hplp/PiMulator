@@ -1,0 +1,6 @@
+config BR2_ARCH
+	default "riscv32" if BR2_riscv32
+	default "riscv64" if BR2_riscv64
+
+config BR2_ENDIAN
+	default "LITTLE"

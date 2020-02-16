@@ -1,0 +1,11 @@
+diff -ur xserver_xorg-server-1.18.3.orig/glamor/glamor_picture.c xserver_xorg-server-1.18.3/glamor/glamor_picture.c
+--- xserver_xorg-server-1.18.3.orig/glamor/glamor_picture.c	2017-11-27 20:15:30.803697785 -0800
++++ xserver_xorg-server-1.18.3/glamor/glamor_picture.c	2017-11-27 20:15:53.415633907 -0800
+@@ -27,6 +27,7 @@
+  */
+ 
+ #include <stdlib.h>
++#include <malloc.h>
+ 
+ #include "glamor_priv.h"
+ #include "mipict.h"
