@@ -1,3 +1,6 @@
 [submodule "freedom"]
 	path = freedom
 	url = https://github.com/hplp/freedom
+[submodule "ariane"]
+	path = ariane
+	url = https://github.com/hplp/ariane
