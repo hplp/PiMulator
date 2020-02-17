@@ -1,0 +1,3 @@
+[submodule "freedom"]
+	path = freedom
+	url = https://github.com/hplp/freedom
