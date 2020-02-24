@@ -4,3 +4,6 @@
 [submodule "ariane"]
 	path = ariane
 	url = https://github.com/hplp/ariane
+[submodule "hopscotch"]
+	path = hopscotch
+	url = https://github.com/alifahmed/hopscotch
