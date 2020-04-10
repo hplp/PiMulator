@@ -1,9 +1,9 @@
-[submodule "freedom"]
-	path = freedom
-	url = https://github.com/hplp/freedom
 [submodule "ariane"]
 	path = ariane
 	url = https://github.com/hplp/ariane
 [submodule "hopscotch"]
 	path = hopscotch
 	url = https://github.com/alifahmed/hopscotch
+[submodule "freedom"]
+	path = freedom
+	url = https://github.com/hplp/freedom
