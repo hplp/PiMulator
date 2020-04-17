@@ -8,6 +8,7 @@ vivado_hls.log
 
 NA/
 .Xil/
+.vscode/
 
 DRAMEmulation/Bank_HLS/Bank_HLS/
 DRAMEmulation/Bank_HLS/StreamBank_HLS/
