@@ -83,7 +83,7 @@ class LogicFrame(Frame):
         Label(self, text="CPU Architecture: ").grid(row=1, column=0, sticky=W)
         cpu_choices = {'U500-rocket', 'Ariane', 'MicroBlaze', 'Zynq'}
         default_cpu = StringVar(self)
-        default_cpu.set('MicroBlaze')
+        default_cpu.set('Zynq')
         OptionMenu(self, default_cpu, *cpu_choices).grid(row=1, column=1, sticky=W)
 
         # Memory
@@ -133,8 +133,14 @@ class ActionFrame(Frame):
         self.pack(side=TOP, expand=YES, padx=2, pady=2, ipadx=2, ipady=2, fill=BOTH)
         Label(self, text="Actions", font="TkDefaultFont 11 italic bold").grid(row=0, sticky=W)
 
+        # Import Configuration button
+        Button(self, text="Import configuration", command=self.PiM_import).grid(row=1, sticky=W)
+
         # Final button
-        Button(self, text="Generate SoC config", command=self.PiM_run).grid(row=1, sticky=W)
+        Button(self, text="Generate SoC", command=self.PiM_run).grid(row=2, sticky=W)
+
+    def PiM_import(self):
+        print("Importing configuration...")
     def PiM_run(self):
         print("Starting PiMulator...")
 
