@@ -40,7 +40,10 @@ class PiMulatorGUI(Frame):
         self.hardware_frame = HardwareFrame(self.left_frame)
 
         # .:: creating the Action frame
-        self.action_frame = ActionFrame(self.rbot_frame)
+        self.action_frame = ActionFrame(self.rtop_frame)
+
+        # .:: creating the Log frame
+        self.action_frame = LogFrame(self.rbot_frame)
 
 ## GUI Regions ##
 class SystemFrame(Frame):
@@ -81,9 +84,9 @@ class LogicFrame(Frame):
 
         # CPU architecture selection drop-down Option Menu
         Label(self, text="CPU Architecture: ").grid(row=1, column=0, sticky=W)
-        cpu_choices = {'U500-rocket', 'Ariane', 'MicroBlaze', 'Zynq'}
+        cpu_choices = {'RISC-V U500', 'RISC-V Ariane', 'MicroBlaze', 'ARM M1', 'ARM M3', 'Zynq'}
         default_cpu = StringVar(self)
-        default_cpu.set('Zynq')
+        default_cpu.set('RISC-V U500')
         OptionMenu(self, default_cpu, *cpu_choices).grid(row=1, column=1, sticky=W)
 
         # Memory
@@ -108,9 +111,19 @@ class LogicFrame(Frame):
         Checkbutton(self, text="HBM", variable=HBM).grid(row=3, column=4, sticky=W)
         HBM2 = IntVar()
         Checkbutton(self, text="HBM2", variable=HBM2).grid(row=3, column=5, sticky=W)
+        NV3DXP = IntVar()
+        Checkbutton(self, text="3D XPoint", variable=NV3DXP).grid(row=4, column=1, sticky=W)
 
         # Processing in Memory Topology
-        Label(self, text="PiM Topology: ").grid(row=4, column=0, sticky=W)
+        Label(self, text="PiM Topology: ").grid(row=5, column=0, sticky=W)
+        PiM0 = IntVar()
+        Checkbutton(self, text="PiM IPU", variable=PiM0).grid(row=5, column=1, sticky=W)
+        PiM1 = IntVar()
+        Checkbutton(self, text="PiM RPU", variable=PiM1).grid(row=5, column=2, sticky=W)
+        PiM2 = IntVar()
+        Checkbutton(self, text="PiM BPU", variable=PiM2).grid(row=5, column=3, sticky=W)
+        PiM3 = IntVar()
+        Checkbutton(self, text="PiM DPU", variable=PiM3).grid(row=5, column=4, sticky=W)
 
 class HardwareFrame(Frame):
     def __init__(self, parent_frame):
@@ -143,6 +156,13 @@ class ActionFrame(Frame):
         print("Importing configuration...")
     def PiM_run(self):
         print("Starting PiMulator...")
+
+class LogFrame(Frame):
+    def __init__(self, parent_frame):
+
+        Frame.__init__(self, parent_frame, borderwidth=1, relief=RAISED)
+        self.pack(side=TOP, expand=YES, padx=2, pady=2, ipadx=2, ipady=2, fill=BOTH)
+        Label(self, text="Logs", font="TkDefaultFont 11 italic bold").grid(row=0, sticky=W)
 
 window = Tk()
 window.title("PiMulator")
