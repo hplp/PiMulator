@@ -1,13 +1,15 @@
 #include <stdio.h>
-#include <unistd.h>
-#include <cstdlib>
+//#include <unistd.h>
+//#include <cstdlib>
 
-#include "xil_types.h"
-#include "xtmrctr.h"
 #include "xparameters.h"
-
+#include "xil_types.h"
 #include "xstatus.h"
+
+#include "xtmrctr.h"
 #include "xil_printf.h"
+
+#include "microblaze_sleep.h"
 
 #define CLK_FREQ XPAR_AXI_TIMER_0_CLOCK_FREQ_HZ
 
@@ -57,7 +59,19 @@ int main() {
 	printf("Elapsed %d clks\n", (tEnd - tStart));
 	printf("Elapsed_gD_us %lu us\n", getDuration_us(tStart, tEnd));
 	printf("Elapsed_gD    %f  s\n", getDuration(tStart, tEnd));
-	printf("return 0 \n");
+
+	tStart = AxiTimerStart(m_AxiTimer);
+	sleep_MB(4);
+	tEnd = AxiTimerStop(m_AxiTimer);
+	printf("Start=%d End=%d\n", tStart, tEnd);
+	printf("Elapsed %d clks\n", (tEnd - tStart));
+	printf("Elapsed_gD_us %lu us\n", getDuration_us(tStart, tEnd));
+	printf("Elapsed_gD    %f  s\n", getDuration(tStart, tEnd));
+
+	while (1) {
+		print(".");
+		sleep_MB(1);
+	}
 
 	return 0;
 }
