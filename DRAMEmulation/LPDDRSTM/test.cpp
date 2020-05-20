@@ -4,6 +4,7 @@ int main() {
 	int i, increment = 11;
 	int A[ADEPTH];
 	int B[ADEPTH];
+	bool CLK;
 
 	//Put data into A
 	for (i = 0; i < ADEPTH; i++) {
@@ -11,7 +12,7 @@ int main() {
 	}
 
 	//Call the hardware function
-	lpddrstm(A, increment);
+	lpddrstm(A, increment, &CLK);
 
 	//Run a software version of the hardware function to validate results
 	for (i = 0; i < ADEPTH; i++) {

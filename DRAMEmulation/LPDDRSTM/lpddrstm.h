@@ -3,4 +3,4 @@
 
 #define ADEPTH 16
 
-void lpddrstm(volatile int *a, int increment);
+void lpddrstm(volatile int *a, int increment, bool *CLK);
