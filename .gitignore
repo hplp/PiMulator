@@ -12,9 +12,21 @@ NA/
 
 DRAMEmulation/Bank_HLS/Bank_HLS/
 DRAMEmulation/Bank_HLS/StreamBank_HLS/
+DRAMEmulation/Bank_HLS/ARM_Bank_HLS/
+DRAMEmulation/Bank_HLS/Bank_HLS_AU280/
+
 DRAMEmulation/Bank_Hardware_Design/Bank_Hardware/
 DRAMEmulation/Bank_Hardware_Design/UZ_BankSHT/
 DRAMEmulation/Bank_Hardware_Design/UZ_BankStreamHT/
 DRAMEmulation/Bank_Hardware_Design/UZEG_*
 
 PiMulator.code-workspace
+
+MBBench/McrBlzHBMLnx/
+MBBench/MicBlz300DDR4/
+MBBench/MicBlzDDR/
+MBBench/MicBlzDDR3/
+MBBench/MicBlzDDR4HBM2/
+MBBench/MicBlzDDR4Lnx/
+MBBench/MicBlzHBM/
+MBBench/UZEGZynqDDR/
