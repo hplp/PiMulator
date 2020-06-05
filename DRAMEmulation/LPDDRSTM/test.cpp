@@ -6,7 +6,7 @@ int main() {
 	bool eCLK = false;
 
 	for (i = 0; i < 100; i++) {
-		eCLKtr = (i % 4 == 0) ? true : false;
+		eCLKtr = ((i % ((rand() % 3) + 2)) == 0) ? true : false;
 		eCLK = lpddrstm(eCLKtr, eCLK);
 		printf("m0 %d %d %d \n", eCLKtr, eCLK, i);
 	}
