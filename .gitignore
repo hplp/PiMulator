@@ -38,3 +38,6 @@ DRAMEmulation/LPDDRSTM/.settings/
 DRAMEmulation/LPDDRSTM/.vivado_hls_log_all.xml
 DRAMEmulation/LPDDRSTM/solution1/
 DRAMEmulation/LPDDRSTM/vivado_hls.app
+
+DRAMEmulation/LPDDRSTM/memoryFSM.v
+
