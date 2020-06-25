@@ -28,6 +28,12 @@ if {$TARGET=="xc7z020clg400-1"} {
     open_solution -reset "UZ_Solution"
     set_part $TARGET -tool vivado
     create_clock -period 4 -name default
+} elseif {$TARGET=="xcu280-fsvh2892-2L-e"} {
+    # Alveo U280 ES1 Solution
+    puts "AU280 solution"
+    open_solution -reset "AU280_Solution"
+    set_part $TARGET -tool vivado
+    create_clock -period 4 -name default
 } else {
     puts "Attempting solution for $TARGET"
     open_solution -reset "t_solution"
