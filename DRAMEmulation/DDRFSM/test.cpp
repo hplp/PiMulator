@@ -1,4 +1,4 @@
-#include "lpddrstm.h"
+#include "ddrfsm.h"
 
 int main() {
 	int i;
@@ -7,7 +7,7 @@ int main() {
 
 	for (i = 0; i < 100; i++) {
 		eCLKtr = ((i % ((rand() % 3) + 2)) == 0) ? true : false;
-		eCLK = lpddrstm(eCLKtr, eCLK);
+		eCLK = ddrfsm(eCLKtr, eCLK);
 		printf("m0 %d %d %d \n", eCLKtr, eCLK, i);
 	}
 

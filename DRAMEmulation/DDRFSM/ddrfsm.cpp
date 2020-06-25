@@ -1,6 +1,6 @@
-#include "lpddrstm.h"
+#include "ddrfsm.h"
 
-bool lpddrstm(bool eCLKtr, bool eCLK) {
+bool ddrfsm(bool eCLKtr, bool eCLK) {
 //#pragma HLS INTERFACE ap_none port=CLK
 //#pragma HLS INTERFACE s_axilite port=eCLKtr bundle=args
 

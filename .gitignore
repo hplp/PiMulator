@@ -32,13 +32,7 @@ MBBench/MicBlzHBM/
 MBBench/UZEGZynqDDR/
 MBBench/MicBlzDDR4StE3Lnx/
 
-DRAMEmulation/DDRFSM/.apc/
-DRAMEmulation/DDRFSM/.cproject
-DRAMEmulation/DDRFSM/.project
-DRAMEmulation/DDRFSM/.settings/
-DRAMEmulation/DDRFSM/.vivado_hls_log_all.xml
-DRAMEmulation/DDRFSM/solution1/
-DRAMEmulation/DDRFSM/vivado_hls.app
+DRAMEmulation/DDRFSM/DDRFSM/
 DRAMEmulation/DDRFSM/FSMsim/
 
 DRAMEmulation/DDRFSM/memoryFSM.v
