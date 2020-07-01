@@ -5,6 +5,8 @@ vivado.log
 vivado_pid*.str
 
 vivado_hls.log
+*.log
+*.png
 
 NA/
 .Xil/
@@ -36,4 +38,4 @@ DRAMEmulation/DDRFSM/DDRFSM/
 DRAMEmulation/DDRFSM/FSMsim/
 
 DRAMEmulation/DDRFSM/memoryFSM.v
-
+DRAMEmulation/Bank_Hardware_Design/AU280_Bank_HW/

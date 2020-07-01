@@ -1,4 +1,4 @@
-// Created by fizzim.pl version 5.20 on 2020:06:25 at 14:06:54 (www.fizzim.com)
+// Created by fizzim.pl version 5.20 on 2020:06:29 at 00:43:47 (www.fizzim.com)
 
 module memtiming (
   output reg [7:0] tCLct,
@@ -7,6 +7,7 @@ module memtiming (
   output reg [7:0] tRPct,
   input wire ACT,
   input wire BST,
+  input wire CFG,
   input wire CKEH,
   input wire CKEL,
   input wire DPD,
@@ -33,21 +34,22 @@ module memtiming (
   Activating     = 5'b00001, 
   ActivePD       = 5'b00010, 
   BankActive     = 5'b00011, 
-  DeepPD         = 5'b00100, 
-  IdleMRR        = 5'b00101, 
-  IdleMRW        = 5'b00110, 
-  IdlePD         = 5'b00111, 
-  PowerOn        = 5'b01000, 
-  Precharging    = 5'b01001, 
-  Reading        = 5'b01010, 
-  ReadingAPR     = 5'b01011, 
-  Refreshing     = 5'b01100, 
-  Resetting      = 5'b01101, 
-  ResettingMRR   = 5'b01110, 
-  ResettingPD    = 5'b01111, 
-  SelfRefreshing = 5'b10000, 
-  Writing        = 5'b10001, 
-  WritingAPR     = 5'b10010; 
+  Config         = 5'b00100, 
+  DeepPD         = 5'b00101, 
+  IdleMRR        = 5'b00110, 
+  IdleMRW        = 5'b00111, 
+  IdlePD         = 5'b01000, 
+  PowerOn        = 5'b01001, 
+  Precharging    = 5'b01010, 
+  Reading        = 5'b01011, 
+  ReadingAPR     = 5'b01100, 
+  Refreshing     = 5'b01101, 
+  Resetting      = 5'b01110, 
+  ResettingMRR   = 5'b01111, 
+  ResettingPD    = 5'b10000, 
+  SelfRefreshing = 5'b10001, 
+  Writing        = 5'b10010, 
+  WritingAPR     = 5'b10011; 
 
   reg [4:0] state;
   reg [4:0] nextstate;
@@ -127,6 +129,11 @@ module memtiming (
           nextstate = BankActive;
         end
       end
+      Config        : begin
+        begin
+          nextstate = Resetting;
+        end
+      end
       DeepPD        : begin
         if (DPDX) begin
           nextstate = PowerOn;
@@ -193,6 +200,9 @@ module memtiming (
         end
         else if (PD) begin
           nextstate = ResettingPD;
+        end
+        else if (CFG) begin
+          nextstate = Config;
         end
         else begin
           nextstate = Idle;
@@ -294,6 +304,8 @@ module memtiming (
         statename = "ActivePD";
       BankActive    :
         statename = "BankActive";
+      Config        :
+        statename = "Config";
       DeepPD        :
         statename = "DeepPD";
       IdleMRR       :
