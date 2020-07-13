@@ -1,4 +1,4 @@
-// Created by fizzim.pl version 5.20 on 2020:06:29 at 00:43:47 (www.fizzim.com)
+// Created by fizzim.pl version 5.20 on 2020:07:10 at 19:45:38 (www.fizzim.com)
 
 module memtiming (
   output reg [7:0] tCLct,
