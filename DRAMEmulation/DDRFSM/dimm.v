@@ -114,7 +114,7 @@ input parity;
 // implement ddr logic
 
 wire [ADDRWIDTH-1-3:0]addrLSB = addr[ADDRWIDTH-1-3:0];
-wire [2:0]addrROW = ((!act_n)&&(!cs_n)) ? addr[ADDRWIDTH-1:ADDRWIDTH-1-3] : 3d'0;
+wire [2:0]addrROW = ((!act_n)&&(!cs_n)) ? addr[ADDRWIDTH-1:ADDRWIDTH-1-3] : 3'd0;
 
 reg halt = 0;
 wire ACT = ((act_n) && (!cs_n) && (addr[ADDRWIDTH-1:ADDRWIDTH-4]==1));
