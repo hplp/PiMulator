@@ -17,27 +17,38 @@ module dimm(
          cke, // Clock Enable; HIGH activates internal clock signals and device input buffers and output drivers
 
          cs_n, // The memory looks at all the other inputs only if this is LOW
+`ifdef DDR4
          act_n, // Activate command input
+`endif
 `ifdef DDR3
          ras_n,
          cas_n,
          we_n,
 `endif
-         adr,
-         // These are dual function inputs. When ACT_n & CS_n are LOW, these are interpreted as Row Address Bits. When ACT_n is HIGH, these are interpreted as command pins to indicate READ, WRITE or other commands.
-         
-         ba,
-         bg,
+         addr,
+         // ras_n -> addr16, cas_n -> addr15, we_n -> addr14
+         // Dual function inputs:
+         // - when act_n & cs_n are LOW, these are interpreted as Row Address Bits
+         // - when act_n is HIGH, these are interpreted as command pins to indicate READ, WRITE or other commands
+
+         ba, // bank address
+`ifdef DDR4
+         bg, // bank group
+`endif
+
          dq, // Data Bus; This is how data is written in and read out
 `ifdef DDR4
-         dqs_c, // Data Strobe, essentially a data valid flag
-         dqs_t, // Data Strobe, essentially a data valid flag
+         dqs_c, // Data Strobe complement, essentially a data valid flag
+         dqs_t, // Data Strobe true, essentially a data valid flag
 `elsif DDR3
-         dqs_n, // Data Strobe, essentially a data valid flag
-         dqs_p, // Data Strobe, essentially a data valid flag
+         dqs_n, // Data Strobe n, essentially a data valid flag
+         dqs_p, // Data Strobe p, essentially a data valid flag
 `endif
+
          odt,
-         par
+`ifdef DDR4
+         parity
+`endif
        );
 
 parameter ADDRWIDTH = 17;
@@ -48,27 +59,66 @@ parameter BANKSPERGROUP = 8;
 parameter BAWIDTH = $clog2(BANKSPERGROUP);
 parameter ROWS = 512;
 parameter COLUMNS = 512;
-parameter DEVICE_WIDTH = 8;
+parameter DEVICE_WIDTH = 8; // x4, x8, x16 -> DQ width = Device_Width x BankGroups (Chips)
 
 // Declare Ports
-input act_n;
-input [ADDRWIDTH-1:0]adr;
-input [BAWIDTH:0]ba;
-input [BGWIDTH:0]bg;
+input reset_n;
+`ifdef DDR4
+
 input ck_c;
 input ck_t;
+`elsif DDR3
+input ck_n;
+input ck_p;
+`endif
+
 input cke;
+
 input cs_n;
+`ifdef DDR4
+
+input act_n;
+`endif
+  `ifdef DDR3
+
+input ras_n;
+input cas_n;
+input we_n;
+`endif
+
+input [ADDRWIDTH-1:0]addr;
+
+input [BAWIDTH:0]ba;
+`ifdef DDR4
+
+input [BGWIDTH:0]bg;
+`endif
+
 inout [71:0]dq;
+`ifdef DDR4
+
 inout [17:0]dqs_c;
 inout [17:0]dqs_t;
+`elsif DDR3
+inout [17:0]dqs_n;
+inout [17:0]dqs_p;
+`endif
+
 input odt;
-input par;
-input reset_n;
+`ifdef DDR4
+
+input parity;
+`endif
+
+
+// implement ddr logic
+
+wire [ADDRWIDTH-1-3:0]addrLSB = addr[ADDRWIDTH-1-3:0];
+wire [2:0]addrROW = ((!act_n)&&(!cs_n)) ? addr[ADDRWIDTH-1:ADDRWIDTH-1-3] : 3d'0;
 
 reg halt = 0;
-wire ACT = (adr[ADDRWIDTH-1:ADDRWIDTH-4]==1);
-wire BST = (adr[ADDRWIDTH-1:ADDRWIDTH-4]==2);
+wire ACT = ((act_n) && (!cs_n) && (addr[ADDRWIDTH-1:ADDRWIDTH-4]==1));
+wire BST = ((act_n) && (!cs_n) && (addr[ADDRWIDTH-1:ADDRWIDTH-4]==2));
 wire CFG = 0;
 wire CKEH = cke;
 wire CKEL = !cke;
@@ -78,14 +128,14 @@ wire MRR = 0;
 wire MRW = 0;
 wire PD = 0;
 wire PDX = 0;
-wire PR = (adr[ADDRWIDTH-1:ADDRWIDTH-4]==3);
-wire PRA = (adr[ADDRWIDTH-1:ADDRWIDTH-4]==3);
-wire RD = (adr[ADDRWIDTH-1:ADDRWIDTH-4]==4);
-wire RDA = (adr[ADDRWIDTH-1:ADDRWIDTH-4]==4);
-wire REF = (adr[ADDRWIDTH-1:ADDRWIDTH-4]==5);
+wire PR = ((act_n) && (!cs_n) && (addr[ADDRWIDTH-1:ADDRWIDTH-4]==3));
+wire PRA = ((act_n) && (!cs_n) && (addr[ADDRWIDTH-1:ADDRWIDTH-4]==3));
+wire RD = ((act_n) && (!cs_n) && (addr[ADDRWIDTH-1:ADDRWIDTH-4]==4));
+wire RDA = ((act_n) && (!cs_n) && (addr[ADDRWIDTH-1:ADDRWIDTH-4]==4));
+wire REF = ((act_n) && (!cs_n) && (addr[ADDRWIDTH-1:ADDRWIDTH-4]==5));
 wire SRF = 0;
-wire WR = (adr[ADDRWIDTH-1:ADDRWIDTH-4]==6);
-wire WRA = (adr[ADDRWIDTH-1:ADDRWIDTH-4]==6);
+wire WR = ((act_n) && (!cs_n) && (addr[ADDRWIDTH-1:ADDRWIDTH-4]==6));
+wire WRA = ((act_n) && (!cs_n) && (addr[ADDRWIDTH-1:ADDRWIDTH-4]==6));
 wire clk = ck_t && cke;
 wire rst;
 
