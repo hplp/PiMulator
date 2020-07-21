@@ -3,6 +3,13 @@
 module memtestbench(
        );
 
+parameter width = 8;
+parameter rows = 128;
+parameter columns = 64;
+
+reg clk;
+reg rst;
+reg halt;
 reg ACT;
 reg BST;
 reg CFG;
@@ -22,11 +29,15 @@ reg REF;
 reg SRF;
 reg WR;
 reg WRA;
-reg clk;
-reg rst;
-reg halt;
+reg [width-1 : 0]dq;
+reg [$clog2(rows)-1 : 0] row;
+reg [$clog2(columns)-1 : 0] column;
+reg wr_req;
+reg rd_req;
 
-memtimingwrp dut (
+memtimingwrp #(.width(8), .rows(128), .columns(64)) dut (
+               .clk(clk),
+               .rst(rst),
                .halt(halt),
                .ACT(ACT),
                .BST(BST),
@@ -47,8 +58,11 @@ memtimingwrp dut (
                .SRF(SRF),
                .WR(WR),
                .WRA(WRA),
-               .clk(clk),
-               .rst(rst)
+               .dq(),
+               .row(),
+               .column(),
+               .wr_req(),
+               .rd_req()
              );
 
 always #5 clk = ~clk;
@@ -77,29 +91,46 @@ initial
     SRF = 0;
     WR = 0;
     WRA = 0;
+    dq = 0;
+    row = 0;
+    column = 0;
+    wr_req = 0;
+    rd_req = 0;
+
 
     #10 // reset down
      rst = 0;
 
     #40 // activating
      ACT = 1;
-    #10 // activated
+    #10
      ACT = 0;
 
-    #40
+    #40 // halting
      halt = 1;
     #30
      halt = 0;
 
-    #200
+    #200 // halting
      halt = 1;
     #40
      halt = 0;
-    #20
-     RD = 1;
+
+    #20 // writing
+     WR = 1;
+    wr_req = 1;
+    row = 0;
+    column = 1;
+    dq = 1;
+    #10
+     row = 0;
+    column = 1;
+    dq = 1;
+
+
 
     #120
-     RD = 0;
+     WR = 0;
     PR = 1;
 
     #10
