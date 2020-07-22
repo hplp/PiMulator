@@ -3,9 +3,10 @@
 module memtestbench(
        );
 
-parameter width = 8;
-parameter rows = 128;
-parameter columns = 64;
+parameter WIDTH = 8;
+parameter BankBRAM = 128; // amount of BRAM per bank in bytes
+parameter ROWS = 128;
+parameter COLS = 64;
 
 reg clk;
 reg rst;
@@ -29,13 +30,14 @@ reg REF;
 reg SRF;
 reg WR;
 reg WRA;
-reg [width-1 : 0]dq;
-reg [$clog2(rows)-1 : 0] row;
-reg [$clog2(columns)-1 : 0] column;
-reg wr_req;
-reg rd_req;
+wire [WIDTH-1 : 0]dq;
+reg [WIDTH-1 : 0]dq_reg;
+reg [$clog2(ROWS)-1 : 0] row;
+reg [$clog2(COLS)-1 : 0] column;
 
-memtimingwrp #(.width(8), .rows(128), .columns(64)) dut (
+assign dq = (WR || WRA) ? dq_reg:{WIDTH{1'bZ}};
+
+memtimingwrp #(.WIDTH(WIDTH), .BankBRAM(BankBRAM), .ROWS(ROWS), .COLS(COLS)) dut (
                .clk(clk),
                .rst(rst),
                .halt(halt),
@@ -58,11 +60,9 @@ memtimingwrp #(.width(8), .rows(128), .columns(64)) dut (
                .SRF(SRF),
                .WR(WR),
                .WRA(WRA),
-               .dq(),
-               .row(),
-               .column(),
-               .wr_req(),
-               .rd_req()
+               .dq(dq),
+               .row(row),
+               .column(column)
              );
 
 always #5 clk = ~clk;
@@ -91,12 +91,9 @@ initial
     SRF = 0;
     WR = 0;
     WRA = 0;
-    dq = 0;
+    dq_reg = 0;
     row = 0;
     column = 0;
-    wr_req = 0;
-    rd_req = 0;
-
 
     #10 // reset down
      rst = 0;
@@ -118,19 +115,62 @@ initial
 
     #20 // writing
      WR = 1;
-    wr_req = 1;
     row = 0;
     column = 1;
-    dq = 1;
+    dq_reg = 2;
     #10
-     row = 0;
-    column = 1;
-    dq = 1;
+     row = 3;
+    column = 4;
+    dq_reg = 5;
+    #10
+     row = 6;
+    column = 7;
+    dq_reg = 8;
+    #10
+     row = 9;
+    column = 0;
+    dq_reg = 1;
+    #10
+     row = 2;
+    column = 3;
+    dq_reg = 4;
+    #10
+     row = 5;
+    column = 6;
+    dq_reg = 7;
 
-
-
-    #120
+    #10 // reading
      WR = 0;
+    RD = 1;
+    row = 0;
+    column = 1;
+    dq_reg = 2;
+    #10
+     row = 3;
+    column = 4;
+    dq_reg = 5;
+    #10
+     row = 6;
+    column = 7;
+    dq_reg = 8;
+    #10
+     row = 9;
+    column = 0;
+    dq_reg = 1;
+    #10
+     row = 2;
+    column = 3;
+    dq_reg = 4;
+    #10
+     row = 5;
+    column = 6;
+    dq_reg = 7;
+
+    #10
+     RD = 0;
+    row = 0;
+    column = 0;
+    dq_reg = 0;
     PR = 1;
 
     #10

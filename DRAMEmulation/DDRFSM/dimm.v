@@ -28,12 +28,14 @@ module dimm(
          addr,
          // ras_n -> addr16, cas_n -> addr15, we_n -> addr14
          // Dual function inputs:
-         // - when act_n & cs_n are LOW, these are interpreted as Row Address Bits
+         // - when act_n & cs_n are LOW, these are interpreted as *Row* Address Bits (RAS Row Address Strobe)
          // - when act_n is HIGH, these are interpreted as command pins to indicate READ, WRITE or other commands
+         // - - and CAS - Column Address Strobe (A0-A9 used for column at this times)
+         // A10 which is an unused bit during CAS is overloaded to indicate Auto-Precharge
 
          ba, // bank address
 `ifdef DDR4
-         bg, // bank group
+         bg, // bankgroup address, BG0-BG1 in x4/8 and BG0 in x16
 `endif
 
          dq, // Data Bus; This is how data is written in and read out
@@ -88,10 +90,10 @@ input we_n;
 
 input [ADDRWIDTH-1:0]addr;
 
-input [BAWIDTH:0]ba;
+input [BAWIDTH-1:0]ba;
 `ifdef DDR4
 
-input [BGWIDTH:0]bg;
+input [BGWIDTH-1:0]bg;
 `endif
 
 inout [71:0]dq;

@@ -1,8 +1,10 @@
+`timescale 1ns / 1ps
 
 module memtimingwrp
-       #(parameter width = 8,
-         parameter rows = 128,
-         parameter columns = 64)
+       #(parameter WIDTH = 8,
+         parameter BankBRAM = 128, // amount of BRAM per bank in bytes
+         parameter ROWS = 128,
+         parameter COLS = 64)
        (
          input wire clk,
          input wire rst,
@@ -26,20 +28,20 @@ module memtimingwrp
          input wire SRF,
          input wire WR,
          input wire WRA,
-         inout [width-1 : 0]dq,
-         input [$clog2(rows)-1 : 0] row,
-         input [$clog2(columns)-1 : 0] column,
-         input wr_req,
-         input rd_req
+         inout [WIDTH-1 : 0]dq,
+         input [$clog2(ROWS)-1 : 0] row,
+         input [$clog2(COLS)-1 : 0] column
        );
 
-reg [width-1 : 0] o_data;
-assign dq = rd_req ? o_data : {width{1'bZ}};
+wire [WIDTH-1 : 0] o_data;
+assign dq = (RD || RDA || PR || PRA) ? o_data : {WIDTH{1'bZ}};
 
-sram #(.WIDTH(8), .DEPTH(128)) array (
+localparam ROWADDR = $clog2(BankBRAM)/2;
+localparam COLADDR = $clog2(BankBRAM)-ROWADDR;
+sram #(.WIDTH(WIDTH), .DEPTH(BankBRAM)) array (
        .clk(clk),
-       .addr({row, column}),
-       .rd_o_wr(WR||WRA||wr_req),
+       .addr({row[ROWADDR-1:0], column[COLADDR-1:0]}), // todo
+       .rd_o_wr(WR||WRA), // todo
        .i_data(dq),
        .o_data(o_data)
      );
