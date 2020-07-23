@@ -9,8 +9,7 @@ module sram #(parameter WIDTH = 8, DEPTH = 2048) (
          output reg [WIDTH-1:0] o_data
        );
 
-// (* ram_style = "block" *)
-reg [WIDTH-1:0] memory_array [0:DEPTH-1];
+(* ram_style = "block" *) reg [WIDTH-1:0] memory_array [0:DEPTH-1];
 
 always @ (posedge clk)
   begin
