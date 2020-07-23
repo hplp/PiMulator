@@ -2,9 +2,9 @@
 
 module memtimingwrp
        #(parameter WIDTH = 8,
-         parameter BankBRAM = 128, // amount of BRAM per bank in bytes
-         parameter ROWS = 128,
-         parameter COLS = 64)
+         parameter ROWS = 131072,
+         parameter COLS = 1024,
+         parameter BankBRAM = COLS*2) // amount of BRAM per bank in bytes)
        (
          input wire clk,
          input wire rst,
@@ -36,12 +36,12 @@ module memtimingwrp
 wire [WIDTH-1 : 0] o_data;
 assign dq = (RD || RDA || PR || PRA) ? o_data : {WIDTH{1'bZ}};
 
-localparam ROWADDR = $clog2(BankBRAM)/2;
+localparam ROWADDR = 1; // $clog2(BankBRAM)/2;
 localparam COLADDR = $clog2(BankBRAM)-ROWADDR;
 sram #(.WIDTH(WIDTH), .DEPTH(BankBRAM)) array (
        .clk(clk),
-       .addr({row[ROWADDR-1:0], column[COLADDR-1:0]}), // todo
-       .rd_o_wr(WR||WRA), // todo
+       .addr({row[ROWADDR-1:0], column[COLADDR-1:0]}),
+       .rd_o_wr(WR||WRA),
        .i_data(dq),
        .o_data(o_data)
      );
