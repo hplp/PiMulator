@@ -31,6 +31,8 @@ reg SRF;
 reg WR;
 reg WRA;
 wire [WIDTH-1 : 0]dq;
+wire dqs_c;
+wire dqs_t;
 reg [WIDTH-1 : 0]dq_reg;
 reg [$clog2(ROWS)-1 : 0] row;
 reg [$clog2(COLS)-1 : 0] column;
@@ -61,11 +63,14 @@ memtimingwrp #(.WIDTH(WIDTH), .BankBRAM(BankBRAM), .ROWS(ROWS), .COLS(COLS)) dut
                .WR(WR),
                .WRA(WRA),
                .dq(dq),
+               .dqs_c(dqs_c),
+               .dqs_t(dqs_t),
                .row(row),
                .column(column)
              );
 
 always #5 clk = ~clk;
+assign dqs_c = !dqs_t;
 
 initial
   begin

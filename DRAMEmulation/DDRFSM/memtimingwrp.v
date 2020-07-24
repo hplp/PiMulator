@@ -29,6 +29,8 @@ module memtimingwrp
          input wire WR,
          input wire WRA,
          inout [WIDTH-1 : 0]dq,
+         inout dqs_c,
+         inout dqs_t,
          input [$clog2(ROWS)-1 : 0] row,
          input [$clog2(COLS)-1 : 0] column
        );
