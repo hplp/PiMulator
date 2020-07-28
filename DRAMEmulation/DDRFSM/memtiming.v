@@ -11,6 +11,7 @@ module memtiming
          output reg [7:0] tRCDct,
          output reg [7:0] tRFCct,
          output reg [7:0] tRPct,
+         output reg [4:0] state,
          input wire ACT,
          input wire BST,
          input wire CFG,
@@ -57,7 +58,7 @@ parameter
   Writing        = 5'b10010,
   WritingAPR     = 5'b10011;
 
-reg [4:0] state;
+//reg [4:0] state;
 reg [4:0] nextstate;
 
 // comb always block

@@ -37,13 +37,17 @@ module memtimingwrp
 
 wire [WIDTH-1 : 0] o_data;
 assign dq = (RD || RDA || PR || PRA) ? o_data : {WIDTH{1'bZ}};
+assign dqs_t = (RD || RDA || PR || PRA) ? 1'b1 : 1'bZ;
+assign dqs_c = (RD || RDA || PR || PRA) ? 1'b0: 1'bZ;
+
+wire [4:0] FSMstate;
 
 localparam ROWADDR = 1; // $clog2(BankBRAM)/2;
 localparam COLADDR = $clog2(BankBRAM)-ROWADDR;
 sram #(.WIDTH(WIDTH), .DEPTH(BankBRAM)) array (
        .clk(clk),
        .addr({row[ROWADDR-1:0], column[COLADDR-1:0]}),
-       .rd_o_wr(WR||WRA),
+       .rd_o_wr(WR||WRA||dqs_t||(!dqs_c)||(FSMstate==5'b10010)||(FSMstate==5'b10011)),
        .i_data(dq),
        .o_data(o_data)
      );
@@ -55,6 +59,7 @@ memtiming memtimingi (
             .tRCDct(),
             .tRFCct(),
             .tRPct(),
+            .state(FSMstate),
             .ACT(ACT),
             .BST(BST),
             .CFG(CFG),

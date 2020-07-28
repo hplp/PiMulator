@@ -8,14 +8,21 @@ module dimmtestbench(
 
 parameter ADDRWIDTH = 17;
 parameter RANKS = 1;
-parameter BANKGROUPS = 16;
-parameter BANKSPERGROUP = 4;
+parameter CHIPS = 2;
+parameter BANKGROUPS = 2;
+parameter BANKSPERGROUP = 2;
 parameter ROWS = 2**ADDRWIDTH;
 parameter COLS = 1024;
-parameter DEVICE_WIDTH = 4; // x4, x8, x16 -> DQ width = Device_Width x BankGroups (Chips)
+parameter DEVICE_WIDTH = 16; // x4, x8, x16 -> DQ width = Device_Width x BankGroups (Chips)
+parameter BL = 8; // Burst Length
+parameter ECC_WIDTH = 16; // number of ECC pins
 
+localparam DQWIDTH = DEVICE_WIDTH*CHIPS + ECC_WIDTH; // 64 bits + 8 bits for ECC
+localparam DQSWIDTH = CHIPS + ECC_WIDTH/DEVICE_WIDTH;
+localparam RWIDTH = $clog2(RANKS);
 localparam BGWIDTH = $clog2(BANKGROUPS);
 localparam BAWIDTH = $clog2(BANKSPERGROUP);
+localparam CADDRWIDTH = $clog2(COLS);
 
 reg reset_n;
 `ifdef DDR4
@@ -57,6 +64,10 @@ reg odt;
 `ifdef DDR4
 reg parity;
 `endif
+
+assign dq = (addr[14]) ? dq_reg:{DEVICE_WIDTH*BANKGROUPS{1'bZ}};
+assign dqs_c = (addr[14]) ? dqs_c_reg:{BANKGROUPS{1'bZ}};
+assign dqs_t = (addr[14]) ? dqs_t_reg:{BANKGROUPS{1'bZ}};
 
 dimm #(.ADDRWIDTH(ADDRWIDTH),
        .RANKS(RANKS),
@@ -104,15 +115,27 @@ dimm #(.ADDRWIDTH(ADDRWIDTH),
      );
 
 always #5 ck_t = ~ck_t;
-assign ck_c = !ck_t;
+always #5 ck_c = ~ck_c;
+//assign ck_c = !ck_t;
 
 initial
   begin
     ck_t = 0;
+    ck_c = 1;
     reset_n = 0;
+    cke = 1;
+    cs_n = 0;
+    act_n = 0;
 
     #10 // reset high
      reset_n = 1;
+    act_n = 1;
+    addr = 17'b11111111111111111;
+    bg = 3'b111;
+    ba = 2'b11;
+    dq_reg = 64'h8899AABBCCDDEEFF;
+    dqs_t_reg = 18'b111111111111111111;
+    dqs_c_reg = 18'b000000000000000000;
 
     #210
      $stop;
