@@ -8,21 +8,24 @@ module dimmtestbench(
 
 parameter ADDRWIDTH = 17;
 parameter RANKS = 1;
-parameter CHIPS = 2;
-parameter BANKGROUPS = 2;
-parameter BANKSPERGROUP = 2;
+parameter CHIPS = 16;
+parameter BANKGROUPS = 4;
+parameter BANKSPERGROUP = 4;
 parameter ROWS = 2**ADDRWIDTH;
 parameter COLS = 1024;
-parameter DEVICE_WIDTH = 16; // x4, x8, x16 -> DQ width = Device_Width x BankGroups (Chips)
+parameter DEVICE_WIDTH = 4; // x4, x8, x16 -> DQ width = Device_Width x BankGroups (Chips)
 parameter BL = 8; // Burst Length
-parameter ECC_WIDTH = 16; // number of ECC pins
+parameter ECC_WIDTH = 8; // number of ECC pins
 
 localparam DQWIDTH = DEVICE_WIDTH*CHIPS + ECC_WIDTH; // 64 bits + 8 bits for ECC
 localparam DQSWIDTH = CHIPS + ECC_WIDTH/DEVICE_WIDTH;
-localparam RWIDTH = $clog2(RANKS);
 localparam BGWIDTH = $clog2(BANKGROUPS);
 localparam BAWIDTH = $clog2(BANKSPERGROUP);
 localparam CADDRWIDTH = $clog2(COLS);
+
+localparam PAGESIZE = (DEVICE_WIDTH*COLS*CHIPS)/(1024); // Kb
+localparam CHIPSIZE = (DEVICE_WIDTH*COLS*(ROWS/1024)*BANKSPERGROUP*BANKGROUPS)/(1024); // Mb
+localparam DIMMSIZE = (CHIPSIZE*CHIPS)/(1024*8); // GB
 
 reg reset_n;
 `ifdef DDR4
@@ -33,7 +36,7 @@ reg ck_n;
 reg ck_p;
 `endif
 reg cke;
-reg cs_n;
+reg [RANKS-1:0]cs_n;
 `ifdef DDR4
 reg act_n;
 `endif
@@ -42,40 +45,45 @@ reg ras_n;
 reg cas_n;
 reg we_n;
 `endif
-reg [ADDRWIDTH-1:0]addr;
-reg [BAWIDTH-1:0]ba;
+reg [ADDRWIDTH-1:0]A;
+reg [BAWIDTH:0]ba;
 `ifdef DDR4
-reg [BGWIDTH-1:0]bg;
+reg [BGWIDTH:0]bg;
 `endif
-wire [DEVICE_WIDTH*BANKGROUPS-1:0]dq;
-reg [DEVICE_WIDTH*BANKGROUPS-1:0]dq_reg;
+wire [DQWIDTH-1:0]dq;
+reg [DQWIDTH-1:0]dq_reg;
 `ifdef DDR4
-wire [BANKGROUPS+1:0]dqs_c;
-reg [BANKGROUPS+1:0]dqs_c_reg;
-wire [BANKGROUPS+1:0]dqs_t;
-reg [BANKGROUPS+1:0]dqs_t_reg;
+wire [DQSWIDTH-1:0]dqs_c;
+reg [DQSWIDTH-1:0]dqs_c_reg;
+wire [DQSWIDTH-1:0]dqs_t;
+reg [DQSWIDTH-1:0]dqs_t_reg;
 `elsif DDR3
-wire [BANKGROUPS+1:0]dqs_n;
-reg [BANKGROUPS+1:0]dqs_n_reg;
-wire [BANKGROUPS+1:0]dqs_p;
-reg [BANKGROUPS+1:0]dqs_p_reg;
+wire [DQSWIDTH-1:0]dqs_n;
+reg [DQSWIDTH-1:0]dqs_n_reg;
+wire [DQSWIDTH-1:0]dqs_p;
+reg [DQSWIDTH-1:0]dqs_p_reg;
 `endif
 reg odt;
 `ifdef DDR4
 reg parity;
 `endif
 
-assign dq = (addr[14]) ? dq_reg:{DEVICE_WIDTH*BANKGROUPS{1'bZ}};
-assign dqs_c = (addr[14]) ? dqs_c_reg:{BANKGROUPS{1'bZ}};
-assign dqs_t = (addr[14]) ? dqs_t_reg:{BANKGROUPS{1'bZ}};
+reg writing;
+
+assign dq = (writing) ? dq_reg:{DQWIDTH{1'bZ}};
+assign dqs_c = (writing) ? dqs_c_reg:{DQSWIDTH{1'bZ}};
+assign dqs_t = (writing) ? dqs_t_reg:{DQSWIDTH{1'bZ}};
 
 dimm #(.ADDRWIDTH(ADDRWIDTH),
        .RANKS(RANKS),
+       .CHIPS(CHIPS),
        .BANKGROUPS(BANKGROUPS),
        .BANKSPERGROUP(BANKSPERGROUP),
        .ROWS(ROWS),
        .COLS(COLS),
-       .DEVICE_WIDTH(DEVICE_WIDTH)
+       .DEVICE_WIDTH(DEVICE_WIDTH),
+       .BL(BL),
+       .ECC_WIDTH(ECC_WIDTH)
       ) dut (
        .reset_n(reset_n),
 `ifdef DDR4
@@ -95,7 +103,7 @@ dimm #(.ADDRWIDTH(ADDRWIDTH),
        .cas_n(cas_n),
        .we_n(we_n),
 `endif
-       .addr(addr),
+       .A(A),
        .ba(ba),
 `ifdef DDR4
        .bg(bg),
@@ -116,28 +124,49 @@ dimm #(.ADDRWIDTH(ADDRWIDTH),
 
 always #5 ck_t = ~ck_t;
 always #5 ck_c = ~ck_c;
-//assign ck_c = !ck_t;
 
 initial
   begin
+    reset_n = 0;
     ck_t = 0;
     ck_c = 1;
-    reset_n = 0;
     cke = 1;
-    cs_n = 0;
-    act_n = 0;
+    cs_n = {RANKS{1'b1}};
+    act_n = 1;
+    A = {ADDRWIDTH{1'b0}};
+    bg = 0;
+    ba = 0;
+    dq_reg = {DQWIDTH{1'b0}};
+    dqs_t_reg = {DQSWIDTH{1'b1}};
+    dqs_c_reg = {DQSWIDTH{1'b0}};
+    odt = 0;
+    parity = 0;
+    writing = 0;
 
     #10 // reset high
      reset_n = 1;
-    act_n = 1;
-    addr = 17'b11111111111111111;
-    bg = 3'b111;
-    ba = 2'b11;
-    dq_reg = 64'h8899AABBCCDDEEFF;
+    cs_n = {RANKS{1'b0}};
+
+    #50 // activating
+     act_n = 0;
+    #10
+     act_n = 1;
+
+    #320
+     A = 17'b10000000000000000;
+    writing = 1;
+    dq_reg = 72'h000123456789ABCDEF;
     dqs_t_reg = 18'b111111111111111111;
     dqs_c_reg = 18'b000000000000000000;
 
-    #210
+    #10
+     A = 17'b01000000000000000;
+    writing = 0;
+
+    #10
+     A = 17'b00000000000000000;
+
+    #20
      $stop;
   end;
 

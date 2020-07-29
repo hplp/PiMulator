@@ -67,10 +67,15 @@ module dimm
 `endif
        );
 
+wire A16 = A[16]; // RAS_n
+wire A15 = A[15]; // CAS_n
+wire A14 = A[14]; // WE_n
+wire A10 = A[10]; // AP
+
 // implement ddr logic // todo
 reg halt = 0;
-wire ACT = ((act_n) && A[ADDRWIDTH-1]); // todo
-wire BST = ((act_n) && A[ADDRWIDTH-2]); // todo
+wire ACT = (!act_n); // entire A is the Row Address at this time
+wire BST = (act_n && A[ADDRWIDTH-2]); // todo
 wire CFG = 0;
 wire CKEH = cke;
 wire CKEL = !cke;
@@ -80,35 +85,29 @@ wire MRR = 0;
 wire MRW = 0;
 wire PD = 0;
 wire PDX = 0;
-wire PR = ((act_n) && A[ADDRWIDTH-3]); // todo
-wire PRA = ((act_n) && A[ADDRWIDTH-4]); // todo
-wire RD = ((act_n) && A[ADDRWIDTH-5]); // todo
-wire RDA = ((act_n) && A[ADDRWIDTH-6]); // todo
-wire REF = ((act_n) && A[ADDRWIDTH-7]); // todo
-wire SRF = 0;
-wire WR = ((act_n) && A[ADDRWIDTH-8]); // todo
-wire WRA = ((act_n) && A[ADDRWIDTH-9]); // todo
+wire PR  = (act_n && !A16 &&  A15 && !A14 && !A10); // PRE
+wire PRA = (act_n && !A16 &&  A15 && !A14 &&  A10);
+wire RD  = (act_n &&  A16 && !A15 &&  A14 && !A10);
+wire RDA = (act_n &&  A16 && !A15 &&  A14 &&  A10);
+wire REF = (act_n && !A16 && !A15 &&  A14         &&  cke);
+wire SRF = (act_n && !A16 && !A15 &&  A14         && !cke); // SRE
+wire WR  = (act_n &&  A16 && !A15 && !A14 && !A10);
+wire WRA = (act_n &&  A16 && !A15 && !A14 &&  A10);
 wire clk = ck_t && cke;
 wire rst = !reset_n;
 
-reg RAS, CAS, WE;
+// always @(posedge ck_t) // todo or posedge ck_c)
+//   begin
+//     if (reset_n) // DRAM active
+//       begin
+// `ifdef DDR4
 
-always @(posedge ck_t) // todo or posedge ck_c)
-  begin
-    if (reset_n) // DRAM active
-      begin
-`ifdef DDR4
-        RAS <= A[ADDRWIDTH-1];
-        CAS <= A[ADDRWIDTH-2];
-        WE <= A[ADDRWIDTH-3];
-`elsif DDR3
-        RAS <= ras_n;
-        CAS <= cas_n;
-        WE <= we_n;
-`endif
+// `elsif DDR3
 
-      end
-  end
+// `endif
+
+//       end
+//   end
 
 genvar ri, ci;
 generate
