@@ -8,22 +8,20 @@
 module dimm
        #(parameter ADDRWIDTH = 17,
          parameter RANKS = 1,
-         parameter CHIPS = 1,
-         parameter BANKGROUPS = 1,
-         parameter BANKSPERGROUP = 2,
+         parameter CHIPS = 16,
+         parameter BANKGROUPS = 4,
+         parameter BANKSPERGROUP = 4,
          parameter ROWS = 2**ADDRWIDTH,
          parameter COLS = 1024,
-         parameter DEVICE_WIDTH = 64, // x4, x8, x16 -> DQ width = Device_Width x BankGroups (Chips)
+         parameter DEVICE_WIDTH = 4, // x4, x8, x16 -> DQWIDTH = DEVICE_WIDTH x CHIPS
          parameter BL = 8, // Burst Length
-         parameter ECC_WIDTH = 64, // number of ECC pins
+         parameter ECC_WIDTH = 8, // number of ECC pins
 
          localparam DQWIDTH = DEVICE_WIDTH*CHIPS + ECC_WIDTH, // 64 bits + 8 bits for ECC
          localparam DQSWIDTH = CHIPS + ECC_WIDTH/DEVICE_WIDTH,
-         localparam RWIDTH = $clog2(RANKS),
          localparam BGWIDTH = $clog2(BANKGROUPS),
          localparam BAWIDTH = $clog2(BANKSPERGROUP),
-         localparam CADDRWIDTH = $clog2(COLS),
-         localparam BankBRAM = COLS*2 // to allocate 2 full rows of BRAM space at each Bank
+         localparam CADDRWIDTH = $clog2(COLS)
         )
        (
          input reset_n, // DRAM is active only when this signal is HIGH
@@ -35,7 +33,7 @@ module dimm
          input ck_p, // Differential clock input; All address & control signals are sampled at the crossing of posedge of ck_p
 `endif
          input cke, // Clock Enable; HIGH activates internal clock signals and device input buffers and output drivers
-         input [RWIDTH:0]cs_n, // The memory looks at all the other inputs only if this is LOW
+         input [RANKS-1:0]cs_n, // The memory looks at all the other inputs only if this is LOW
 `ifdef DDR4
          input act_n, // Activate command input
 `endif
@@ -69,27 +67,27 @@ module dimm
 `endif
        );
 
-// implement ddr logic
+// implement ddr logic // todo
 reg halt = 0;
-// wire ACT = ((act_n) && (!cs_n) && (A[ADDRWIDTH-1:ADDRWIDTH-4]==1));
-// wire BST = ((act_n) && (!cs_n) && (A[ADDRWIDTH-1:ADDRWIDTH-4]==2));
-// wire CFG = 0;
-// wire CKEH = cke;
-// wire CKEL = !cke;
-// wire DPD = 0;
-// wire DPDX = 0;
-// wire MRR = 0;
-// wire MRW = 0;
-// wire PD = 0;
-// wire PDX = 0;
-// wire PR = ((act_n) && (!cs_n) && (A[ADDRWIDTH-1:ADDRWIDTH-4]==3));
-// wire PRA = ((act_n) && (!cs_n) && (A[ADDRWIDTH-1:ADDRWIDTH-4]==3));
-// wire RD = ((act_n) && (!cs_n) && (A[ADDRWIDTH-1:ADDRWIDTH-4]==4));
-// wire RDA = ((act_n) && (!cs_n) && (A[ADDRWIDTH-1:ADDRWIDTH-4]==4));
-// wire REF = ((act_n) && (!cs_n) && (A[ADDRWIDTH-1:ADDRWIDTH-4]==5));
-// wire SRF = 0;
-// wire WR = ((act_n) && (!cs_n) && (A[ADDRWIDTH-1:ADDRWIDTH-4]==6));
-// wire WRA = ((act_n) && (!cs_n) && (A[ADDRWIDTH-1:ADDRWIDTH-4]==6));
+wire ACT = ((act_n) && A[ADDRWIDTH-1]); // todo
+wire BST = ((act_n) && A[ADDRWIDTH-2]); // todo
+wire CFG = 0;
+wire CKEH = cke;
+wire CKEL = !cke;
+wire DPD = 0;
+wire DPDX = 0;
+wire MRR = 0;
+wire MRW = 0;
+wire PD = 0;
+wire PDX = 0;
+wire PR = ((act_n) && A[ADDRWIDTH-3]); // todo
+wire PRA = ((act_n) && A[ADDRWIDTH-4]); // todo
+wire RD = ((act_n) && A[ADDRWIDTH-5]); // todo
+wire RDA = ((act_n) && A[ADDRWIDTH-6]); // todo
+wire REF = ((act_n) && A[ADDRWIDTH-7]); // todo
+wire SRF = 0;
+wire WR = ((act_n) && A[ADDRWIDTH-8]); // todo
+wire WRA = ((act_n) && A[ADDRWIDTH-9]); // todo
 wire clk = ck_t && cke;
 wire rst = !reset_n;
 
@@ -112,47 +110,49 @@ always @(posedge ck_t) // todo or posedge ck_c)
       end
   end
 
-genvar ri, ci, bgi, bi;
+genvar ri, ci;
 generate
   for (ri = 0; ri < RANKS ; ri=ri+1)
     begin:R
       for (ci = 0; ci < CHIPS ; ci=ci+1)
         begin:C
-          for (bgi = 0; bgi < BANKGROUPS ; bgi=bgi+1)
-            begin:BG
-              for (bi = 0; bi < BANKSPERGROUP; bi=bi+1)
-                begin:Bank
-                  memtimingwrp #(.WIDTH(DEVICE_WIDTH), .BankBRAM(BankBRAM), .ROWS(ROWS), .COLS(COLS)) memtimingwrpi (
-                                 .clk(clk),
-                                 .rst(rst),
-                                 .halt(halt),
-                                 .ACT((!cs_n[ri]) && (bg==bgi) && (ba==bi) && act_n),
-                                 .BST((!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .CFG((!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .CKEH((!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .CKEL((!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .DPD((!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .DPDX((!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .MRR((!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .MRW((!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .PD((!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .PDX((!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .PR((!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .PRA((!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .RD((RAS || CAS) && (!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .RDA((RAS || CAS) && (!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .REF((!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .SRF((!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .WR((WE || CAS) && (!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .WRA((WE || CAS) && (!cs_n[ri]) && (bg==bgi) && (ba==bi)),
-                                 .dq(((bg==bgi) && (ba==bi))? dq[DEVICE_WIDTH*(ci+1)-1:DEVICE_WIDTH*ci] : {DEVICE_WIDTH{1'b0}}),
-                                 .dqs_c(((bg==bgi) && (ba==bi))? dqs_c[ci] : 1'b0),
-                                 .dqs_t(((bg==bgi) && (ba==bi))? dqs_t[ci] : 1'b0),
-                                 .row(((!cs_n[ri]) && (bg==bgi) && (ba==bi))? A : {ADDRWIDTH{1'b0}}),
-                                 .column(((!cs_n[ri]) && (bg==bgi) && (ba==bi))? A[CADDRWIDTH-1:0] : {CADDRWIDTH{1'b0}})
-                               );
-                end
-            end
+          Chip #(.ADDRWIDTH(ADDRWIDTH),
+                 .BANKGROUPS(BANKGROUPS),
+                 .BANKSPERGROUP(BANKSPERGROUP),
+                 .ROWS(ROWS),
+                 .COLS(COLS),
+                 .DEVICE_WIDTH(DEVICE_WIDTH),
+                 .BL(BL)) Ci (
+                 .clk(clk),
+                 .rst(rst),
+                 .halt(halt),
+                 .ACT((!cs_n[ri]) && ACT),
+                 .BST((!cs_n[ri]) && BST),
+                 .CFG((!cs_n[ri]) && CFG),
+                 .CKEH((!cs_n[ri]) && CKEH),
+                 .CKEL((!cs_n[ri]) && CKEL),
+                 .DPD((!cs_n[ri]) && DPD),
+                 .DPDX((!cs_n[ri]) && DPDX),
+                 .MRR((!cs_n[ri]) && MRR),
+                 .MRW((!cs_n[ri]) && MRW),
+                 .PD((!cs_n[ri]) && PD),
+                 .PDX((!cs_n[ri]) && PDX),
+                 .PR((!cs_n[ri]) && PR),
+                 .PRA((!cs_n[ri]) && PRA),
+                 .RD((!cs_n[ri]) && RD),
+                 .RDA((!cs_n[ri]) && RDA),
+                 .REF((!cs_n[ri]) && REF),
+                 .SRF((!cs_n[ri]) && SRF),
+                 .WR((!cs_n[ri]) && WR),
+                 .WRA((!cs_n[ri]) && WRA),
+                 .bg(bg),
+                 .ba(ba),
+                 .dq(dq[DEVICE_WIDTH*(ci+1)-1:DEVICE_WIDTH*ci]),
+                 .dqs_c(dqs_c[ci]),
+                 .dqs_t(dqs_t[ci]),
+                 .row(A),
+                 .column(A[CADDRWIDTH-1:0])
+               );
         end
     end
 endgenerate
