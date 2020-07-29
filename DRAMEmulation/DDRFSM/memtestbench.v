@@ -6,7 +6,6 @@ module memtestbench(
 parameter WIDTH = 4;
 parameter ROWS = 131072;
 parameter COLS = 1024;
-parameter BankBRAM = COLS*2; // amount of BRAM per bank in bytes
 
 reg clk;
 reg rst;
@@ -33,13 +32,15 @@ reg WRA;
 wire [WIDTH-1 : 0]dq;
 wire dqs_c;
 wire dqs_t;
-reg [WIDTH-1 : 0]dq_reg;
 reg [$clog2(ROWS)-1 : 0] row;
 reg [$clog2(COLS)-1 : 0] column;
 
-assign dq = (WR || WRA) ? dq_reg:{WIDTH{1'bZ}};
+reg [WIDTH-1 : 0]dq_reg;
+assign dq = (WR || WRA) ? dq_reg : {WIDTH{1'bZ}};
+assign dqs_t = (WR || WRA) ? 1'b1 : 1'bZ;
+assign dqs_c = (WR || WRA) ? 1'b0 : 1'bZ;
 
-memtimingwrp #(.WIDTH(WIDTH), .BankBRAM(BankBRAM), .ROWS(ROWS), .COLS(COLS)) dut (
+memtimingwrp #(.WIDTH(WIDTH), .ROWS(ROWS), .COLS(COLS)) dut (
                .clk(clk),
                .rst(rst),
                .halt(halt),
@@ -70,7 +71,6 @@ memtimingwrp #(.WIDTH(WIDTH), .BankBRAM(BankBRAM), .ROWS(ROWS), .COLS(COLS)) dut
              );
 
 always #5 clk = ~clk;
-assign dqs_c = !dqs_t;
 
 initial
   begin
