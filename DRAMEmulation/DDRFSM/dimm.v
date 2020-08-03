@@ -96,6 +96,8 @@ wire WRA = (act_n &&  A16 && !A15 && !A14 &&  A10);
 wire clk = ck_t && cke;
 wire rst = !reset_n;
 
+wire [18:0]commands = {ACT, BST, CFG, CKEH, CKEL, DPD, DPDX, MRR, MRW, PD, PDX, PR, PRA, RD, RDA, REF, SRF, WR, WRA};
+
 // always @(posedge ck_t) // todo or posedge ck_c)
 //   begin
 //     if (reset_n) // DRAM active
@@ -125,25 +127,7 @@ generate
                  .clk(clk),
                  .rst(rst),
                  .halt(halt),
-                 .ACT((!cs_n[ri]) && ACT),
-                 .BST((!cs_n[ri]) && BST),
-                 .CFG((!cs_n[ri]) && CFG),
-                 .CKEH((!cs_n[ri]) && CKEH),
-                 .CKEL((!cs_n[ri]) && CKEL),
-                 .DPD((!cs_n[ri]) && DPD),
-                 .DPDX((!cs_n[ri]) && DPDX),
-                 .MRR((!cs_n[ri]) && MRR),
-                 .MRW((!cs_n[ri]) && MRW),
-                 .PD((!cs_n[ri]) && PD),
-                 .PDX((!cs_n[ri]) && PDX),
-                 .PR((!cs_n[ri]) && PR),
-                 .PRA((!cs_n[ri]) && PRA),
-                 .RD((!cs_n[ri]) && RD),
-                 .RDA((!cs_n[ri]) && RDA),
-                 .REF((!cs_n[ri]) && REF),
-                 .SRF((!cs_n[ri]) && SRF),
-                 .WR((!cs_n[ri]) && WR),
-                 .WRA((!cs_n[ri]) && WRA),
+                 .commands((!cs_n[ri])? commands : {19{1'b0}}),
                  .bg(bg),
                  .ba(ba),
                  .dq(dq[DEVICE_WIDTH*(ci+1)-1:DEVICE_WIDTH*ci]),
