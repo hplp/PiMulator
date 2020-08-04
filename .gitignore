@@ -5,6 +5,8 @@ vivado.log
 vivado_pid*.str
 
 vivado_hls.log
+*.log
+*.png
 
 NA/
 .Xil/
@@ -32,15 +34,15 @@ MBBench/MicBlzHBM/
 MBBench/UZEGZynqDDR/
 MBBench/MicBlzDDR4StE3Lnx/
 
-DRAMEmulation/LPDDRSTM/.apc/
-DRAMEmulation/LPDDRSTM/.cproject
-DRAMEmulation/LPDDRSTM/.project
-DRAMEmulation/LPDDRSTM/.settings/
-DRAMEmulation/LPDDRSTM/.vivado_hls_log_all.xml
-DRAMEmulation/LPDDRSTM/solution1/
-DRAMEmulation/LPDDRSTM/vivado_hls.app
-DRAMEmulation/LPDDRSTM/FSMsim/
+DRAMEmulation/DDRFSM/DDRFSM/
+DRAMEmulation/DDRFSM/FSMsim/
+DRAMEmulation/DDRFSM/dimmsim/
 
-DRAMEmulation/LPDDRSTM/memoryFSM.v
-DRAMEmulation/LPDDRSTM/memtimingFSM.v
+DRAMEmulation/DDRFSM/memoryFSM.v
+DRAMEmulation/Bank_Hardware_Design/AU280_Bank_HW/
 
+CMakeLists.txt
+CMakeLists.txt.cpp
+DRAMEmulation/DDRFSM/MicBlzDDR/
+DRAMEmulation/DDRFSM/timing.xdc
+build/

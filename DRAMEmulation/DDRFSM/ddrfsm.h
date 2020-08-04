@@ -4,4 +4,4 @@
 
 #define ADEPTH 16
 
-bool lpddrstm(bool eCLKtr, bool eCLK);
+bool ddrfsm(bool eCLKtr, bool eCLK);
