@@ -37,6 +37,7 @@ MBBench/MicBlzDDR4StE3Lnx/
 DRAMEmulation/DDRFSM/DDRFSM/
 DRAMEmulation/DDRFSM/FSMsim/
 DRAMEmulation/DDRFSM/dimmsim/
+DRAMEmulation/DDRFSM/*.wcfg
 
 DRAMEmulation/DDRFSM/memoryFSM.v
 DRAMEmulation/Bank_Hardware_Design/AU280_Bank_HW/
