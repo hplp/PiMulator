@@ -6,6 +6,7 @@ module memtestbench(
 parameter WIDTH = 4;
 parameter ROWS = 131072;
 parameter COLS = 1024;
+parameter BL = 8;
 
 reg clk;
 reg rst;
@@ -24,7 +25,8 @@ assign dqs_c = (commands[0] || commands[1]) ? 1'b0 : 1'bZ;
 
 memtimingwrp #(.WIDTH(WIDTH),
                .ROWS(ROWS),
-               .COLS(COLS)) dut (
+               .COLS(COLS),
+               .BL(BL)) dut (
                .clk(clk),
                .rst(rst),
                .halt(halt),

@@ -9,6 +9,7 @@ parameter BANKSPERGROUP = 2;
 parameter DEVICE_WIDTH = 4;
 parameter ROWS = 2**ADDRWIDTH;
 parameter COLS = 1024;
+parameter BL = 8;
 
 localparam BGWIDTH = $clog2(BANKGROUPS);
 localparam BAWIDTH = $clog2(BANKSPERGROUP);
@@ -36,7 +37,8 @@ Chip #(.ADDRWIDTH(ADDRWIDTH),
        .BANKSPERGROUP(BANKSPERGROUP),
        .DEVICE_WIDTH(DEVICE_WIDTH),
        .ROWS(ROWS),
-       .COLS(COLS)) dut (
+       .COLS(COLS),
+       .BL(BL)) dut (
        .clk(clk),
        .rst(rst),
        .halt(halt),

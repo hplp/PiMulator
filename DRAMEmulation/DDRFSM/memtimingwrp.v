@@ -4,6 +4,7 @@ module memtimingwrp // bank timing plus n rows of BRAM space
        #(parameter WIDTH = 4,
          parameter ROWS = 131072,
          parameter COLS = 1024,
+         parameter BL = 8,
          localparam BankBRAM = COLS*16) // amount of BRAM per bank
        (
          input wire clk,

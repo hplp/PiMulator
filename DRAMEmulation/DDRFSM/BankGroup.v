@@ -30,7 +30,8 @@ generate
     begin:B
       memtimingwrp #(.WIDTH(DEVICE_WIDTH),
                      .ROWS(ROWS),
-                     .COLS(COLS)) mtmgi (
+                     .COLS(COLS),
+                     .BL(BL)) mtmgi (
                      .clk(clk),
                      .rst(rst),
                      .halt(halt),
