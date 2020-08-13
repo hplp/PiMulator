@@ -9,7 +9,7 @@ parameter COLS = 1024;
 parameter BL = 8;
 
 reg clk;
-reg rst;
+reg reset_n;
 reg halt;
 reg [18:0]commands;
 wire [WIDTH-1:0]dq;
@@ -28,7 +28,7 @@ memtimingwrp #(.WIDTH(WIDTH),
                .COLS(COLS),
                .BL(BL)) dut (
                .clk(clk),
-               .rst(rst),
+               .reset_n(reset_n),
                .halt(halt),
                .commands(commands),
                .dq(dq),
@@ -43,7 +43,7 @@ always #5 clk = ~clk;
 initial
   begin
     clk = 0;
-    rst = 1;
+    reset_n = 0;
     halt = 0;
     commands = 19'b0000000000000000000;
     dq_reg = 0;
@@ -51,7 +51,7 @@ initial
     column = 0;
 
     #10 // reset down
-     rst = 0;
+     reset_n = 1;
 
     #50 // activating
      commands = 19'b1000000000000000000; // ACT = 1;

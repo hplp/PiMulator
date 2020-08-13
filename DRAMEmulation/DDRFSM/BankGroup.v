@@ -13,7 +13,7 @@ module BankGroup
         )
        (
          input wire clk,
-         input wire rst,
+         input wire reset_n,
          input wire halt,
          input wire [18:0]commands,
          input wire [BAWIDTH:0]ba, // bank address
@@ -33,7 +33,7 @@ generate
                      .COLS(COLS),
                      .BL(BL)) mtmgi (
                      .clk(clk),
-                     .rst(rst),
+                     .reset_n(reset_n),
                      .halt(halt),
                      .commands((ba==bi)? commands : {19{1'b0}}),
                      .dq(dq),

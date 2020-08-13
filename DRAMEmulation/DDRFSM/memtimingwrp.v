@@ -8,7 +8,7 @@ module memtimingwrp // bank timing plus n rows of BRAM space
          localparam BankBRAM = COLS*16) // amount of BRAM per bank
        (
          input wire clk,
-         input wire rst,
+         input wire reset_n,
          input wire halt,
          input wire [18:0]commands,
          inout [WIDTH-1:0]dq,
@@ -82,7 +82,7 @@ memtiming memtimingi (
             .WR(WR),
             .WRA(WRA),
             .clk(eclk),
-            .rst(rst)
+            .rst(!reset_n)
           );
 
 endmodule

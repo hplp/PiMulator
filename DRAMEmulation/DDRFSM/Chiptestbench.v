@@ -16,7 +16,7 @@ localparam BAWIDTH = $clog2(BANKSPERGROUP);
 localparam CADDRWIDTH = $clog2(COLS);
 
 reg clk;
-reg rst;
+reg reset_n;
 reg halt;
 reg [18:0]commands;
 reg [BGWIDTH : 0]bg; // bank group address
@@ -40,7 +40,7 @@ Chip #(.ADDRWIDTH(ADDRWIDTH),
        .COLS(COLS),
        .BL(BL)) dut (
        .clk(clk),
-       .rst(rst),
+       .reset_n(reset_n),
        .halt(halt),
        .commands(commands),
        .bg(bg),
@@ -57,7 +57,7 @@ always #5 clk = ~clk;
 initial
   begin
     clk = 0;
-    rst = 1;
+    reset_n = 0;
     halt = 0;
     commands = 19'b0000000000000000000;
     bg = 0;
@@ -67,7 +67,7 @@ initial
     column = 0;
 
     #10 // reset down
-     rst = 0;
+     reset_n = 1;
 
     #50 // activating
      commands = 19'b1000000000000000000; // ACT = 1;

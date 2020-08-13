@@ -67,6 +67,23 @@ module dimm
 `endif
        );
 
+// Differential clock buffer
+wire clkd;
+IBUFGDS #(
+          .DIFF_TERM("FALSE"),
+          .IBUF_LOW_PWR("FALSE"),
+          .IOSTANDARD("DEFAULT")
+        ) IBUFGDS_inst (
+          .O(clkd),
+`ifdef DDR4
+          .I(ck_t),
+          .IB(ck_c)
+`elsif DDR3
+          .I(ck_p),
+          .IB(ck_n)
+`endif
+        );
+
 wire A16 = A[16]; // RAS_n
 wire A15 = A[15]; // CAS_n
 wire A14 = A[14]; // WE_n
@@ -93,23 +110,9 @@ wire REF = (act_n && !A16 && !A15 &&  A14         &&  cke);
 wire SRF = (act_n && !A16 && !A15 &&  A14         && !cke); // SRE
 wire WR  = (act_n &&  A16 && !A15 && !A14 && !A10);
 wire WRA = (act_n &&  A16 && !A15 && !A14 &&  A10);
-wire clk = ck_t && cke;
-wire rst = !reset_n;
+wire clk = clkd && cke;
 
 wire [18:0]commands = {ACT, BST, CFG, CKEH, CKEL, DPD, DPDX, MRR, MRW, PD, PDX, PR, PRA, RD, RDA, REF, SRF, WR, WRA};
-
-// always @(posedge ck_t) // todo or posedge ck_c)
-//   begin
-//     if (reset_n) // DRAM active
-//       begin
-// `ifdef DDR4
-
-// `elsif DDR3
-
-// `endif
-
-//       end
-//   end
 
 genvar ri, ci;
 generate
@@ -125,7 +128,7 @@ generate
                  .DEVICE_WIDTH(DEVICE_WIDTH),
                  .BL(BL)) Ci (
                  .clk(clk),
-                 .rst(rst),
+                 .reset_n(reset_n),
                  .halt(halt),
                  .commands((!cs_n[ri])? commands : {19{1'b0}}),
                  .bg(bg),

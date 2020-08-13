@@ -15,7 +15,7 @@ module Chip
         )
        (
          input wire clk,
-         input wire rst,
+         input wire reset_n,
          input wire halt,
          input wire [18:0]commands,
          input wire [BGWIDTH:0]bg, // bank group address
@@ -38,7 +38,7 @@ generate
                   .DEVICE_WIDTH(DEVICE_WIDTH),
                   .BL(BL)) BGi (
                   .clk(clk),
-                  .rst(rst),
+                  .reset_n(reset_n),
                   .halt(halt),
                   .commands((bg==bgi)? commands : {19{1'b0}}),
                   .ba(ba),
