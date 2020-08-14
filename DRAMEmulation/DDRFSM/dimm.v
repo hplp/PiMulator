@@ -94,8 +94,8 @@ reg halt = 0;
 wire ACT = (!act_n); // entire A is the Row Address at this time
 wire BST = (act_n && A[ADDRWIDTH-2]); // todo
 wire CFG = 0;
-wire CKEH = cke;
-wire CKEL = !cke;
+wire CKEH = 0;//cke;
+wire CKEL = 0;//!cke;
 wire DPD = 0;
 wire DPDX = 0;
 wire MRR = 0;
@@ -113,6 +113,16 @@ wire WRA = (act_n &&  A16 && !A15 && !A14 &&  A10);
 wire clk = clkd && cke;
 
 wire [18:0]commands = {ACT, BST, CFG, CKEH, CKEL, DPD, DPDX, MRR, MRW, PD, PDX, PR, PRA, RD, RDA, REF, SRF, WR, WRA};
+
+// RAS = Row Address Strobe
+reg [ADDRWIDTH-1:0] row = {ADDRWIDTH{1'b0}};
+always@(posedge clk)
+  begin
+    if(ACT)
+      row <= A;
+    else if (PR)
+      row <= {ADDRWIDTH{1'b0}};
+  end
 
 genvar ri, ci;
 generate
@@ -136,7 +146,7 @@ generate
                  .dq(dq[DEVICE_WIDTH*(ci+1)-1:DEVICE_WIDTH*ci]),
                  .dqs_c(dqs_c[ci]),
                  .dqs_t(dqs_t[ci]),
-                 .row(A),
+                 .row(row),
                  .column(A[CADDRWIDTH-1:0])
                );
         end

@@ -23,9 +23,10 @@ localparam BGWIDTH = $clog2(BANKGROUPS);
 localparam BAWIDTH = $clog2(BANKSPERGROUP);
 localparam CADDRWIDTH = $clog2(COLS);
 
-localparam PAGESIZE = (DEVICE_WIDTH*COLS*CHIPS)/(1024); // Kb
 localparam CHIPSIZE = (DEVICE_WIDTH*COLS*(ROWS/1024)*BANKSPERGROUP*BANKGROUPS)/(1024); // Mb
 localparam DIMMSIZE = (CHIPSIZE*CHIPS)/(1024*8); // GB
+
+localparam tCK = 0.75;
 
 reg reset_n;
 `ifdef DDR4
@@ -70,9 +71,9 @@ reg parity;
 
 reg writing;
 
-assign dq = (writing) ? dq_reg:{DQWIDTH{1'bZ}};
-assign dqs_c = (writing) ? dqs_c_reg:{DQSWIDTH{1'bZ}};
-assign dqs_t = (writing) ? dqs_t_reg:{DQSWIDTH{1'bZ}};
+assign dq = (writing) ? dq_reg:{8'd0, {DQWIDTH-8{1'bZ}}};
+assign dqs_c = (writing) ? dqs_c_reg:{2'd0,{DQSWIDTH-2{1'bZ}}};
+assign dqs_t = (writing) ? dqs_t_reg:{2'd1,{DQSWIDTH-2{1'bZ}}};
 
 dimm #(.ADDRWIDTH(ADDRWIDTH),
        .RANKS(RANKS),
@@ -122,8 +123,10 @@ dimm #(.ADDRWIDTH(ADDRWIDTH),
 `endif
      );
 
-always #5 ck_t = ~ck_t;
-always #5 ck_c = ~ck_c;
+always #(tCK*0.5) ck_t = ~ck_t;
+always #(tCK*0.5) ck_c = ~ck_c;
+
+integer i; // loop variable
 
 initial
   begin
@@ -137,36 +140,66 @@ initial
     bg = 0;
     ba = 0;
     dq_reg = {DQWIDTH{1'b0}};
-    dqs_t_reg = {DQSWIDTH{1'b1}};
+    dqs_t_reg = {DQSWIDTH{1'b0}};
     dqs_c_reg = {DQSWIDTH{1'b0}};
     odt = 0;
     parity = 0;
     writing = 0;
 
-    #10 // reset high
+    #tCK // reset high
      reset_n = 1;
-    cs_n = {RANKS{1'b0}};
+    cs_n = 1'b0;
 
-    #50 // activating
+    #(tCK*5) // activating
      act_n = 0;
-    #10
+    bg = 1;
+    ba = 1;
+    A = 17'b00000000000000001;
+    #tCK
      act_n = 1;
+    A = 17'b00000000000000000;
+    #(tCK*15) // tRCD
+     #(tCK*15) // tCL
 
-    #320
-     A = 17'b10000000000000000;
-    writing = 1;
-    dq_reg = 72'h000123456789ABCDEF;
-    dqs_t_reg = 18'b111111111111111111;
-    dqs_c_reg = 18'b000000000000000000;
+     // write
+     for (i = 0; i < BL; i = i + 1)
+       begin
+         #tCK
+          A = (i==0)? 17'b10000000000000000 : 17'b00000000000000000;
+         writing = 1;
+         dq_reg = {8'd0, $random, $random, $random, $random, $random, $random, $random, $random };
+         dqs_t_reg = 18'b111111111111111111;
+         dqs_c_reg = 18'b000000000000000000;
+       end
 
-    #10
-     A = 17'b01000000000000000;
-    writing = 0;
+     // after write
+     //      #tCK
+     //       A = 17'b00000000000000000;
+     //     dq_reg = 72'd0;
+     //     dqs_t_reg = 18'd0;
+     //     dqs_c_reg = 18'd0;
+     //     writing = 0;
 
-    #10
-     A = 17'b00000000000000000;
+     // read
+     for (i = 0; i < BL; i = i + 1)
+       begin
+         #tCK
+          A = (i==0)? 17'b10100000000000000 : 17'b00000000000000000;
+         dq_reg = 72'd0;
+         dqs_t_reg = 18'd0;
+         dqs_c_reg = 18'd0;
+         writing = 0;
+       end
 
-    #20
+     #tCK
+      // precharge and back to idle
+      A = 17'b01000000000000000;
+
+    #tCK
+     bg = 0;
+    ba = 0;
+    A = 17'b01000000000000000;
+    #(2*tCK)
      $stop;
   end;
 

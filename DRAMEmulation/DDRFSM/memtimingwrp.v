@@ -39,16 +39,39 @@ wire WR   = commands[1];//18
 wire WRA  = commands[0];//19
 
 wire [WIDTH-1 : 0] o_data;
-assign dq = (RD || RDA || PR || PRA)? o_data : {WIDTH{1'bZ}};
-assign dqs_t = (RD || RDA || PR || PRA)? 1'b1 : 1'bZ;
-assign dqs_c = (RD || RDA || PR || PRA)? 1'b0: 1'bZ;
+assign dq = (RD || RDA || (FSMstate==5'b01011) || (FSMstate==5'b01100))? o_data : {WIDTH{1'bZ}};
+assign dqs_t = (RD || RDA || (FSMstate==5'b01011) || (FSMstate==5'b01100))? 1'b1 : 1'bZ;
+assign dqs_c = (RD || RDA || (FSMstate==5'b01011) || (FSMstate==5'b01100))? 1'b0: 1'bZ;
 
 wire [4:0] FSMstate;
+
+// // CAS = Column Address Strobe plus BL column address increment
+reg [$clog2(COLS)-1:0]colBL=0;
+always@(posedge clk)
+  begin
+    if(RD || RDA || WR || WRA)
+      colBL <= column;
+    else
+      if ((FSMstate==5'b10010) || (FSMstate==5'b10011) || (FSMstate==5'b01011) || (FSMstate==5'b01100))
+        colBL <= colBL + 1;
+      else
+        colBL <= {$clog2(COLS){1'b0}};
+  end
+
+//
+// reg [CADDRWIDTH-1:0] column = {CADDRWIDTH{1'b0}};
+// always@(posedge clk)
+//   begin
+//     if(RD || RDA || WR || WRA)
+//       column <= A[CADDRWIDTH-1:0];
+//     else
+//       column <= {CADDRWIDTH{1'b0}};
+//   end
 
 localparam ROWADDR = $clog2(BankBRAM) - $clog2(COLS);
 sram #(.WIDTH(WIDTH), .DEPTH(BankBRAM)) array (
        .clk(clk),
-       .addr({row[ROWADDR-1:0], column}),
+       .addr({row[ROWADDR-1:0], colBL}),
        .rd_o_wr(WR||WRA||(FSMstate==5'b10010)),
        .i_data(dq),
        .o_data(o_data)
