@@ -6,22 +6,22 @@
 // references: www.systemverilog.io
 
 module dimm
-       #(parameter ADDRWIDTH = 17,
-         parameter RANKS = 1,
+       #(parameter RANKS = 1,
          parameter CHIPS = 16,
-         parameter BANKGROUPS = 4,
-         parameter BANKSPERGROUP = 4,
-         parameter ROWS = 2**ADDRWIDTH,
-         parameter COLS = 1024,
+         parameter BGWIDTH = 2,
+         parameter BAWIDTH = 2,
+         parameter ADDRWIDTH = 17,
+         parameter COLWIDTH = 10,
          parameter DEVICE_WIDTH = 4, // x4, x8, x16 -> DQWIDTH = DEVICE_WIDTH x CHIPS
          parameter BL = 8, // Burst Length
          parameter ECC_WIDTH = 8, // number of ECC pins
 
          localparam DQWIDTH = DEVICE_WIDTH*CHIPS + ECC_WIDTH, // 64 bits + 8 bits for ECC
          localparam DQSWIDTH = CHIPS + ECC_WIDTH/DEVICE_WIDTH,
-         localparam BGWIDTH = $clog2(BANKGROUPS),
-         localparam BAWIDTH = $clog2(BANKSPERGROUP),
-         localparam CADDRWIDTH = $clog2(COLS)
+         localparam BANKGROUPS = BGWIDTH**2,
+         localparam BANKSPERGROUP = BAWIDTH**2,
+         localparam ROWS = 2**ADDRWIDTH,
+         localparam COLS = 2**COLWIDTH
         )
        (
          input reset_n, // DRAM is active only when this signal is HIGH
@@ -53,13 +53,13 @@ module dimm
 `ifdef DDR4
          input [BGWIDTH:0]bg, // bankgroup address, BG0-BG1 in x4/8 and BG0 in x16
 `endif
-         inout [DQWIDTH-1:0]dq, // Data Bus; This is how data is written in and read out
+         inout [DEVICE_WIDTH*CHIPS + ECC_WIDTH -1:0]dq, // Data Bus; This is how data is written in and read out
 `ifdef DDR4
-         inout [DQSWIDTH-1:0]dqs_c, // Data Strobe complement, essentially a data valid flag
-         inout [DQSWIDTH-1:0]dqs_t, // Data Strobe true, essentially a data valid flag
+         inout [CHIPS + ECC_WIDTH/DEVICE_WIDTH-1:0]dqs_c, // Data Strobe complement, essentially a data valid flag
+         inout [CHIPS + ECC_WIDTH/DEVICE_WIDTH-1:0]dqs_t, // Data Strobe true, essentially a data valid flag
 `elsif DDR3
-         inout [DQSWIDTH-1:0]dqs_n, // Data Strobe n, essentially a data valid flag
-         inout [DQSWIDTH-1:0]dqs_p, // Data Strobe p, essentially a data valid flag
+         inout [CHIPS + ECC_WIDTH/DEVICE_WIDTH-1:0]dqs_n, // Data Strobe n, essentially a data valid flag
+         inout [CHIPS + ECC_WIDTH/DEVICE_WIDTH-1:0]dqs_p, // Data Strobe p, essentially a data valid flag
 `endif
          input odt,
 `ifdef DDR4
@@ -130,11 +130,10 @@ generate
     begin:R
       for (ci = 0; ci < CHIPS ; ci=ci+1)
         begin:C
-          Chip #(.ADDRWIDTH(ADDRWIDTH),
-                 .BANKGROUPS(BANKGROUPS),
-                 .BANKSPERGROUP(BANKSPERGROUP),
-                 .ROWS(ROWS),
-                 .COLS(COLS),
+          Chip #(.BGWIDTH(BGWIDTH),
+                 .BAWIDTH(BAWIDTH),
+                 .ADDRWIDTH(ADDRWIDTH),
+                 .COLWIDTH(COLWIDTH),
                  .DEVICE_WIDTH(DEVICE_WIDTH),
                  .BL(BL)) Ci (
                  .clk(clk),
@@ -147,7 +146,7 @@ generate
                  .dqs_c(dqs_c[ci]),
                  .dqs_t(dqs_t[ci]),
                  .row(row),
-                 .column(A[CADDRWIDTH-1:0])
+                 .column(A[COLWIDTH-1:0])
                );
         end
     end

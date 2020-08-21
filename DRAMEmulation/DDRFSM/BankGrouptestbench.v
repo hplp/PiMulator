@@ -1,17 +1,17 @@
 `timescale 1ns / 1ps
 
-module BGtestbench(
+module BankGrouptestbench(
        );
 
+parameter BAWIDTH = 2;
 parameter ADDRWIDTH = 17;
-parameter BANKSPERGROUP = 2;
+parameter COLWIDTH = 10;
 parameter DEVICE_WIDTH = 4;
-parameter ROWS = 2**ADDRWIDTH;
-parameter COLS = 1024;
 parameter BL = 8;
 
-localparam BAWIDTH = $clog2(BANKSPERGROUP);
-localparam CADDRWIDTH = $clog2(COLS);
+localparam BANKSPERGROUP = BAWIDTH**2;
+localparam ROWS = 2**ADDRWIDTH;
+localparam COLS = COLWIDTH**2;
 
 reg clk;
 reg reset_n;
@@ -29,11 +29,9 @@ assign dq = (commands[0] || commands[1]) ? dq_reg : {DEVICE_WIDTH{1'bZ}};
 assign dqs_t = (commands[0] || commands[1]) ? 1'b1 : 1'bZ;
 assign dqs_c = (commands[0] || commands[1]) ? 1'b0 : 1'bZ;
 
-BankGroup #(.ADDRWIDTH(ADDRWIDTH),
-            .BANKSPERGROUP(BANKSPERGROUP),
+BankGroup #(.BAWIDTH(BAWIDTH),
+            .ADDRWIDTH(ADDRWIDTH),
             .DEVICE_WIDTH(DEVICE_WIDTH),
-            .ROWS(ROWS),
-            .COLS(COLS),
             .BL(BL)) dut (
             .clk(clk),
             .reset_n(reset_n),

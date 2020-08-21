@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module memtestbench(
+module Banktestbench(
        );
 
 parameter WIDTH = 4;
@@ -23,20 +23,20 @@ assign dq = (commands[0] || commands[1]) ? dq_reg : {WIDTH{1'bZ}};
 assign dqs_t = (commands[0] || commands[1]) ? 1'b1 : 1'bZ;
 assign dqs_c = (commands[0] || commands[1]) ? 1'b0 : 1'bZ;
 
-memtimingwrp #(.WIDTH(WIDTH),
-               .ROWS(ROWS),
-               .COLS(COLS),
-               .BL(BL)) dut (
-               .clk(clk),
-               .reset_n(reset_n),
-               .halt(halt),
-               .commands(commands),
-               .dq(dq),
-               .dqs_c(dqs_c),
-               .dqs_t(dqs_t),
-               .row(row),
-               .column(column)
-             );
+Bank #(.WIDTH(WIDTH),
+       .ROWS(ROWS),
+       .COLS(COLS),
+       .BL(BL)) dut (
+       .clk(clk),
+       .reset_n(reset_n),
+       .halt(halt),
+       .commands(commands),
+       .dq(dq),
+       .dqs_c(dqs_c),
+       .dqs_t(dqs_t),
+       .row(row),
+       .column(column)
+     );
 
 always #5 clk = ~clk;
 

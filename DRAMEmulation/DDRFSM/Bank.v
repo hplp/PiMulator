@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module memtimingwrp // bank timing plus n rows of BRAM space
+module Bank // bank timing plus n rows of BRAM space
        #(parameter WIDTH = 4,
          parameter ROWS = 131072,
          parameter COLS = 1024,

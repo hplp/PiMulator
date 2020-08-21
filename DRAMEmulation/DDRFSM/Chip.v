@@ -1,17 +1,17 @@
 `timescale 1ns / 1ps
 
 module Chip
-       #(parameter ADDRWIDTH = 17,
-         parameter BANKGROUPS = 2,
-         parameter BANKSPERGROUP = 2,
-         parameter ROWS = 2**ADDRWIDTH,
-         parameter COLS = 1024,
+       #(parameter BGWIDTH = 2,
+         parameter BAWIDTH = 2,
+         parameter ADDRWIDTH = 17,
+         parameter COLWIDTH = 10,
          parameter DEVICE_WIDTH = 4,
          parameter BL = 8,
 
-         localparam BGWIDTH = $clog2(BANKGROUPS),
-         localparam BAWIDTH = $clog2(BANKSPERGROUP),
-         localparam CADDRWIDTH = $clog2(COLS)
+         localparam BANKGROUPS = BGWIDTH**2,
+         localparam BANKSPERGROUP = BAWIDTH**2,
+         localparam ROWS = 2**ADDRWIDTH,
+         localparam COLS = 2**COLWIDTH
         )
        (
          input wire clk,
@@ -24,17 +24,16 @@ module Chip
          inout dqs_c,
          inout dqs_t,
          input wire [ADDRWIDTH-1:0] row,
-         input wire [CADDRWIDTH-1:0] column
+         input wire [COLWIDTH-1:0] column
        );
 
 genvar bgi;
 generate
   for (bgi = 0; bgi < BANKGROUPS ; bgi=bgi+1)
     begin:BG
-      BankGroup #(.ADDRWIDTH(ADDRWIDTH),
-                  .BANKSPERGROUP(BANKSPERGROUP),
-                  .ROWS(ROWS),
-                  .COLS(COLS),
+      BankGroup #(.BAWIDTH(BAWIDTH),
+                  .ADDRWIDTH(ADDRWIDTH),
+                  .COLWIDTH(COLWIDTH),
                   .DEVICE_WIDTH(DEVICE_WIDTH),
                   .BL(BL)) BGi (
                   .clk(clk),

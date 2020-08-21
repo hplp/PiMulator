@@ -1,15 +1,15 @@
 `timescale 1ns / 1ps
 
 module BankGroup
-       #(parameter ADDRWIDTH = 17,
-         parameter BANKSPERGROUP = 2,
-         parameter ROWS = 2**ADDRWIDTH,
-         parameter COLS = 1024,
+       #(parameter BAWIDTH = 2,
+         parameter ADDRWIDTH = 17,
+         parameter COLWIDTH = 10,
          parameter DEVICE_WIDTH = 4,
          parameter BL = 8,
 
-         localparam BAWIDTH = $clog2(BANKSPERGROUP),
-         localparam CADDRWIDTH = $clog2(COLS)
+         localparam BANKSPERGROUP = BAWIDTH**2,
+         localparam ROWS = 2**ADDRWIDTH,
+         localparam COLS = 2**COLWIDTH
         )
        (
          input wire clk,
@@ -21,17 +21,17 @@ module BankGroup
          inout dqs_c,
          inout dqs_t,
          input wire [ADDRWIDTH-1:0] row,
-         input wire [CADDRWIDTH-1:0] column
+         input wire [COLWIDTH-1:0] column
        );
 
 genvar bi;
 generate
   for (bi = 0; bi < BANKSPERGROUP; bi=bi+1)
     begin:B
-      memtimingwrp #(.WIDTH(DEVICE_WIDTH),
+      Bank #(.WIDTH(DEVICE_WIDTH),
                      .ROWS(ROWS),
                      .COLS(COLS),
-                     .BL(BL)) mtmgi (
+                     .BL(BL)) Bi (
                      .clk(clk),
                      .reset_n(reset_n),
                      .halt(halt),

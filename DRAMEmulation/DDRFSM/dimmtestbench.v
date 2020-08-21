@@ -6,24 +6,24 @@
 module dimmtestbench(
        );
 
-parameter ADDRWIDTH = 17;
 parameter RANKS = 1;
 parameter CHIPS = 16;
-parameter BANKGROUPS = 4;
-parameter BANKSPERGROUP = 4;
-parameter ROWS = 2**ADDRWIDTH;
-parameter COLS = 1024;
+parameter BGWIDTH = 2;
+parameter BAWIDTH = 2;
+parameter ADDRWIDTH = 17;
+parameter COLWIDTH = 10;
 parameter DEVICE_WIDTH = 4; // x4, x8, x16 -> DQ width = Device_Width x BankGroups (Chips)
 parameter BL = 8; // Burst Length
 parameter ECC_WIDTH = 8; // number of ECC pins
 
 localparam DQWIDTH = DEVICE_WIDTH*CHIPS + ECC_WIDTH; // 64 bits + 8 bits for ECC
 localparam DQSWIDTH = CHIPS + ECC_WIDTH/DEVICE_WIDTH;
-localparam BGWIDTH = $clog2(BANKGROUPS);
-localparam BAWIDTH = $clog2(BANKSPERGROUP);
-localparam CADDRWIDTH = $clog2(COLS);
+localparam BANKGROUPS = BGWIDTH**2;
+localparam BANKSPERGROUP = BAWIDTH**2;
+localparam ROWS = 2**ADDRWIDTH;
+localparam COLS = COLWIDTH**2;
 
-localparam CHIPSIZE = (DEVICE_WIDTH*COLS*(ROWS/1024)*BANKSPERGROUP*BANKGROUPS)/(1024); // Mb
+localparam CHIPSIZE = (DEVICE_WIDTH*COLS*(ROWS/1024)*BANKSPERGROUP*BANKGROUPS)/(1024); // Mbit
 localparam DIMMSIZE = (CHIPSIZE*CHIPS)/(1024*8); // GB
 
 localparam tCK = 0.75;
@@ -75,13 +75,12 @@ assign dq = (writing) ? dq_reg:{8'd0, {DQWIDTH-8{1'bZ}}};
 assign dqs_c = (writing) ? dqs_c_reg:{2'd0,{DQSWIDTH-2{1'bZ}}};
 assign dqs_t = (writing) ? dqs_t_reg:{2'd1,{DQSWIDTH-2{1'bZ}}};
 
-dimm #(.ADDRWIDTH(ADDRWIDTH),
-       .RANKS(RANKS),
+dimm #(.RANKS(RANKS),
        .CHIPS(CHIPS),
-       .BANKGROUPS(BANKGROUPS),
-       .BANKSPERGROUP(BANKSPERGROUP),
-       .ROWS(ROWS),
-       .COLS(COLS),
+       .BGWIDTH(BGWIDTH),
+       .BAWIDTH(BAWIDTH),
+       .ADDRWIDTH(ADDRWIDTH),
+       .COLWIDTH(COLWIDTH),
        .DEVICE_WIDTH(DEVICE_WIDTH),
        .BL(BL),
        .ECC_WIDTH(ECC_WIDTH)
@@ -191,15 +190,15 @@ initial
          writing = 0;
        end
 
+     // precharge and back to idle
      #tCK
-      // precharge and back to idle
       A = 17'b01000000000000000;
 
     #tCK
      bg = 0;
     ba = 0;
     A = 17'b01000000000000000;
-    #(2*tCK)
+    #(4*tCK)
      $stop;
   end;
 
