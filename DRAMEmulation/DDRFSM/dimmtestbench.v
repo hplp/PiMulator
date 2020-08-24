@@ -47,9 +47,9 @@ reg cas_n;
 reg we_n;
 `endif
 reg [ADDRWIDTH-1:0]A;
-reg [BAWIDTH:0]ba;
+reg [BAWIDTH-1:0]ba;
 `ifdef DDR4
-reg [BGWIDTH:0]bg;
+reg [BGWIDTH-1:0]bg;
 `endif
 wire [DQWIDTH-1:0]dq;
 reg [DQWIDTH-1:0]dq_reg;

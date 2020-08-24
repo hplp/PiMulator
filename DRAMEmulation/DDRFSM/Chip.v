@@ -18,8 +18,8 @@ module Chip
          input wire reset_n,
          input wire halt,
          input wire [18:0]commands,
-         input wire [BGWIDTH:0]bg, // bank group address
-         input wire [BAWIDTH:0]ba, // bank address
+         input wire [BGWIDTH-1:0]bg, // bank group address
+         input wire [BAWIDTH-1:0]ba, // bank address
          inout [DEVICE_WIDTH-1:0]dq,
          inout dqs_c,
          inout dqs_t,

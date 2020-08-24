@@ -24,7 +24,25 @@ module dimm
          localparam COLS = 2**COLWIDTH
         )
        (
-         input reset_n, // DRAM is active only when this signal is HIGH
+`ifdef DDR4
+         input act_n, // Activate command input
+`endif
+         input [ADDRWIDTH-1:0]A,
+         // ras_n -> A16, cas_n -> A15, we_n -> A14
+         // Dual function inputs:
+         // - when act_n & cs_n are LOW, these are interpreted as *Row* Address Bits (RAS Row Address Strobe)
+         // - when act_n is HIGH, these are interpreted as command pins to indicate READ, WRITE or other commands
+         // - - and CAS - Column Address Strobe (A0-A9 used for column at this times)
+         // A10 which is an unused bit during CAS is overloaded to indicate Auto-Precharge
+`ifdef DDR3
+         input ras_n,
+         input cas_n,
+         input we_n,
+`endif
+         input [BAWIDTH-1:0]ba, // bank address
+`ifdef DDR4
+         input [BGWIDTH-1:0]bg, // bankgroup address, BG0-BG1 in x4/8 and BG0 in x16
+`endif
 `ifdef DDR4
          input ck_c, // Differential clock input complement All address & control signals are sampled at the crossing of negedge of ck_c
          input ck_t, // Differential clock input true All address & control signals are sampled at the crossing of posedge of ck_t
@@ -34,25 +52,6 @@ module dimm
 `endif
          input cke, // Clock Enable; HIGH activates internal clock signals and device input buffers and output drivers
          input [RANKS-1:0]cs_n, // The memory looks at all the other inputs only if this is LOW
-`ifdef DDR4
-         input act_n, // Activate command input
-`endif
-`ifdef DDR3
-         input ras_n,
-         input cas_n,
-         input we_n,
-`endif
-         input [ADDRWIDTH-1:0]A,
-         // ras_n -> A16, cas_n -> A15, we_n -> A14
-         // Dual function inputs:
-         // - when act_n & cs_n are LOW, these are interpreted as *Row* Address Bits (RAS Row Address Strobe)
-         // - when act_n is HIGH, these are interpreted as command pins to indicate READ, WRITE or other commands
-         // - - and CAS - Column Address Strobe (A0-A9 used for column at this times)
-         // A10 which is an unused bit during CAS is overloaded to indicate Auto-Precharge
-         input [BAWIDTH:0]ba, // bank address
-`ifdef DDR4
-         input [BGWIDTH:0]bg, // bankgroup address, BG0-BG1 in x4/8 and BG0 in x16
-`endif
          inout [DEVICE_WIDTH*CHIPS + ECC_WIDTH -1:0]dq, // Data Bus; This is how data is written in and read out
 `ifdef DDR4
          inout [CHIPS + ECC_WIDTH/DEVICE_WIDTH-1:0]dqs_c, // Data Strobe complement, essentially a data valid flag
@@ -63,8 +62,9 @@ module dimm
 `endif
          input odt,
 `ifdef DDR4
-         input parity
+         input parity,
 `endif
+         input reset_n // DRAM is active only when this signal is HIGH
        );
 
 // Differential clock buffer

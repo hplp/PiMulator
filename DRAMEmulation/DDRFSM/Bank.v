@@ -5,7 +5,7 @@ module Bank // bank timing plus n rows of BRAM space
          parameter ROWS = 131072,
          parameter COLS = 1024,
          parameter BL = 8,
-         localparam BankBRAM = COLS*16) // amount of BRAM per bank
+         localparam BankBRAM = COLS*32) // amount of BRAM per bank as full rows (pages)
        (
          input wire clk,
          input wire reset_n,
