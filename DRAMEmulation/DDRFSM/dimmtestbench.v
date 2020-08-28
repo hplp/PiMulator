@@ -14,10 +14,8 @@ parameter ADDRWIDTH = 17;
 parameter COLWIDTH = 10;
 parameter DEVICE_WIDTH = 4; // x4, x8, x16 -> DQ width = Device_Width x BankGroups (Chips)
 parameter BL = 8; // Burst Length
-parameter ECC_WIDTH = 8; // number of ECC pins
 
-localparam DQWIDTH = DEVICE_WIDTH*CHIPS + ECC_WIDTH; // 64 bits + 8 bits for ECC
-localparam DQSWIDTH = CHIPS + ECC_WIDTH/DEVICE_WIDTH;
+localparam DQWIDTH = DEVICE_WIDTH*CHIPS; // 64 bits + 8 bits for ECC
 localparam BANKGROUPS = BGWIDTH**2;
 localparam BANKSPERGROUP = BAWIDTH**2;
 localparam ROWS = 2**ADDRWIDTH;
@@ -54,15 +52,15 @@ reg [BGWIDTH-1:0]bg;
 wire [DQWIDTH-1:0]dq;
 reg [DQWIDTH-1:0]dq_reg;
 `ifdef DDR4
-wire [DQSWIDTH-1:0]dqs_c;
-reg [DQSWIDTH-1:0]dqs_c_reg;
-wire [DQSWIDTH-1:0]dqs_t;
-reg [DQSWIDTH-1:0]dqs_t_reg;
+wire [CHIPS-1:0]dqs_c;
+reg [CHIPS-1:0]dqs_c_reg;
+wire [CHIPS-1:0]dqs_t;
+reg [CHIPS-1:0]dqs_t_reg;
 `elsif DDR3
-wire [DQSWIDTH-1:0]dqs_n;
-reg [DQSWIDTH-1:0]dqs_n_reg;
-wire [DQSWIDTH-1:0]dqs_p;
-reg [DQSWIDTH-1:0]dqs_p_reg;
+wire [CHIPS-1:0]dqs_n;
+reg [CHIPS-1:0]dqs_n_reg;
+wire [CHIPS-1:0]dqs_p;
+reg [CHIPS-1:0]dqs_p_reg;
 `endif
 reg odt;
 `ifdef DDR4
@@ -72,8 +70,8 @@ reg parity;
 reg writing;
 
 assign dq = (writing) ? dq_reg:{8'd0, {DQWIDTH-8{1'bZ}}};
-assign dqs_c = (writing) ? dqs_c_reg:{2'd0,{DQSWIDTH-2{1'bZ}}};
-assign dqs_t = (writing) ? dqs_t_reg:{2'd1,{DQSWIDTH-2{1'bZ}}};
+assign dqs_c = (writing) ? dqs_c_reg:{2'd0,{CHIPS-2{1'bZ}}};
+assign dqs_t = (writing) ? dqs_t_reg:{2'd1,{CHIPS-2{1'bZ}}};
 
 dimm #(.RANKS(RANKS),
        .CHIPS(CHIPS),
@@ -82,8 +80,7 @@ dimm #(.RANKS(RANKS),
        .ADDRWIDTH(ADDRWIDTH),
        .COLWIDTH(COLWIDTH),
        .DEVICE_WIDTH(DEVICE_WIDTH),
-       .BL(BL),
-       .ECC_WIDTH(ECC_WIDTH)
+       .BL(BL)
       ) dut (
        .reset_n(reset_n),
 `ifdef DDR4
@@ -139,8 +136,8 @@ initial
     bg = 0;
     ba = 0;
     dq_reg = {DQWIDTH{1'b0}};
-    dqs_t_reg = {DQSWIDTH{1'b0}};
-    dqs_c_reg = {DQSWIDTH{1'b0}};
+    dqs_t_reg = {CHIPS{1'b0}};
+    dqs_c_reg = {CHIPS{1'b0}};
     odt = 0;
     parity = 0;
     writing = 0;

@@ -14,10 +14,8 @@ module dimm
          parameter COLWIDTH = 10,
          parameter DEVICE_WIDTH = 4, // x4, x8, x16 -> DQWIDTH = DEVICE_WIDTH x CHIPS
          parameter BL = 8, // Burst Length
-         parameter ECC_WIDTH = 8, // number of ECC pins
 
-         localparam DQWIDTH = DEVICE_WIDTH*CHIPS + ECC_WIDTH, // 64 bits + 8 bits for ECC
-         localparam DQSWIDTH = CHIPS + ECC_WIDTH/DEVICE_WIDTH,
+         localparam DQWIDTH = DEVICE_WIDTH*CHIPS, // ECC pins are also connected to chips
          localparam BANKGROUPS = BGWIDTH**2,
          localparam BANKSPERGROUP = BAWIDTH**2,
          localparam ROWS = 2**ADDRWIDTH,
@@ -52,13 +50,13 @@ module dimm
 `endif
          input cke, // Clock Enable; HIGH activates internal clock signals and device input buffers and output drivers
          input [RANKS-1:0]cs_n, // The memory looks at all the other inputs only if this is LOW
-         inout [DEVICE_WIDTH*CHIPS + ECC_WIDTH -1:0]dq, // Data Bus; This is how data is written in and read out
+         inout [DEVICE_WIDTH*CHIPS-1:0]dq, // Data Bus; This is how data is written in and read out
 `ifdef DDR4
-         inout [CHIPS + ECC_WIDTH/DEVICE_WIDTH-1:0]dqs_c, // Data Strobe complement, essentially a data valid flag
-         inout [CHIPS + ECC_WIDTH/DEVICE_WIDTH-1:0]dqs_t, // Data Strobe true, essentially a data valid flag
+         inout [CHIPS-1:0]dqs_c, // Data Strobe complement, essentially a data valid flag
+         inout [CHIPS-1:0]dqs_t, // Data Strobe true, essentially a data valid flag
 `elsif DDR3
-         inout [CHIPS + ECC_WIDTH/DEVICE_WIDTH-1:0]dqs_n, // Data Strobe n, essentially a data valid flag
-         inout [CHIPS + ECC_WIDTH/DEVICE_WIDTH-1:0]dqs_p, // Data Strobe p, essentially a data valid flag
+         inout [CHIPS-1:0]dqs_n, // Data Strobe n, essentially a data valid flag
+         inout [CHIPS-1:0]dqs_p, // Data Strobe p, essentially a data valid flag
 `endif
          input odt,
 `ifdef DDR4

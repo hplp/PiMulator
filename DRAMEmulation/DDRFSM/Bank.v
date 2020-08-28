@@ -5,7 +5,8 @@ module Bank // bank timing plus n rows of BRAM space
          parameter ROWS = 131072,
          parameter COLS = 1024,
          parameter BL = 8,
-         localparam BankBRAM = COLS*32) // amount of BRAM per bank as full rows (pages)
+         localparam ROWSinSRAM = 32,
+         localparam BankBRAM = COLS*ROWSinSRAM) // amount of BRAM per bank as full rows (pages)
        (
          input wire clk,
          input wire reset_n,
@@ -38,12 +39,11 @@ wire SRF  = commands[2];//17
 wire WR   = commands[1];//18
 wire WRA  = commands[0];//19
 
+wire [4:0] FSMstate;
 wire [WIDTH-1 : 0] o_data;
 assign dq = (RD || RDA || (FSMstate==5'b01011) || (FSMstate==5'b01100))? o_data : {WIDTH{1'bZ}};
 assign dqs_t = (RD || RDA || (FSMstate==5'b01011) || (FSMstate==5'b01100))? 1'b1 : 1'bZ;
 assign dqs_c = (RD || RDA || (FSMstate==5'b01011) || (FSMstate==5'b01100))? 1'b0: 1'bZ;
-
-wire [4:0] FSMstate;
 
 // // CAS = Column Address Strobe plus BL column address increment
 reg [$clog2(COLS)-1:0]colBL=0;
