@@ -17,7 +17,7 @@ module Chip
          input wire clk,
          input wire reset_n,
          input wire halt,
-         input wire [18:0]commands,
+//         input wire [18:0]commands,
          input wire [BGWIDTH-1:0]bg, // bank group address
          input wire [BAWIDTH-1:0]ba, // bank address
          inout [DEVICE_WIDTH-1:0]dq,
@@ -39,7 +39,7 @@ generate
                   .clk(clk),
                   .reset_n(reset_n),
                   .halt(halt),
-                  .commands((bg==bgi)? commands : {19{1'b0}}),
+                  // .commands((bg==bgi)? commands : {19{1'b0}}),
                   .ba(ba),
                   .dq(dq),
                   .dqs_c(dqs_c),

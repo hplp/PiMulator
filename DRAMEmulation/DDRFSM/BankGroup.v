@@ -15,7 +15,7 @@ module BankGroup
          input wire clk,
          input wire reset_n,
          input wire halt,
-         input wire [18:0]commands,
+//         input wire [18:0]commands,
          input wire [BAWIDTH-1:0]ba, // bank address
          inout [DEVICE_WIDTH-1:0]dq,
          inout dqs_c,
@@ -35,7 +35,7 @@ generate
                      .clk(clk),
                      .reset_n(reset_n),
                      .halt(halt),
-                     .commands((ba==bi)? commands : {19{1'b0}}),
+                    //  .commands((ba==bi)? commands : {19{1'b0}}),
                      .dq(dq),
                      .dqs_c(dqs_c),
                      .dqs_t(dqs_t),

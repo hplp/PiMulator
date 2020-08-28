@@ -11,7 +11,7 @@ module Bank // bank timing plus n rows of BRAM space
          input wire clk,
          input wire reset_n,
          input wire halt,
-         input wire [18:0]commands,
+         //         input wire [18:0]commands,
          inout [WIDTH-1:0]dq,
          inout dqs_c,
          inout dqs_t,
@@ -19,37 +19,37 @@ module Bank // bank timing plus n rows of BRAM space
          input wire [$clog2(COLS)-1:0]column
        );
 
-wire ACT  = commands[18];//1
-wire BST  = commands[17];//2
-wire CFG  = commands[16];//3
-wire CKEH = commands[15];//4
-wire CKEL = commands[14];//5
-wire DPD  = commands[13];//6
-wire DPDX = commands[12];//7
-wire MRR  = commands[11];//8
-wire MRW  = commands[10];//9
-wire PD   = commands[9];//10
-wire PDX  = commands[8];//11
-wire PR   = commands[7];//12
-wire PRA  = commands[6];//13
-wire RD   = commands[5];//14
-wire RDA  = commands[4];//15
-wire REF  = commands[3];//16
-wire SRF  = commands[2];//17
-wire WR   = commands[1];//18
-wire WRA  = commands[0];//19
+// wire ACT  = commands[18];//1
+// wire BST  = commands[17];//2
+// wire CFG  = commands[16];//3
+// wire CKEH = commands[15];//4
+// wire CKEL = commands[14];//5
+// wire DPD  = commands[13];//6
+// wire DPDX = commands[12];//7
+// wire MRR  = commands[11];//8
+// wire MRW  = commands[10];//9
+// wire PD   = commands[9];//10
+// wire PDX  = commands[8];//11
+// wire PR   = commands[7];//12
+// wire PRA  = commands[6];//13
+// wire RD   = commands[5];//14
+// wire RDA  = commands[4];//15
+// wire REF  = commands[3];//16
+// wire SRF  = commands[2];//17
+// wire WR   = commands[1];//18
+// wire WRA  = commands[0];//19
 
 wire [4:0] FSMstate;
 wire [WIDTH-1 : 0] o_data;
-assign dq = (RD || RDA || (FSMstate==5'b01011) || (FSMstate==5'b01100))? o_data : {WIDTH{1'bZ}};
-assign dqs_t = (RD || RDA || (FSMstate==5'b01011) || (FSMstate==5'b01100))? 1'b1 : 1'bZ;
-assign dqs_c = (RD || RDA || (FSMstate==5'b01011) || (FSMstate==5'b01100))? 1'b0: 1'bZ;
+assign dq = ((FSMstate==5'b01011) || (FSMstate==5'b01100))? o_data : {WIDTH{1'bZ}};
+assign dqs_t = ((FSMstate==5'b01011) || (FSMstate==5'b01100))? 1'b1 : 1'bZ;
+assign dqs_c = ((FSMstate==5'b01011) || (FSMstate==5'b01100))? 1'b0: 1'bZ;
 
 // // CAS = Column Address Strobe plus BL column address increment
 reg [$clog2(COLS)-1:0]colBL=0;
 always@(posedge clk)
   begin
-    if(RD || RDA || WR || WRA)
+    if((FSMstate==5'b01011) || (FSMstate==5'b01100))
       colBL <= column;
     else
       if ((FSMstate==5'b10010) || (FSMstate==5'b10011) || (FSMstate==5'b01011) || (FSMstate==5'b01100))
@@ -79,33 +79,33 @@ sram #(.WIDTH(WIDTH), .DEPTH(BankBRAM)) array (
 
 wire eclk = clk && ~halt;
 
-memtiming memtimingi (
-            .tCLct(),
-            .tRCDct(),
-            .tRFCct(),
-            .tRPct(),
-            .state(FSMstate),
-            .ACT(ACT),
-            .BST(BST),
-            .CFG(CFG),
-            .CKEH(CKEH),
-            .CKEL(CKEL),
-            .DPD(DPD),
-            .DPDX(DPDX),
-            .MRR(MRR),
-            .MRW(MRW),
-            .PD(PD),
-            .PDX(PDX),
-            .PR(PR),
-            .PRA(PRA),
-            .RD(RD),
-            .RDA(RDA),
-            .REF(REF),
-            .SRF(SRF),
-            .WR(WR),
-            .WRA(WRA),
-            .clk(eclk),
-            .rst(!reset_n)
-          );
+// memtiming memtimingi (
+//             .tCLct(),
+//             .tRCDct(),
+//             .tRFCct(),
+//             .tRPct(),
+//             .state(FSMstate),
+//             .ACT(ACT),
+//             .BST(BST),
+//             .CFG(CFG),
+//             .CKEH(CKEH),
+//             .CKEL(CKEL),
+//             .DPD(DPD),
+//             .DPDX(DPDX),
+//             .MRR(MRR),
+//             .MRW(MRW),
+//             .PD(PD),
+//             .PDX(PDX),
+//             .PR(PR),
+//             .PRA(PRA),
+//             .RD(RD),
+//             .RDA(RDA),
+//             .REF(REF),
+//             .SRF(SRF),
+//             .WR(WR),
+//             .WRA(WRA),
+//             .clk(eclk),
+//             .rst(!reset_n)
+//           );
 
 endmodule
