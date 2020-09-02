@@ -3,118 +3,73 @@
 module Banktestbench(
        );
 
-parameter WIDTH = 4;
+parameter DEVICE_WIDTH = 4;
 parameter ROWS = 131072;
 parameter COLS = 1024;
 parameter BL = 8;
 
+localparam tCK = 0.75;
+
 reg clk;
-reg reset_n;
-reg halt;
-reg [18:0]commands;
-wire [WIDTH-1:0]dq;
-wire dqs_c;
-wire dqs_t;
+reg rd_o_wr;
+reg [DEVICE_WIDTH-1:0]dqin;
+wire [DEVICE_WIDTH-1:0]dqout;
 reg [$clog2(ROWS)-1:0] row;
 reg [$clog2(COLS)-1:0] column;
 
-reg [WIDTH-1:0]dq_reg;
-assign dq = (commands[0] || commands[1]) ? dq_reg : {WIDTH{1'bZ}};
-assign dqs_t = (commands[0] || commands[1]) ? 1'b1 : 1'bZ;
-assign dqs_c = (commands[0] || commands[1]) ? 1'b0 : 1'bZ;
+integer i; // loop variable
 
-Bank #(.WIDTH(WIDTH),
+Bank #(.DEVICE_WIDTH(DEVICE_WIDTH),
        .ROWS(ROWS),
        .COLS(COLS),
        .BL(BL)) dut (
        .clk(clk),
-       .reset_n(reset_n),
-       .halt(halt),
-       .commands(commands),
-       .dq(dq),
-       .dqs_c(dqs_c),
-       .dqs_t(dqs_t),
+       .rd_o_wr(rd_o_wr),
+       .dqin(dqin),
+       .dqout(dqout),
        .row(row),
        .column(column)
      );
 
-always #5 clk = ~clk;
+always #(tCK*0.5) clk = ~clk;
 
 initial
   begin
     clk = 0;
-    reset_n = 0;
-    halt = 0;
-    commands = 19'b0000000000000000000;
-    dq_reg = 0;
+    rd_o_wr = 0;
     row = 0;
     column = 0;
+    dqin = 0;
 
-    #10 // reset down
-     reset_n = 1;
+    // write
+    for (i = 0; i < BL; i = i + 1)
+      begin
+        #tCK
+         rd_o_wr = 1;
+        row = 1;
+        column = i;
+        dqin = $random;
+      end
 
-    #50 // activating
-     commands = 19'b1000000000000000000; // ACT = 1;
-    #10
-     commands = 19'b0000000000000000000; // ACT = 0;
+    #tCK
+     rd_o_wr = 0;
+    dqin = 0;
 
-    #40 // halting
-     halt = 1;
-    #30
-     halt = 0;
+    // read
+    for (i = 0; i < BL; i = i + 1)
+      begin
+        #tCK
+         rd_o_wr = 0;
+        row = 1;
+        column = i;
+      end
+    #tCK
 
-    #200 // halting
-     halt = 1;
-    #40
-     halt = 0;
-
-    #80 // writing
-     commands = 19'b0000000000000000010; // WR = 1;
-    row = 1;
-    column = 1;
-    dq_reg = 2;
-    #10
-     column = 4;
-    dq_reg = 5;
-    #10
-     column = 7;
-    dq_reg = 8;
-    #10
-     column = 0;
-    dq_reg = 1;
-    #10
-     column = 3;
-    dq_reg = 4;
-    #10
-     column = 6;
-    dq_reg = 7;
-
-    #10 // reading
-     commands = 19'b0000000000000100000; // WR = 0; RD = 1;
-    row = 1;
-    column = 1;
-    dq_reg = 0;
-    #10
-     column = 4;
-    #10
-     column = 7;
-    #10
-     column = 0;
-    #10
-     column = 3;
-    #10
-     column = 6;
-
-    #10
-     commands = 19'b0000000000010000000; // RD = 0; PR = 1;
-    row = 0;
+     #tCK
+     row = 0;
     column = 0;
-    dq_reg = 0;
 
-    #10
-     commands = 19'b0000000000000000000; // PR = 0;
-
-    #210
+    #(4*tCK)
      $stop;
   end;
 
