@@ -9,9 +9,9 @@ module Bank
          localparam BankBRAM = COLS*ROWSinSRAM) // amount of BRAM per bank as full rows (pages)
        (
          input wire clk,
-         input wire rd_o_wr,
-         input [DEVICE_WIDTH-1:0]dqin,
-         output [DEVICE_WIDTH-1:0]dqout,
+         input wire [0:0]rd_o_wr,
+         input wire [DEVICE_WIDTH-1:0]dqin,
+         output wire [DEVICE_WIDTH-1:0]dqout,
          input wire [$clog2(ROWS)-1:0]row,
          input wire [$clog2(COLS)-1:0]column
        );

@@ -13,11 +13,11 @@ module BankGroup
         )
        (
          input wire clk,
-         input wire [BANKSPERGROUP-1:0]rd_o_wr,
-         input [BANKSPERGROUP-1:0][DEVICE_WIDTH-1:0]dqin,
-         output [BANKSPERGROUP-1:0][DEVICE_WIDTH-1:0]dqout,
-         input wire [BANKSPERGROUP-1:0][ADDRWIDTH-1:0]row,
-         input wire [BANKSPERGROUP-1:0][COLWIDTH-1:0]column
+         input wire  [0:0]             rd_o_wr [BANKSPERGROUP-1:0],
+         input wire  [DEVICE_WIDTH-1:0]dqin    [BANKSPERGROUP-1:0],
+         output wire [DEVICE_WIDTH-1:0]dqout   [BANKSPERGROUP-1:0],
+         input wire  [ADDRWIDTH-1:0]   row     [BANKSPERGROUP-1:0],
+         input wire  [COLWIDTH-1:0]    column  [BANKSPERGROUP-1:0]
        );
 
 genvar bi;

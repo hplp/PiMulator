@@ -11,11 +11,11 @@ parameter BL = 8;
 localparam tCK = 0.75;
 
 reg clk;
-reg rd_o_wr;
-reg [DEVICE_WIDTH-1:0]dqin;
+reg  [0:0]             rd_o_wr;
+reg  [DEVICE_WIDTH-1:0]dqin;
 wire [DEVICE_WIDTH-1:0]dqout;
-reg [$clog2(ROWS)-1:0] row;
-reg [$clog2(COLS)-1:0] column;
+reg  [$clog2(ROWS)-1:0]row;
+reg  [$clog2(COLS)-1:0]column;
 
 integer i; // loop variable
 

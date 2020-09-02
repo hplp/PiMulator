@@ -18,11 +18,11 @@ localparam COLS = 2**COLWIDTH;
 localparam tCK = 0.75;
 reg clk;
 
-reg [BANKGROUPS-1:0][BANKSPERGROUP-1:0]rd_o_wr;
-reg [BANKGROUPS-1:0][BANKSPERGROUP-1:0][DEVICE_WIDTH-1:0]dqin;
-wire [BANKGROUPS-1:0][BANKSPERGROUP-1:0][DEVICE_WIDTH-1:0]dqout;
-reg [BANKGROUPS-1:0][BANKSPERGROUP-1:0][ADDRWIDTH-1:0]row;
-reg [BANKGROUPS-1:0][BANKSPERGROUP-1:0][COLWIDTH-1:0]column;
+reg  [0:0]             rd_o_wr [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+reg  [DEVICE_WIDTH-1:0]dqin    [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+wire [DEVICE_WIDTH-1:0]dqout   [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+reg  [ADDRWIDTH-1:0]   row     [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+reg  [COLWIDTH-1:0]    column  [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
 
 integer i, j; // loop variable
 
@@ -51,29 +51,28 @@ initial
       begin
         for (j = 0; j < BANKSPERGROUP; j = j + 1)
           begin
-            rd_o_wr[i] = 0;
-            row[i]=0;
-            column[i]=0;
-            dqin[i]=0;
+            rd_o_wr[i][j] = 0;
+            row[i][j]=0;
+            column[i][j]=0;
+            dqin[i][j]=0;
           end
       end
     #tCK
      #tCK
 
-
      // write
      for (i = 0; i < BL; i = i + 1)
        begin
          #tCK
-          rd_o_wr[1] = 4'b0001;
-         row[1].=17'h1;
+          rd_o_wr[1][1] = 1;
+         row[1][1]=1;
          column[1][1]=i;
          dqin[1][1]=$random;
        end
 
      #tCK
-      rd_o_wr[1][1] = 1'b0;
-    row[1][1]=17'h0;
+      rd_o_wr[1][1] = 0;
+    row[1][1]=0;
     column[1][1]=0;
     dqin[1][1]=0;
 
@@ -81,14 +80,13 @@ initial
     for (i = 0; i < BL; i = i + 1)
       begin
         #tCK
-         rd_o_wr[1][1] = 1'b0;
-        row[1][1]=17'h1;
+         row[1][1]=1;
         column[1][1]=i;
       end
     #tCK
 
      #tCK
-     row[1][1]=17'h0;
+     row[1][1]=0;
     column[1][1]=0;
 
     #(4*tCK)
