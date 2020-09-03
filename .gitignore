@@ -74,3 +74,5 @@ DRAMEmulation/DDRFSM/sram/
 DRAMEmulation/DDRFSM/syscache/
 DRAMEmulation/DDRFSM/tristate.v
 DRAMEmulation/DDRFSM/tristate/
+DRAMEmulation/DDRFSM/chipsim/
+DRAMEmulation/DDRFSM/vsim/
