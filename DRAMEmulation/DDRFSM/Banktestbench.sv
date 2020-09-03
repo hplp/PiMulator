@@ -35,7 +35,7 @@ module Banktestbench(
   
   initial
   begin
-    clk = 0;
+    clk = 1;
     rd_o_wr = 0;
     row = 0;
     column = 0;
@@ -53,6 +53,7 @@ module Banktestbench(
     
     #tCK
     rd_o_wr = 0;
+    row = 0;
     dqin = 0;
     
     // read

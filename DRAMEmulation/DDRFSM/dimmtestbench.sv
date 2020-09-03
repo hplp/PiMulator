@@ -7,7 +7,7 @@ module dimmtestbench(
        );
 
 parameter RANKS = 1;
-parameter CHIPS = 16;
+parameter CHIPS = 18;
 parameter BGWIDTH = 2;
 parameter BAWIDTH = 2;
 parameter ADDRWIDTH = 17;
@@ -16,10 +16,10 @@ parameter DEVICE_WIDTH = 4; // x4, x8, x16 -> DQ width = Device_Width x BankGrou
 parameter BL = 8; // Burst Length
 
 localparam DQWIDTH = DEVICE_WIDTH*CHIPS; // 64 bits + 8 bits for ECC
-localparam BANKGROUPS = BGWIDTH**2;
-localparam BANKSPERGROUP = BAWIDTH**2;
+localparam BANKGROUPS = 2**BGWIDTH;
+localparam BANKSPERGROUP = 2**BAWIDTH;
 localparam ROWS = 2**ADDRWIDTH;
-localparam COLS = COLWIDTH**2;
+localparam COLS = 2**COLWIDTH;
 
 localparam CHIPSIZE = (DEVICE_WIDTH*COLS*(ROWS/1024)*BANKSPERGROUP*BANKGROUPS)/(1024); // Mbit
 localparam DIMMSIZE = (CHIPSIZE*CHIPS)/(1024*8); // GB
