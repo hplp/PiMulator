@@ -57,8 +57,6 @@ module Chiptestbench(
         dqin[i][j]=0;
       end
     end
-    #tCK
-    #tCK
     
     // write
     for (i = 0; i < BL; i = i + 1)
@@ -88,7 +86,7 @@ module Chiptestbench(
     row[1][1]=0;
     column[1][1]=0;
     
-    #(4*tCK)
+    #(1*tCK)
     $stop;
   end;
   
