@@ -101,7 +101,7 @@ module dimm
   .ACT(ACT), .BST(BST), .CFG(CFG), .CKEH(CKEH), .CKEL(CKEL), .DPD(DPD), .DPDX(DPDX), .MRR(MRR), .MRW(MRW), .PD(PD), .PDX(PDX), .PR(PR), .PRA(PRA), .RD(RD), .RDA(RDA), .REF(REF), .SRF(SRF), .WR(WR), .WRA(WRA)
   );
   
-  wire [4:0] BankFSM [BANKGROUPS*BANKSPERGROUP-1:0];
+  wire [4:0] BankFSM [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   TimingFSM #()
   TimingFSMi(
   .clk(clk),
