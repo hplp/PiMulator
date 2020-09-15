@@ -98,16 +98,18 @@ module dimm
   `endif
   .cke(cke),
   .A(A),
-  .ACT(ACT), .BST(BST), .CFG(CFG), .CKEH(CKEH), .CKEL(CKEL), .DPD(DPD), .DPDX(DPDX), .MRR(MRR), .MRW(MRW),
-  .PD(PD), .PDX(PDX), .PR(PR), .PRA(PRA), .RD(RD), .RDA(RDA), .REF(REF), .SRF(SRF), .WR(WR), .WRA(WRA)
+  .ACT(ACT), .BST(BST), .CFG(CFG), .CKEH(CKEH), .CKEL(CKEL), .DPD(DPD), .DPDX(DPDX), .MRR(MRR), .MRW(MRW), .PD(PD), .PDX(PDX), .PR(PR), .PRA(PRA), .RD(RD), .RDA(RDA), .REF(REF), .SRF(SRF), .WR(WR), .WRA(WRA)
   );
   
+  wire [4:0] BankFSM [BANKGROUPS*BANKSPERGROUP-1:0];
   TimingFSM #()
   TimingFSMi(
+  .clk(clk),
+  .reset_n(reset_n),
   .bg(bg),
   .ba(ba),
-  .ACT(ACT), .BST(BST), .CFG(CFG), .CKEH(CKEH), .CKEL(CKEL), .DPD(DPD), .DPDX(DPDX), .MRR(MRR), .MRW(MRW),
-  .PD(PD), .PDX(PDX), .PR(PR), .PRA(PRA), .RD(RD), .RDA(RDA), .REF(REF), .SRF(SRF), .WR(WR), .WRA(WRA)
+  .ACT(ACT), .BST(BST), .CFG(CFG), .CKEH(CKEH), .CKEL(CKEL), .DPD(DPD), .DPDX(DPDX), .MRR(MRR), .MRW(MRW), .PD(PD), .PDX(PDX), .PR(PR), .PRA(PRA), .RD(RD), .RDA(RDA), .REF(REF), .SRF(SRF), .WR(WR), .WRA(WRA),
+  .BankFSM(BankFSM)
   );
   
   // RAS = Row Address Strobe
@@ -119,7 +121,6 @@ module dimm
     else if (PR)
     rowA <= {ADDRWIDTH{1'b0}};
   end
-  
   
   genvar bi; // bank identifier
   wire [ADDRWIDTH-1:0] addresses [BANKGROUPS*BANKSPERGROUP-1:0];

@@ -1,29 +1,32 @@
 `timescale 1ns / 1ps
 
 module TimingFSM
-    #(  parameter BGWIDTH = 2,
-    parameter BAWIDTH = 2
+    #(parameter BGWIDTH = 2,
+    parameter BAWIDTH = 2,
+    localparam BANKGROUPS = 2**BGWIDTH,
+    localparam BANKSPERGROUP = 2**BAWIDTH
     )
     (
     input wire clk,
-    .ba(ba),
+    input wire reset_n,
+    input [BAWIDTH-1:0]ba, // bank address
     `ifdef DDR4
-    .bg(bg),
+    input [BGWIDTH-1:0]bg, // bankgroup address, BG0-BG1 in x4/8 and BG0 in x16
     `endif
-    input ACT, BST, CFG, CKEH, CKEL, DPD, DPDX, MRR, MRW, PD, PDX, PR, PRA, RD, RDA, REF, SRF, WR, WRA
+    input ACT, BST, CFG, CKEH, CKEL, DPD, DPDX, MRR, MRW, PD, PDX, PR, PRA, RD, RDA, REF, SRF, WR, WRA,
+    output [4:0] BankFSM [BANKGROUPS*BANKSPERGROUP-1:0]
     );
     
-    wire [4:0] MFSM [BANKGROUPS*BANKSPERGROUP-1:0];
     genvar bi; // bank identifier
     generate
         for (bi = 0; bi < BANKGROUPS*BANKSPERGROUP; bi=bi+1)
-        begin:MT
+        begin:MT // todo: send latencies as inputs
             memtiming MTi (
             .tCLct(),
             .tRCDct(),
             .tRFCct(),
             .tRPct(),
-            .state(MFSM[bi]),
+            .state(BankFSM[bi]),
             .ACT( ({bg,ba}==bi)? ACT  : 1'b0),
             .BST( ({bg,ba}==bi)? BST  : 1'b0),
             .CFG( ({bg,ba}==bi)? CFG  : 1'b0),

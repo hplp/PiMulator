@@ -6,8 +6,7 @@
 // references: www.systemverilog.io
 
 module CMD
-  #(
-  parameter ADDRWIDTH = 17
+  #(parameter ADDRWIDTH = 17
   )
   (
   `ifdef DDR4
@@ -35,7 +34,7 @@ module CMD
   wire A14 = A[ADDRWIDTH-3]; // WE_n
   wire A10 = A[ADDRWIDTH-4]; // AP // todo: check how this needs to relate to COL WIDTH
   
-  // implement ddr logic // todo
+  // implement ddr logic // todo implement all commands not just a few
   wire ACT = (!act_n); // entire A is the Row Address at this time
   wire BST = (act_n && A[ADDRWIDTH-2]); // todo
   wire CFG = 0;
