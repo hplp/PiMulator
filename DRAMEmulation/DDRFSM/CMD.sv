@@ -35,24 +35,24 @@ module CMD
   wire A10 = A[ADDRWIDTH-4]; // AP // todo: check how this needs to relate to COL WIDTH
   
   // implement ddr logic // todo implement all commands not just a few
-  wire ACT = (!act_n); // entire A is the Row Address at this time
-  wire BST = (act_n && A[ADDRWIDTH-2]); // todo
-  wire CFG = 0;
-  wire CKEH = 0;//cke;
-  wire CKEL = 0;//!cke;
-  wire DPD = 0;
-  wire DPDX = 0;
-  wire MRR = 0;
-  wire MRW = 0;
-  wire PD = 0;
-  wire PDX = 0;
-  wire PR  = (act_n && !A16 &&  A15 && !A14 && !A10); // PRE
-  wire PRA = (act_n && !A16 &&  A15 && !A14 &&  A10);
-  wire RD  = (act_n &&  A16 && !A15 &&  A14 && !A10);
-  wire RDA = (act_n &&  A16 && !A15 &&  A14 &&  A10);
-  wire REF = (act_n && !A16 && !A15 &&  A14         &&  cke);
-  wire SRF = (act_n && !A16 && !A15 &&  A14         && !cke); // SRE
-  wire WR  = (act_n &&  A16 && !A15 && !A14 && !A10);
-  wire WRA = (act_n &&  A16 && !A15 && !A14 &&  A10);
+  assign ACT = (!act_n); // entire A is the Row Address at this time
+  assign BST = (act_n && A[ADDRWIDTH-2]); // todo
+  assign CFG = 0;
+  assign CKEH = 0;//cke;
+  assign CKEL = 0;//!cke;
+  assign DPD = 0;
+  assign DPDX = 0;
+  assign MRR = 0;
+  assign MRW = 0;
+  assign PD = 0;
+  assign PDX = 0;
+  assign PR  = (act_n && !A16 &&  A15 && !A14 && !A10); // PRE
+  assign PRA = (act_n && !A16 &&  A15 && !A14 &&  A10);
+  assign RD  = (act_n &&  A16 && !A15 &&  A14 && !A10);
+  assign RDA = (act_n &&  A16 && !A15 &&  A14 &&  A10);
+  assign REF = (act_n && !A16 && !A15 &&  A14         &&  cke);
+  assign SRF = (act_n && !A16 && !A15 &&  A14         && !cke); // SRE
+  assign WR  = (act_n &&  A16 && !A15 && !A14 && !A10);
+  assign WRA = (act_n &&  A16 && !A15 && !A14 &&  A10);
   
 endmodule
