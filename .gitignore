@@ -76,3 +76,6 @@ DRAMEmulation/DDRFSM/tristate.v
 DRAMEmulation/DDRFSM/tristate/
 DRAMEmulation/DDRFSM/chipsim/
 DRAMEmulation/DDRFSM/vsim/
+DRAMEmulation/DDRFSM/cachesim/
+DRAMEmulation/DDRFSM/cachetmp.sv
+
