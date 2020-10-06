@@ -66,23 +66,6 @@ module dimm
   input reset_n // DRAM is active only when this signal is HIGH
   );
   
-  // Differential clock buffer
-  // wire clkd;
-  // IBUFGDS #(
-  //           .DIFF_TERM("FALSE"),
-  //           .IBUF_LOW_PWR("FALSE"),
-  //           .IOSTANDARD("DEFAULT")
-  //         ) IBUFGDS_inst (
-  //           .O(clkd),
-  // `ifdef DDR4
-  //           .I(ck_t),
-  //           .IB(ck_c)
-  // `elsif DDR3
-  //           .I(ck_p),
-  //           .IB(ck_n)
-  // `endif
-  //         );
-  
   wire clk = ck_t && cke; // clkd && cke; // todo: figurehow to use ck_c, if needed
   
   wire ACT, BST, CFG, CKEH, CKEL, DPD, DPDX, MRR, MRW, PD, PDX, PR, PRA, RD, RDA, REF, SRF, WR, WRA;
@@ -102,14 +85,31 @@ module dimm
   );
   
   wire [4:0] BankFSM [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-  TimingFSM #()
+  TimingFSM #(.BGWIDTH(BGWIDTH),
+  .BAWIDTH(BAWIDTH))
   TimingFSMi(
   .clk(clk),
   .reset_n(reset_n),
+  `ifdef DDR4
   .bg(bg),
+  `endif
   .ba(ba),
   .ACT(ACT), .BST(BST), .CFG(CFG), .CKEH(CKEH), .CKEL(CKEL), .DPD(DPD), .DPDX(DPDX), .MRR(MRR), .MRW(MRW), .PD(PD), .PDX(PDX), .PR(PR), .PRA(PRA), .RD(RD), .RDA(RDA), .REF(REF), .SRF(SRF), .WR(WR), .WRA(WRA),
   .BankFSM(BankFSM)
+  );
+  
+  CacheFSM #(.BGWIDTH(BGWIDTH),
+  .BAWIDTH(BAWIDTH))
+  CacheFSMi(
+  .clk(clk),
+  .reset_n(reset_n),
+  `ifdef DDR4
+  .bg(bg),
+  `endif
+  .ba(ba),
+  .BankFSM(BankFSM),
+  .Row(Row)
+  .CacheRow(CacheRow)
   );
   
   // RAS = Row Address Strobe
@@ -122,16 +122,19 @@ module dimm
     rowA <= {ADDRWIDTH{1'b0}};
   end
   
-  genvar bi; // bank identifier
-  wire [ADDRWIDTH-1:0] addresses [BANKGROUPS*BANKSPERGROUP-1:0];
+  genvar bgi, bi; // bank identifier
+  wire [ADDRWIDTH-1:0] addresses [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   generate
-    for (bi = 0; bi < BANKGROUPS*BANKSPERGROUP; bi=bi+1)
+    for (bgi = 0; bi < BANKGROUPS; bgi=bgi+1)
     begin
-      assign addresses[bi] = ({bg,ba}==bi)? A : {ADDRWIDTH{1'b0}};
+      for (bi = 0; bi < BANKSPERGROUP; bi=bi+1)
+      begin
+        assign addresses[bgi][bi] = ((bg==bgi)&&(ba==bi))? A : {ADDRWIDTH{1'b0}};
+      end
     end
   endgenerate
   
-  wire [DQWIDTH-1:0] dqin [BANKGROUPS*BANKSPERGROUP-1:0];
+  wire [DQWIDTH-1:0] dqin [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   generate
     for (bi = 0; bi < BANKGROUPS*BANKSPERGROUP; bi=bi+1)
     begin
@@ -141,10 +144,10 @@ module dimm
   
   wire  [0:0]             rd_o_wr [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   
-  wire [DQWIDTH-1:0]dqout [BANKGROUPS*BANKSPERGROUP-1:0];
+  wire [DQWIDTH-1:0]dqout [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   wire [DQWIDTH-1:0]dqout_b = dqout[{bg,ba}];
-  wire [ADDRWIDTH-1:0]row [BANKSPERGROUP-1:0][BANKGROUPS-1:0];
-  wire [COLWIDTH-1:0]column [BANKSPERGROUP-1:0][BANKGROUPS-1:0];
+  wire [ADDRWIDTH-1:0]row [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+  wire [COLWIDTH-1:0]column [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   
   genvar ri, ci;
   generate
@@ -178,3 +181,21 @@ module dimm
   endgenerate
   
 endmodule
+
+
+// Differential clock buffer
+// wire clkd;
+// IBUFGDS #(
+//           .DIFF_TERM("FALSE"),
+//           .IBUF_LOW_PWR("FALSE"),
+//           .IOSTANDARD("DEFAULT")
+//         ) IBUFGDS_inst (
+//           .O(clkd),
+// `ifdef DDR4
+//           .I(ck_t),
+//           .IB(ck_c)
+// `elsif DDR3
+//           .I(ck_p),
+//           .IB(ck_n)
+// `endif
+//         );
