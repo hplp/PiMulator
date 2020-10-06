@@ -126,19 +126,26 @@ module cache #(
   // datapath sequential always block
   always_ff @(posedge clk or posedge rst) begin
     if (rst) begin
-      cRowId[4:0] <= 5'b0;
+      cRowId[4:0] <= '0;
       hold <= 0;
+      hit <= 0;
+      newrow <= 0;
     end
     else begin
-      cRowId[4:0] <= 5'b0; // default
       hold <= 0; // default
       case (nextstate)
         Idle   : begin
+          cRowId[4:0] <= '0;
           hit <= 0;
           newrow <= 0;
         end
         RDCheck: begin
-          
+          for (int i = 0; i < CHROWS; i++) begin
+            if((RowId == cache_tag[i].rowaddr) && (cache_tag[i].valid)) begin
+              cRowId <= cache_tag[i].tag;
+              hit <= 1;
+            end
+          end
         end
         RDMiss : begin
           hold <= 1;

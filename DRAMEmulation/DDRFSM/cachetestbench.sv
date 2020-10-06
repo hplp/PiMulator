@@ -66,15 +66,26 @@ module cachetestbench(
               WR=0;
               RowId=0;
               #tCK
-
+              
               // write
               WR=1;
               RowId=590;
               #tCK
               #tCK
               #tCK
-
+              
               WR=0;
+              RowId=0;
+              #tCK
+              
+              // read
+              RD=1;
+              RowId=590;
+              #tCK
+              #tCK
+              #tCK
+              
+              RD=0;
               RowId=0;
               #tCK
               
