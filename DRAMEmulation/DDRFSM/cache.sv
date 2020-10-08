@@ -137,15 +137,19 @@ module cache #(
         Idle   : begin
           cRowId[4:0] <= '0;
           hit <= 0;
+          miss <= 0;
           newrow <= 0;
         end
         RDCheck: begin
           for (int i = 0; i < CHROWS; i++) begin
+            // look for the row in the emulation memory cache
             if((RowId == cache_tag[i].rowaddr) && (cache_tag[i].valid)) begin
               cRowId <= cache_tag[i].tag;
-              hit <= 1;
+              hit = 1;
             end
           end
+          // row not found in emulation memory cache
+          miss <= !hit;
         end
         RDMiss : begin
           hold <= 1;
@@ -155,20 +159,24 @@ module cache #(
         end
         WRCheck: begin
           if(newrow) begin
+            // look for an empty new row
             for (int i=CHROWS; i>0; i--) begin
               if(!cache_tag[i-1].valid) begin
                 cRowId <= cache_tag[i-1].tag;
                 hit <= 1;
               end
             end
+            // no empty new row found
+            miss <= cache_tag.and() with (item.valid && item.dirty);
           end
           else
           for (int i = 0; i < CHROWS; i++) begin
+            // check if the row is already there
             if((RowId == cache_tag[i].rowaddr) && (cache_tag[i].valid)) begin
               cRowId <= cache_tag[i].tag;
               hit <= 1;
             end
-            else
+            else // new row is needed
             newrow <= 1;
           end
         end
@@ -179,6 +187,7 @@ module cache #(
           for (int i = 0; i < CHROWS; i++) begin
             if(cRowId == cache_tag[i].tag) begin
               cache_tag[i].valid <= 1;
+              cache_tag[i].dirty <= 1;
               cache_tag[i].rowaddr <= RowId;
             end
           end

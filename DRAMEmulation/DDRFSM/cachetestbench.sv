@@ -41,7 +41,7 @@ module cachetestbench(
        
        always #(tCK*0.5) clk = ~clk;
        
-       integer i; // loop variable
+       integer i=0; // loop variable
        
        initial
        begin
@@ -56,38 +56,28 @@ module cachetestbench(
               rst = 0;
               #tCK
               
-              // write
-              WR=1;
-              RowId=150;
-              #tCK
-              #tCK
-              #tCK
-              
-              WR=0;
-              RowId=0;
-              #tCK
-              
-              // write
-              WR=1;
-              RowId=590;
-              #tCK
-              #tCK
-              #tCK
-              
-              WR=0;
-              RowId=0;
-              #tCK
-              
-              // read
-              RD=1;
-              RowId=590;
-              #tCK
-              #tCK
-              #tCK
-              
-              RD=0;
-              RowId=0;
-              #tCK
+              // write then read
+              for (i=0; i<CHROWS+1; i=i+1)
+              begin
+                     WR=1;
+                     RowId=$urandom;
+                     #tCK
+                     #tCK
+                     #tCK
+                     
+                     WR=0;
+                     #tCK;
+                     
+                     RD=1;
+                     // RowId=RowId+i;
+                     #tCK
+                     #tCK
+                     #tCK
+                     
+                     RD=0;
+                     #tCK;
+                     $display(i);
+              end
               
               #(4*tCK)
               $stop;
