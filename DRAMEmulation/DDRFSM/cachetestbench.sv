@@ -57,7 +57,7 @@ module cachetestbench(
               #tCK
               
               // write then read
-              for (i=0; i<CHROWS+1; i=i+1)
+              for (i=0; i<CHROWS; i=i+1)
               begin
                      WR=1;
                      RowId=$urandom;
@@ -78,6 +78,32 @@ module cachetestbench(
                      #tCK;
                      $display(i);
               end
+              
+              // induce a write miss followed by synq
+              WR=1;
+              RowId=$urandom;
+              #tCK
+              #tCK
+              #tCK
+              sync=1;
+              #tCK;
+              
+              WR=0;
+              sync=0;
+              #tCK;
+              
+              // induce a read miss followed by synq
+              RD=1;
+              RowId=$urandom;
+              #tCK
+              #tCK
+              #tCK
+              sync=1;
+              #tCK;
+              
+              RD=0;
+              sync=0;
+              #tCK;
               
               #(4*tCK)
               $stop;
