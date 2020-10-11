@@ -57,7 +57,6 @@ DRAMEmulation/DDRFSM/DeMux/
 DRAMEmulation/DDRFSM/MAXI.v
 DRAMEmulation/DDRFSM/MAXI/
 DRAMEmulation/DDRFSM/MUX/
-DRAMEmulation/DDRFSM/cache.fzm
 DRAMEmulation/DDRFSM/cache.v
 DRAMEmulation/DDRFSM/cache/
 DRAMEmulation/DDRFSM/dimm/
