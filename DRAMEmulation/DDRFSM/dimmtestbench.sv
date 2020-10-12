@@ -14,6 +14,7 @@ module dimmtestbench(
        parameter COLWIDTH = 10;
        parameter DEVICE_WIDTH = 4; // x4, x8, x16 -> DQ width = Device_Width x BankGroups (Chips)
        parameter BL = 8; // Burst Length
+       parameter CHWIDTH = 5; // Emulation Memory Cache Width
        
        localparam DQWIDTH = DEVICE_WIDTH*CHIPS; // 64 bits + 8 bits for ECC
        localparam BANKGROUPS = 2**BGWIDTH;
@@ -80,7 +81,8 @@ module dimmtestbench(
        .ADDRWIDTH(ADDRWIDTH),
        .COLWIDTH(COLWIDTH),
        .DEVICE_WIDTH(DEVICE_WIDTH),
-       .BL(BL)
+       .BL(BL),
+       .CHWIDTH(CHWIDTH)
        ) dut (
        .reset_n(reset_n),
        `ifdef DDR4

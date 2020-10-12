@@ -6,6 +6,7 @@ module BankGroup
   parameter COLWIDTH = 10,
   parameter DEVICE_WIDTH = 4,
   parameter BL = 8,
+  parameter CHWIDTH = 5,
   
   localparam BANKSPERGROUP = 2**BAWIDTH,
   localparam ROWS = 2**ADDRWIDTH,
@@ -27,7 +28,8 @@ module BankGroup
       Bank #(.DEVICE_WIDTH(DEVICE_WIDTH),
       .ROWS(ROWS),
       .COLS(COLS),
-      .BL(BL)) Bi (
+      .BL(BL),
+      .CHWIDTH(CHWIDTH)) Bi (
       .clk(clk),
       .rd_o_wr(rd_o_wr[bi]),
       .dqin(dqin[bi]),

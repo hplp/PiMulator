@@ -7,6 +7,7 @@ module Chip
   parameter COLWIDTH = 10,
   parameter DEVICE_WIDTH = 4,
   parameter BL = 8,
+  parameter CHWIDTH = 5,
   
   localparam BANKGROUPS = 2**BGWIDTH,
   localparam BANKSPERGROUP = 2**BAWIDTH,
@@ -30,7 +31,8 @@ module Chip
       .ADDRWIDTH(ADDRWIDTH),
       .COLWIDTH(COLWIDTH),
       .DEVICE_WIDTH(DEVICE_WIDTH),
-      .BL(BL)) BGi (
+      .BL(BL),
+      .CHWIDTH(CHWIDTH)) BGi (
       .clk(clk),
       .rd_o_wr(rd_o_wr[bgi]),
       .dqin(dqin[bgi]),

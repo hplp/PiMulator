@@ -15,6 +15,7 @@ module dimm
   parameter COLWIDTH = 10,
   parameter DEVICE_WIDTH = 4, // x4, x8, x16 -> DQWIDTH = DEVICE_WIDTH x CHIPS
   parameter BL = 8, // Burst Length
+  parameter CHWIDTH = 5, // Emulation Memory Cache Width
   
   localparam DQWIDTH = DEVICE_WIDTH*CHIPS, // ECC pins are also connected to chips
   localparam BANKGROUPS = 2**BGWIDTH,
@@ -98,34 +99,10 @@ module dimm
   .BankFSM(BankFSM)
   );
   
-  CacheFSM #(.BGWIDTH(BGWIDTH),
-  .BAWIDTH(BAWIDTH))
-  CacheFSMi(
-  .clk(clk),
-  .reset_n(reset_n),
-  `ifdef DDR4
-  .bg(bg),
-  `endif
-  .ba(ba),
-  .BankFSM(BankFSM),
-  .Row(Row)
-  .CacheRow(CacheRow)
-  );
-  
-  // RAS = Row Address Strobe
-  reg [ADDRWIDTH-1:0] rowA = {ADDRWIDTH{1'b0}};
-  always@(posedge clk)
-  begin
-    if(ACT)
-    rowA <= A;
-    else if (PR)
-    rowA <= {ADDRWIDTH{1'b0}};
-  end
-  
   genvar bgi, bi; // bank identifier
   wire [ADDRWIDTH-1:0] addresses [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   generate
-    for (bgi = 0; bi < BANKGROUPS; bgi=bgi+1)
+    for (bgi = 0; bgi < BANKGROUPS; bgi=bgi+1)
     begin
       for (bi = 0; bi < BANKSPERGROUP; bi=bi+1)
       begin
@@ -134,18 +111,48 @@ module dimm
     end
   endgenerate
   
+  wire sync [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+  wire [CHWIDTH-1:0] cRowId [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+  CacheFSM #(.BGWIDTH(BGWIDTH),
+  .BAWIDTH(BAWIDTH),
+  .CHWIDTH(CHWIDTH),
+  .ADDRWIDTH(ADDRWIDTH))
+  CacheFSMi(
+  .clk(clk),
+  .reset_n(reset_n),
+  `ifdef DDR4
+  .bg(bg),
+  `endif
+  .ba(ba),
+  .RowId(addresses),
+  .BankFSM(BankFSM),
+  .sync(sync),
+  .cRowId(cRowId),
+  .hold(hold)
+  );
+  
+  // RAS = Row Address Strobe
+  // reg [ADDRWIDTH-1:0] rowA = {ADDRWIDTH{1'b0}};
+  // always@(posedge clk)
+  // begin
+  //   if(ACT)
+  //   rowA <= A;
+  //   else if (PR)
+  //   rowA <= {ADDRWIDTH{1'b0}};
+  // end
+  
   wire [DQWIDTH-1:0] dqin [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-  generate
-    for (bi = 0; bi < BANKGROUPS*BANKSPERGROUP; bi=bi+1)
-    begin
-      assign dqin[bi] = ({bg,ba}==bi)? dq : {DQWIDTH{1'b0}};
-    end
-  endgenerate
+  //  generate
+  //    for (bi = 0; bi < BANKGROUPS*BANKSPERGROUP; bi=bi+1)
+  //    begin
+  //      assign dqin[bi] = ({bg,ba}==bi)? dq : {DQWIDTH{1'b0}};
+  //    end
+  //  endgenerate
   
   wire  [0:0]             rd_o_wr [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   
   wire [DQWIDTH-1:0]dqout [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-  wire [DQWIDTH-1:0]dqout_b = dqout[{bg,ba}];
+  //  wire [DQWIDTH-1:0]dqout_b = dqout[{bg,ba}];
   wire [ADDRWIDTH-1:0]row [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   wire [COLWIDTH-1:0]column [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   
@@ -160,7 +167,8 @@ module dimm
         .ADDRWIDTH(ADDRWIDTH),
         .COLWIDTH(COLWIDTH),
         .DEVICE_WIDTH(DEVICE_WIDTH),
-        .BL(BL)) Ci (
+        .BL(BL),
+        .CHWIDTH(CHWIDTH)) Ci (
         .clk(clk),
         //  .reset_n(reset_n),
         //  .halt(halt),

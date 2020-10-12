@@ -5,7 +5,8 @@ module Bank
   parameter ROWS = 131072,
   parameter COLS = 1024,
   parameter BL = 8,
-  localparam ROWSinSRAM = 32,
+  parameter CHWIDTH = 5,
+  localparam ROWSinSRAM = 2**CHWIDTH,
   localparam BankBRAM = COLS*ROWSinSRAM) // amount of BRAM per bank as full rows (pages)
   (
   input wire clk,
