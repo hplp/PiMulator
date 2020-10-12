@@ -166,6 +166,7 @@ module dimm
   generate
     for (ci = 0; ci < CHIPS; ci=ci+1)
     begin
+      assign dqo[(ci+1)*DEVICE_WIDTH:ci*DEVICE_WIDTH] = chipdqo[ci][bg][ba];
       for (bgi = 0; bgi < BANKGROUPS; bgi=bgi+1)
       begin
         for (bi = 0; bi < BANKSPERGROUP; bi=bi+1)
@@ -175,8 +176,6 @@ module dimm
       end
     end
   endgenerate
-
-  // assign dqo = ;???
   
   wire  [0:0]             rd_o_wr [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   wire [ADDRWIDTH-1:0]row [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
