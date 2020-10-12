@@ -30,7 +30,7 @@ module cache #(
   cache_tag_type cache_tag [0:CHROWS-1];
   genvar idx;
   generate
-    for (idx = 0; idx < CHROWS; idx++) begin
+    for (idx=0; idx<CHROWS; idx++) begin
       initial cache_tag[idx].valid=0;
       initial cache_tag[idx].dirty=0;
       initial cache_tag[idx].age='0;
@@ -163,11 +163,11 @@ module cache #(
             for (int i=CHROWS; i>0; i--) begin
               if(!cache_tag[i-1].valid) begin
                 cRowId <= cache_tag[i-1].tag;
-                hit <= 1;
+                hit = 1;
               end
             end
             // no empty new row found
-            miss <= cache_tag.and() with (item.valid && item.dirty);
+            miss <= !hit;
           end
           else
           for (int i = 0; i < CHROWS; i++) begin
