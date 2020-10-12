@@ -9,6 +9,7 @@ module Chiptestbench(
   parameter COLWIDTH = 10;
   parameter DEVICE_WIDTH = 4;
   parameter BL = 8;
+  parameter CHWIDTH = 5;
   
   localparam BANKGROUPS = 2**BGWIDTH;
   localparam BANKSPERGROUP = 2**BAWIDTH;
@@ -31,7 +32,8 @@ module Chiptestbench(
   .ADDRWIDTH(ADDRWIDTH),
   .COLWIDTH(COLWIDTH),
   .DEVICE_WIDTH(DEVICE_WIDTH),
-  .BL(BL)) dut (
+  .BL(BL),
+  .CHWIDTH(CHWIDTH)) dut (
   .clk(clk),
   .rd_o_wr(rd_o_wr),
   .dqin(dqin),
