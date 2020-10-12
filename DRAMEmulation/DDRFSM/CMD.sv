@@ -36,7 +36,7 @@ module CMD
   
   // implement ddr logic // todo implement all commands not just a few
   assign ACT = (!act_n); // entire A is the Row Address at this time
-  assign BST = (act_n && A[ADDRWIDTH-2]); // todo
+  assign BST = 0;//(act_n && A[ADDRWIDTH-2]); // todo
   assign CFG = 0;
   assign CKEH = 0;//cke;
   assign CKEL = 0;//!cke;
