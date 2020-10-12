@@ -138,16 +138,6 @@ module dimm
   .hold(hold)
   );
   
-  // RAS = Row Address Strobe
-  // reg [ADDRWIDTH-1:0] rowA = {ADDRWIDTH{1'b0}};
-  // always@(posedge clk)
-  // begin
-  //   if(ACT)
-  //   rowA <= A;
-  //   else if (PR)
-  //   rowA <= {ADDRWIDTH{1'b0}};
-  // end
-  
   // dq, dqs_t and dqs_c tristate split as inputs or outputs
   wire [DQWIDTH-1:0] dqi;
   wire [DQWIDTH-1:0] dqo;
@@ -176,10 +166,20 @@ module dimm
     end
   endgenerate
   
+  // RAS = Row Address Strobe
+  // reg [ADDRWIDTH-1:0] rowA = {ADDRWIDTH{1'b0}};
+  // always@(posedge clk)
+  // begin
+  //   if(ACT)
+  //   rowA <= A;
+  //   else if (PR)
+  //   rowA <= {ADDRWIDTH{1'b0}};
+  // end
   wire  [0:0]             rd_o_wr [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   wire [ADDRWIDTH-1:0]row [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   wire [COLWIDTH-1:0]column [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   
+  // Rank and Chip instances todo: multi rank logic
   generate
     for (ri = 0; ri < RANKS ; ri=ri+1)
     begin:R
@@ -187,24 +187,21 @@ module dimm
       begin:C
         Chip #(.BGWIDTH(BGWIDTH),
         .BAWIDTH(BAWIDTH),
-        .ADDRWIDTH(ADDRWIDTH),
         .COLWIDTH(COLWIDTH),
         .DEVICE_WIDTH(DEVICE_WIDTH),
         .BL(BL),
         .CHWIDTH(CHWIDTH)) Ci (
         .clk(clk),
         //  .reset_n(reset_n),
-        //  .halt(halt),
         .rd_o_wr(rd_o_wr),
         //  .commands((!cs_n[ri])? commands : {19{1'b0}}),
         //  .bg(bg),
         //  .ba(ba),
         .dqin(chipdqi[ci]),
         .dqout(chipdqo[ci]),
-        //  .dq(dq[DEVICE_WIDTH*(ci+1)-1:DEVICE_WIDTH*ci]),
         //  .dqs_c(dqs_c[ci]),
         //  .dqs_t(dqs_t[ci]),
-        .row(row),
+        .row(cRowId),
         .column(column)// todo A[COLWIDTH-1:0])
         );
       end

@@ -2,25 +2,23 @@
 
 module Bank
   #(parameter DEVICE_WIDTH = 4,
-  parameter ROWS = 131072,
   parameter COLS = 1024,
   parameter BL = 8,
   parameter CHWIDTH = 5,
   localparam ROWSinSRAM = 2**CHWIDTH,
   localparam BankBRAM = COLS*ROWSinSRAM) // amount of BRAM per bank as full rows (pages)
   (
-  input wire clk,
-  input wire [0:0]rd_o_wr,
-  input wire [DEVICE_WIDTH-1:0]dqin,
-  output wire [DEVICE_WIDTH-1:0]dqout,
-  input wire [$clog2(ROWS)-1:0]row,
-  input wire [$clog2(COLS)-1:0]column
+  input  wire clk,
+  input  wire [0:0]              rd_o_wr,
+  input  wire [DEVICE_WIDTH-1:0] dqin,
+  output wire [DEVICE_WIDTH-1:0] dqout,
+  input  wire [CHWIDTH-1:0]      row,
+  input  wire [$clog2(COLS)-1:0] column
   );
   
-  localparam ROWADDR = $clog2(BankBRAM) - $clog2(COLS);
   sram #(.WIDTH(DEVICE_WIDTH), .DEPTH(BankBRAM)) array (
   .clk(clk),
-  .addr({row[ROWADDR-1:0], column}),
+  .addr({row, column}),
   .rd_o_wr(rd_o_wr), // 0->rd, 1->wr
   .i_data(dqin),
   .o_data(dqout)
