@@ -27,7 +27,7 @@ module dimm
   `ifdef DDR4
   input act_n, // Activate command input
   `endif
-  input [ADDRWIDTH-1:0]A,
+  input [ADDRWIDTH-1:0] A,
   // ras_n -> A16, cas_n -> A15, we_n -> A14
   // Dual function inputs:
   // - when act_n & cs_n are LOW, these are interpreted as *Row* Address Bits (RAS Row Address Strobe)
@@ -39,9 +39,9 @@ module dimm
   input cas_n,
   input we_n,
   `endif
-  input [BAWIDTH-1:0]ba, // bank address
+  input [BAWIDTH-1:0] ba, // bank address
   `ifdef DDR4
-  input [BGWIDTH-1:0]bg, // bankgroup address, BG0-BG1 in x4/8 and BG0 in x16
+  input [BGWIDTH-1:0] bg, // bankgroup address, BG0-BG1 in x4/8 and BG0 in x16
   `endif
   `ifdef DDR4
   input ck_c, // Differential clock input complement All address & control signals are sampled at the crossing of negedge of ck_c
@@ -51,14 +51,14 @@ module dimm
   input ck_p, // Differential clock input; All address & control signals are sampled at the crossing of posedge of ck_p
   `endif
   input cke, // Clock Enable; HIGH activates internal clock signals and device input buffers and output drivers
-  input [RANKS-1:0]cs_n, // The memory looks at all the other inputs only if this is LOW
-  inout [DQWIDTH-1:0]dq, // Data Bus; This is how data is written in and read out
+  input [RANKS-1:0] cs_n, // The memory looks at all the other inputs only if this is LOW
+  inout [DQWIDTH-1:0] dq, // Data Bus; This is how data is written in and read out
   `ifdef DDR4
-  inout [CHIPS-1:0]dqs_c, // Data Strobe complement, essentially a data valid flag
-  inout [CHIPS-1:0]dqs_t, // Data Strobe true, essentially a data valid flag
+  inout [CHIPS-1:0] dqs_c, // Data Strobe complement, essentially a data valid flag
+  inout [CHIPS-1:0] dqs_t, // Data Strobe true, essentially a data valid flag
   `elsif DDR3
-  inout [CHIPS-1:0]dqs_n, // Data Strobe n, essentially a data valid flag
-  inout [CHIPS-1:0]dqs_p, // Data Strobe p, essentially a data valid flag
+  inout [CHIPS-1:0] dqs_n, // Data Strobe n, essentially a data valid flag
+  inout [CHIPS-1:0] dqs_p, // Data Strobe p, essentially a data valid flag
   `endif
   input odt,
   `ifdef DDR4
@@ -99,7 +99,7 @@ module dimm
   .BankFSM(BankFSM)
   );
   
-  genvar bgi, bi; // bank identifier
+  genvar bgi, bi, ci; // bank identifier
   wire [ADDRWIDTH-1:0] addresses [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   generate
     for (bgi = 0; bgi < BANKGROUPS; bgi=bgi+1)
@@ -141,22 +141,48 @@ module dimm
   //   rowA <= {ADDRWIDTH{1'b0}};
   // end
   
-  wire [DQWIDTH-1:0] dqin [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-  //  generate
-  //    for (bi = 0; bi < BANKGROUPS*BANKSPERGROUP; bi=bi+1)
-  //    begin
-  //      assign dqin[bi] = ({bg,ba}==bi)? dq : {DQWIDTH{1'b0}};
-  //    end
-  //  endgenerate
+  generate
+    for (bgi = 0; bgi < BANKGROUPS; bgi=bgi+1)
+    begin
+      for (bi = 0; bi < BANKSPERGROUP; bi=bi+1)
+      begin
+        assign addresses[bgi][bi] = ((bg==bgi)&&(ba==bi))? A : {ADDRWIDTH{1'b0}};
+      end
+    end
+  endgenerate
+  
+  wire [DQWIDTH-1:0] dqi;
+  wire [DQWIDTH-1:0] dqo;
+  wire [CHIPS-1:0] dqs_ci;
+  wire [CHIPS-1:0] dqs_co;
+  wire [CHIPS-1:0] dqs_ti;
+  wire [CHIPS-1:0] dqs_to;
+  tristate #(.W(DQWIDTH)) dqtr (.dqi(dqo),.dqo(dqi),.dq(dq),.enable(RD || RDA));
+  tristate #(.W(CHIPS)) dqsctr (.dqi(dqs_co),.dqo(dqs_ci),.dq(dqs_c),.enable(RD || RDA));
+  tristate #(.W(CHIPS)) dqsttr (.dqi(dqs_to),.dqo(dqs_ti),.dq(dqs_t),.enable(RD || RDA));
+  
+  wire [DEVICE_WIDTH-1:0] chipdqi [CHIPS-1:0][BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+  wire [DEVICE_WIDTH-1:0] chipdqo [CHIPS-1:0][BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+  generate
+    for (ci = 0; ci < CHIPS; ci=ci+1)
+    begin
+      for (bgi = 0; bgi < BANKGROUPS; bgi=bgi+1)
+      begin
+        for (bi = 0; bi < BANKSPERGROUP; bi=bi+1)
+        begin 
+          assign chipdqi[ci][bgi][bi] = ((bg==bgi)&&(ba==bi))? dqi[(ci+1)*DEVICE_WIDTH:ci*DEVICE_WIDTH] : {DEVICE_WIDTH{1'b0}};
+        end
+      end
+    end
+  endgenerate
+
+  // assign dqo = ;???
   
   wire  [0:0]             rd_o_wr [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-  
-  wire [DQWIDTH-1:0]dqout [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-  //  wire [DQWIDTH-1:0]dqout_b = dqout[{bg,ba}];
   wire [ADDRWIDTH-1:0]row [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   wire [COLWIDTH-1:0]column [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   
-  genvar ri, ci;
+  genvar ri;
   generate
     for (ri = 0; ri < RANKS ; ri=ri+1)
     begin:R
@@ -176,8 +202,8 @@ module dimm
         //  .commands((!cs_n[ri])? commands : {19{1'b0}}),
         //  .bg(bg),
         //  .ba(ba),
-        .dqin(),
-        .dqout(),
+        .dqin(chipdqi[ci]),
+        .dqout(chipdqo[ci]),
         //  .dq(dq[DEVICE_WIDTH*(ci+1)-1:DEVICE_WIDTH*ci]),
         //  .dqs_c(dqs_c[ci]),
         //  .dqs_t(dqs_t[ci]),
