@@ -68,6 +68,8 @@ module dimmtestbench(
        reg parity;
        `endif
        
+       reg sync [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+       
        reg writing;
        
        assign dq = (writing) ? dq_reg:{8'd0, {DQWIDTH-8{1'bZ}}};
@@ -117,14 +119,15 @@ module dimmtestbench(
        `endif
        .odt(odt),
        `ifdef DDR4
-       .parity(parity)
+       .parity(parity),
        `endif
+       .sync(sync)
        );
        
        always #(tCK*0.5) ck_t = ~ck_t;
        always #(tCK*0.5) ck_c = ~ck_c;
        
-       integer i; // loop variable
+       integer i, j; // loop variable
        
        initial
        begin
@@ -143,6 +146,13 @@ module dimmtestbench(
               odt = 0;
               parity = 0;
               writing = 0;
+              for (i = 0; i < BANKGROUPS; i = i + 1)
+              begin
+                     for (j = 0; j < BANKSPERGROUP; j = j + 1)
+                     begin
+                            sync[i][j] = 0;
+                     end
+              end
               
               #tCK // reset high
               reset_n = 1;

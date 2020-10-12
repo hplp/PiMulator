@@ -64,11 +64,17 @@ module dimm
   `ifdef DDR4
   input parity,
   `endif
-  input reset_n // DRAM is active only when this signal is HIGH
+  input reset_n, // DRAM is active only when this signal is HIGH
+  
+  // AXI Port to Synchronize Emulation Memory Cache with Board Memory
+  input sync [BANKGROUPS-1:0][BANKSPERGROUP-1:0]
   );
   
-  wire clk = ck_t && cke; // clkd && cke; // todo: figurehow to use ck_c, if needed
+  wire clk = ck_t && cke; // clkd && cke; // todo: figurehow to use ck_c, if needed with the memory controller
   
+  genvar ri, ci, bgi, bi; // rank, chip, bank group and bank identifiers
+  
+  // Command decoding
   wire ACT, BST, CFG, CKEH, CKEL, DPD, DPDX, MRR, MRW, PD, PDX, PR, PRA, RD, RDA, REF, SRF, WR, WRA;
   CMD #(.ADDRWIDTH(ADDRWIDTH)) CMDi
   (
@@ -85,6 +91,7 @@ module dimm
   .ACT(ACT), .BST(BST), .CFG(CFG), .CKEH(CKEH), .CKEL(CKEL), .DPD(DPD), .DPDX(DPDX), .MRR(MRR), .MRW(MRW), .PD(PD), .PDX(PDX), .PR(PR), .PRA(PRA), .RD(RD), .RDA(RDA), .REF(REF), .SRF(SRF), .WR(WR), .WRA(WRA)
   );
   
+  // Bank Timing FSMs
   wire [4:0] BankFSM [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   TimingFSM #(.BGWIDTH(BGWIDTH),
   .BAWIDTH(BAWIDTH))
@@ -99,7 +106,7 @@ module dimm
   .BankFSM(BankFSM)
   );
   
-  genvar bgi, bi, ci; // bank identifier
+  // address demultiplexing
   wire [ADDRWIDTH-1:0] addresses [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   generate
     for (bgi = 0; bgi < BANKGROUPS; bgi=bgi+1)
@@ -111,7 +118,7 @@ module dimm
     end
   endgenerate
   
-  wire sync [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+  // Emulation Memory Cache
   wire [CHWIDTH-1:0] cRowId [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   CacheFSM #(.BGWIDTH(BGWIDTH),
   .BAWIDTH(BAWIDTH),
@@ -141,16 +148,7 @@ module dimm
   //   rowA <= {ADDRWIDTH{1'b0}};
   // end
   
-  generate
-    for (bgi = 0; bgi < BANKGROUPS; bgi=bgi+1)
-    begin
-      for (bi = 0; bi < BANKSPERGROUP; bi=bi+1)
-      begin
-        assign addresses[bgi][bi] = ((bg==bgi)&&(ba==bi))? A : {ADDRWIDTH{1'b0}};
-      end
-    end
-  endgenerate
-  
+  // dq, dqs_t and dqs_c tristate split as inputs or outputs
   wire [DQWIDTH-1:0] dqi;
   wire [DQWIDTH-1:0] dqo;
   wire [CHIPS-1:0] dqs_ci;
@@ -161,17 +159,18 @@ module dimm
   tristate #(.W(CHIPS)) dqsctr (.dqi(dqs_co),.dqo(dqs_ci),.dq(dqs_c),.enable(RD || RDA));
   tristate #(.W(CHIPS)) dqsttr (.dqi(dqs_to),.dqo(dqs_ti),.dq(dqs_t),.enable(RD || RDA));
   
+  // dqi is demultiplexed into chipdqi while chipdqo is multiplexed into dqo
   wire [DEVICE_WIDTH-1:0] chipdqi [CHIPS-1:0][BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   wire [DEVICE_WIDTH-1:0] chipdqo [CHIPS-1:0][BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   generate
     for (ci = 0; ci < CHIPS; ci=ci+1)
     begin
-      assign dqo[(ci+1)*DEVICE_WIDTH:ci*DEVICE_WIDTH] = chipdqo[ci][bg][ba];
+      assign dqo[(ci+1)*DEVICE_WIDTH-1:ci*DEVICE_WIDTH] = chipdqo[ci][bg][ba];
       for (bgi = 0; bgi < BANKGROUPS; bgi=bgi+1)
       begin
         for (bi = 0; bi < BANKSPERGROUP; bi=bi+1)
         begin 
-          assign chipdqi[ci][bgi][bi] = ((bg==bgi)&&(ba==bi))? dqi[(ci+1)*DEVICE_WIDTH:ci*DEVICE_WIDTH] : {DEVICE_WIDTH{1'b0}};
+          assign chipdqi[ci][bgi][bi] = ((bg==bgi)&&(ba==bi))? dqi[(ci+1)*DEVICE_WIDTH-1:ci*DEVICE_WIDTH] : {DEVICE_WIDTH{1'b0}};
         end
       end
     end
@@ -181,7 +180,6 @@ module dimm
   wire [ADDRWIDTH-1:0]row [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   wire [COLWIDTH-1:0]column [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   
-  genvar ri;
   generate
     for (ri = 0; ri < RANKS ; ri=ri+1)
     begin:R
