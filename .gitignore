@@ -37,7 +37,6 @@ MBBench/MicBlzDDR4StE3Lnx/
 DRAMEmulation/DDRFSM/DDRFSM/
 DRAMEmulation/DDRFSM/FSMsim/
 DRAMEmulation/DDRFSM/dimmsim/
-DRAMEmulation/DDRFSM/*.wcfg
 DRAMEmulation/DDRFSM/IBUFGDS.v
 
 DRAMEmulation/DDRFSM/memoryFSM.v
@@ -71,7 +70,6 @@ DRAMEmulation/DDRFSM/memtiming/
 DRAMEmulation/DDRFSM/placeholders/
 DRAMEmulation/DDRFSM/sram/
 DRAMEmulation/DDRFSM/syscache/
-DRAMEmulation/DDRFSM/tristate.v
 DRAMEmulation/DDRFSM/tristate/
 DRAMEmulation/DDRFSM/chipsim/
 DRAMEmulation/DDRFSM/vsim/
