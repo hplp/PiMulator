@@ -199,7 +199,21 @@ module dimm
   wire [CHIPS-1:0] dqs_co;
   wire [CHIPS-1:0] dqs_ti;
   wire [CHIPS-1:0] dqs_to;
-  tristate #(.W(DQWIDTH)) dqtr (.dqi(dqo),.dqo(dqi),.dq(dq),.enable(RD || RDA));
+  wire RDEN;
+  wire RDENORs [BANKGROUPS*BANKSPERGROUP:0];
+  generate
+    assign RDENORs[0] = 0;
+    for (bgi=0; bgi<BANKGROUPS; bgi=bgi+1)
+    begin
+      for (bi=0; bi<BANKSPERGROUP; bi=bi+1)
+      begin
+        assign RDENORs[bgi*BANKSPERGROUP+bi+1] = (BankFSM[bgi][bi]==5'b01011) || RDENORs[bgi*BANKSPERGROUP+bi];
+      end
+    end
+  endgenerate
+  assign RDEN = RDENORs[BANKGROUPS*BANKSPERGROUP];
+  
+  tristate #(.W(DQWIDTH)) dqtr (.dqi(dqo),.dqo(dqi),.dq(dq),.enable(RDEN)); // todo: enable must come from FSM
   tristate #(.W(CHIPS)) dqsctr (.dqi(dqs_co),.dqo(dqs_ci),.dq(dqs_c),.enable(RD || RDA));
   tristate #(.W(CHIPS)) dqsttr (.dqi(dqs_to),.dqo(dqs_ti),.dq(dqs_t),.enable(RD || RDA));
   
