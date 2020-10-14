@@ -11,6 +11,15 @@ module sram #(parameter WIDTH = 8, DEPTH = 2048) (
 
 (* ram_style = "block" *) reg [WIDTH-1:0] memory_array [0:DEPTH-1];
 
+`ifndef SYNTHESIS
+integer i;
+initial
+  begin
+    for (i=0;i<=DEPTH;i=i+1)
+      memory_array[i] = {WIDTH{1'b0}};
+  end
+`endif
+
 always @ (posedge clk)
   begin
     if(rd_o_wr)
