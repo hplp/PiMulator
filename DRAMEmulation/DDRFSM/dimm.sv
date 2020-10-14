@@ -39,10 +39,10 @@ module dimm
   input cas_n,
   input we_n,
   `endif
-  input [BAWIDTH-1:0] ba, // bank address
   `ifdef DDR4
   input [BGWIDTH-1:0] bg, // bankgroup address, BG0-BG1 in x4/8 and BG0 in x16
   `endif
+  input [BAWIDTH-1:0] ba, // bank address
   `ifdef DDR4
   input ck_c, // Differential clock input complement All address & control signals are sampled at the crossing of negedge of ck_c
   input ck_t, // Differential clock input true All address & control signals are sampled at the crossing of posedge of ck_t
@@ -74,9 +74,11 @@ module dimm
   
   genvar ri, ci, bgi, bi; // rank, chip, bank group and bank identifiers
   
-  // Command decoding
+  // Command decoding and active row
   wire ACT, BST, CFG, CKEH, CKEL, DPD, DPDX, MRR, MRW, PD, PDX, PR, PRA, RD, RDA, REF, SRF, WR, WRA;
-  CMD #(.ADDRWIDTH(ADDRWIDTH)) CMDi
+  wire [ADDRWIDTH-1:0] rowA;
+  wire [COLWIDTH-1:0] colA;
+  CMD #(.ADDRWIDTH(ADDRWIDTH), .COLWIDTH(COLWIDTH)) CMDi
   (
   `ifdef DDR4
   .act_n(act_n),
@@ -88,8 +90,48 @@ module dimm
   `endif
   .cke(cke),
   .A(A),
-  .ACT(ACT), .BST(BST), .CFG(CFG), .CKEH(CKEH), .CKEL(CKEL), .DPD(DPD), .DPDX(DPDX), .MRR(MRR), .MRW(MRW), .PD(PD), .PDX(PDX), .PR(PR), .PRA(PRA), .RD(RD), .RDA(RDA), .REF(REF), .SRF(SRF), .WR(WR), .WRA(WRA)
+  .ACT(ACT), .BST(BST), .CFG(CFG), .CKEH(CKEH), .CKEL(CKEL), .DPD(DPD), .DPDX(DPDX), .MRR(MRR), .MRW(MRW), .PD(PD), .PDX(PDX), .PR(PR), .PRA(PRA), .RD(RD), .RDA(RDA), .REF(REF), .SRF(SRF), .WR(WR), .WRA(WRA),
+  .rowA(rowA), .colA(colA)
   );
+  
+  // RAS = Row Address Strobe
+  reg [ADDRWIDTH-1:0] RowId [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+  always@(posedge clk)
+  begin
+    if(ACT) RowId[bg][ba] <= rowA;
+    else if (PR) RowId[bg][ba] <= {ADDRWIDTH{1'b0}};
+  end
+  
+  // CAS = Column Address Strobe
+  reg [COLWIDTH-1:0] Column [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+  always@(posedge clk)
+  begin
+    if(WR || WRA || RD || RDA) Column[bg][ba] = colA;
+    else if (PR) Column[bg][ba] <= {COLWIDTH{1'b0}};
+  end
+  
+  // CAS = Column Address Strobe plus BL column address increment
+  // reg [$clog2(COLS)-1:0]colBL=0;
+  // always@(posedge clk)
+  //   begin
+  //     if((FSMstate==5'b01011) || (FSMstate==5'b01100))
+  //       colBL <= column;
+  //     else
+  //       if ((FSMstate==5'b10010) || (FSMstate==5'b10011) || (FSMstate==5'b01011) || (FSMstate==5'b01100))
+  //         colBL <= colBL + 1;
+  //       else
+  //         colBL <= {$clog2(COLS){1'b0}};
+  //   end
+  
+  //
+  // reg [CADDRWIDTH-1:0] column = {CADDRWIDTH{1'b0}};
+  // always@(posedge clk)
+  //   begin
+  //     if(RD || RDA || WR || WRA)
+  //       column <= A[CADDRWIDTH-1:0];
+  //     else
+  //       column <= {CADDRWIDTH{1'b0}};
+  //   end
   
   // Bank Timing FSMs
   wire [4:0] BankFSM [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
@@ -106,17 +148,17 @@ module dimm
   .BankFSM(BankFSM)
   );
   
-  // address demultiplexing
-  wire [ADDRWIDTH-1:0] addresses [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-  generate
-    for (bgi = 0; bgi < BANKGROUPS; bgi=bgi+1)
-    begin
-      for (bi = 0; bi < BANKSPERGROUP; bi=bi+1)
-      begin
-        assign addresses[bgi][bi] = ((bg==bgi)&&(ba==bi))? A : {ADDRWIDTH{1'b0}};
-      end
-    end
-  endgenerate
+  // Address demultiplexing
+  // wire [ADDRWIDTH-1:0] addresses [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+  // generate
+  //   for (bgi = 0; bgi < BANKGROUPS; bgi=bgi+1)
+  //   begin
+  //     for (bi = 0; bi < BANKSPERGROUP; bi=bi+1)
+  //     begin
+  //       assign addresses[bgi][bi] = ((bg==bgi)&&(ba==bi))? A : {ADDRWIDTH{1'b0}};
+  //     end
+  //   end
+  // endgenerate
   
   // Emulation Memory Cache
   wire [CHWIDTH-1:0] cRowId [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
@@ -131,7 +173,7 @@ module dimm
   .bg(bg),
   `endif
   .ba(ba),
-  .RowId(addresses),
+  .RowId(RowId),
   .BankFSM(BankFSM),
   .sync(sync),
   .cRowId(cRowId),
@@ -166,18 +208,13 @@ module dimm
     end
   endgenerate
   
-  // RAS = Row Address Strobe
-  // reg [ADDRWIDTH-1:0] rowA = {ADDRWIDTH{1'b0}};
-  // always@(posedge clk)
-  // begin
-  //   if(ACT)
-  //   rowA <= A;
-  //   else if (PR)
-  //   rowA <= {ADDRWIDTH{1'b0}};
-  // end
-  wire  [0:0]             rd_o_wr [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-  wire [ADDRWIDTH-1:0]row [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-  wire [COLWIDTH-1:0]column [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+  // Write Enable bit
+  reg  [0:0] rd_o_wr [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+  always@(posedge clk)
+  begin
+    if(WR || WRA) rd_o_wr[bg][ba] <= 1;
+    else if (PR || RD || RDA) rd_o_wr[bg][ba] <= 0;
+  end
   
   // Rank and Chip instances todo: multi rank logic
   generate
@@ -202,7 +239,7 @@ module dimm
         //  .dqs_c(dqs_c[ci]),
         //  .dqs_t(dqs_t[ci]),
         .row(cRowId),
-        .column(column)// todo A[COLWIDTH-1:0])
+        .column(Column)
         );
       end
     end

@@ -72,9 +72,9 @@ module dimmtestbench(
        
        reg writing;
        
-       assign dq = (writing) ? dq_reg:{8'd0, {DQWIDTH-8{1'bZ}}};
-       assign dqs_c = (writing) ? dqs_c_reg:{2'd0,{CHIPS-2{1'bZ}}};
-       assign dqs_t = (writing) ? dqs_t_reg:{2'd1,{CHIPS-2{1'bZ}}};
+       assign dq = (writing) ? dq_reg:{DQWIDTH{1'bZ}};
+       assign dqs_c = (writing) ? dqs_c_reg:{CHIPS{1'bZ}};
+       assign dqs_t = (writing) ? dqs_t_reg:{CHIPS{1'bZ}};
        
        dimm #(.RANKS(RANKS),
        .CHIPS(CHIPS),
@@ -142,7 +142,7 @@ module dimmtestbench(
               ba = 0;
               dq_reg = {DQWIDTH{1'b0}};
               dqs_t_reg = {CHIPS{1'b0}};
-              dqs_c_reg = {CHIPS{1'b0}};
+              dqs_c_reg = {CHIPS{1'b1}};
               odt = 0;
               parity = 0;
               writing = 0;
@@ -173,21 +173,21 @@ module dimmtestbench(
               for (i = 0; i < BL; i = i + 1)
               begin
                      #tCK
-                     A = (i==0)? 17'b10000000000000000 : 17'b00000000000000000;
+                     A = (i==0)? 17'b10000000000000010 : 17'b00000000000000000;
                      writing = 1;
-                     dq_reg = {8'd0, $random, $random, $random, $random, $random, $random, $random, $random };
-                     dqs_t_reg = 18'b111111111111111111;
-                     dqs_c_reg = 18'b000000000000000000;
+                     dq_reg = {$urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom };
+                     dqs_t_reg = {CHIPS{1'b1}};
+                     dqs_c_reg = {CHIPS{1'b0}};
               end
               
               // read
               for (i = 0; i < BL; i = i + 1)
               begin
                      #tCK
-                     A = (i==0)? 17'b10100000000000000 : 17'b00000000000000000;
-                     dq_reg = 72'd0;
-                     dqs_t_reg = 18'd0;
-                     dqs_c_reg = 18'd0;
+                     A = (i==0)? 17'b10100000000000010 : 17'b00000000000000000;
+                     dq_reg = {DQWIDTH{1'b0}};
+                     dqs_t_reg = {CHIPS{1'b0}};
+                     dqs_c_reg = {CHIPS{1'b1}};
                      writing = 0;
               end
               
@@ -196,9 +196,10 @@ module dimmtestbench(
               A = 17'b01000000000000000;
               
               #tCK
+              #tCK
               bg = 0;
               ba = 0;
-              A = 17'b01000000000000000;
+              A = 17'b00000000000000000;
               #(4*tCK)
               $stop;
        end;
