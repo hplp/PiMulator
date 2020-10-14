@@ -6,7 +6,8 @@
 // references: www.systemverilog.io
 
 module CMD
-  #(parameter ADDRWIDTH = 17
+  #(parameter ADDRWIDTH = 17,
+  parameter COLWIDTH = 10
   )
   (
   `ifdef DDR4
@@ -18,21 +19,27 @@ module CMD
   input we_n,
   `endif
   input cke, // Clock Enable; HIGH activates internal clock signals and device input buffers and output drivers
-  input [ADDRWIDTH-1:0]A,
+  input [ADDRWIDTH-1:0] A,
   // ras_n -> A16, cas_n -> A15, we_n -> A14
   // Dual function inputs:
   // - when act_n & cs_n are LOW, these are interpreted as *Row* Address Bits (RAS Row Address Strobe)
   // - when act_n is HIGH, these are interpreted as command pins to indicate READ, WRITE or other commands
   // - - and CAS - Column Address Strobe (A0-A9 used for column at this times)
   // A10 which is an unused bit during CAS is overloaded to indicate Auto-Precharge
-  output ACT, BST, CFG, CKEH, CKEL, DPD, DPDX, MRR, MRW, PD, PDX, PR, PRA, RD, RDA, REF, SRF, WR, WRA
-  //  output WRA
+  output ACT, BST, CFG, CKEH, CKEL, DPD, DPDX, MRR, MRW, PD, PDX, PR, PRA, RD, RDA, REF, SRF, WR, WRA,
+  output [ADDRWIDTH-1:0] rowA,
+  output [COLWIDTH-1:0] colA
   );
   
   wire A16 = A[ADDRWIDTH-1]; // RAS_n
   wire A15 = A[ADDRWIDTH-2]; // CAS_n
   wire A14 = A[ADDRWIDTH-3]; // WE_n
-  wire A10 = A[ADDRWIDTH-4]; // AP // todo: check how this needs to relate to COL WIDTH
+  wire A10 = A[ADDRWIDTH-4]; // AP
+  
+  // RAS = Row Address Strobe
+  assign rowA = (ACT)? A : {ADDRWIDTH{1'b0}};
+  // CAS = Column Address Strobe
+  assign colA = (WR || WRA || RD || RDA)? A[COLWIDTH-1:0] : {COLWIDTH{1'b0}};
   
   // implement ddr logic // todo implement all commands not just a few
   assign ACT = (!act_n); // entire A is the Row Address at this time
