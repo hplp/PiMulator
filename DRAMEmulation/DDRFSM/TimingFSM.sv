@@ -1,5 +1,8 @@
 `timescale 1ns / 1ps
 
+`define DDR4
+// `define DDR3
+
 module TimingFSM
     #(parameter BGWIDTH = 2,
     parameter BAWIDTH = 2,
@@ -9,10 +12,10 @@ module TimingFSM
     (
     input wire clk,
     input wire reset_n,
-    input [BAWIDTH-1:0]ba, // bank address
     `ifdef DDR4
     input [BGWIDTH-1:0]bg, // bankgroup address, BG0-BG1 in x4/8 and BG0 in x16
     `endif
+    input [BAWIDTH-1:0]ba, // bank address
     input ACT, BST, CFG, CKEH, CKEL, DPD, DPDX, MRR, MRW, PD, PDX, PR, PRA, RD, RDA, REF, SRF, WR, WRA,
     output [4:0] BankFSM [BANKGROUPS-1:0][BANKSPERGROUP-1:0]
     );
