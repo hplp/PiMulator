@@ -76,9 +76,7 @@ module dimm
   
   // Command decoding and active row
   wire ACT, BST, CFG, CKEH, CKEL, DPD, DPDX, MRR, MRW, PD, PDX, PR, PRA, RD, RDA, REF, SRF, WR, WRA;
-  wire [ADDRWIDTH-1:0] rowA;
-  wire [COLWIDTH-1:0] colA;
-  CMD #(.ADDRWIDTH(ADDRWIDTH), .COLWIDTH(COLWIDTH)) CMDi
+  CMD #(.ADDRWIDTH(ADDRWIDTH)) CMDi
   (
   `ifdef DDR4
   .act_n(act_n),
@@ -90,24 +88,38 @@ module dimm
   `endif
   .cke(cke),
   .A(A),
-  .ACT(ACT), .BST(BST), .CFG(CFG), .CKEH(CKEH), .CKEL(CKEL), .DPD(DPD), .DPDX(DPDX), .MRR(MRR), .MRW(MRW), .PD(PD), .PDX(PDX), .PR(PR), .PRA(PRA), .RD(RD), .RDA(RDA), .REF(REF), .SRF(SRF), .WR(WR), .WRA(WRA),
-  .rowA(rowA), .colA(colA)
+  .ACT(ACT), .BST(BST), .CFG(CFG), .CKEH(CKEH), .CKEL(CKEL), .DPD(DPD), .DPDX(DPDX), .MRR(MRR), .MRW(MRW), .PD(PD), .PDX(PDX), .PR(PR), .PRA(PRA), .RD(RD), .RDA(RDA), .REF(REF), .SRF(SRF), .WR(WR), .WRA(WRA)
   );
+  
   
   // RAS = Row Address Strobe
   reg [ADDRWIDTH-1:0] RowId [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   always@(posedge clk)
   begin
-    if(ACT) RowId[bg][ba] <= rowA;
+    if(ACT) RowId[bg][ba] <= A;
     else if (PR) RowId[bg][ba] <= {ADDRWIDTH{1'b0}};
   end
   
   // CAS = Column Address Strobe
   reg [COLWIDTH-1:0] Column [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+  reg Burst [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   always@(posedge clk)
   begin
-    if(WR || WRA || RD || RDA) Column[bg][ba] = colA;
-    else if (PR) Column[bg][ba] <= {COLWIDTH{1'b0}};
+    if(WR || WRA || RD || RDA) begin
+      Column[bg][ba] <= A[COLWIDTH-1:0];
+      Burst[bg][ba] <= 1;
+    end
+    else if (PR) begin
+      Column[bg][ba] <= {COLWIDTH{1'b0}};
+      Burst[bg][ba] <= 0;
+    end
+    else begin
+      for (int i = 0; i < BANKGROUPS; i++) begin
+        for (int j = 0; j < BANKGROUPS; j++) begin
+          if(Burst[i][j]) Column[i][j] <= Column[i][j] + 1;
+        end
+      end
+    end
   end
   
   // CAS = Column Address Strobe plus BL column address increment
