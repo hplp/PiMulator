@@ -1,2 +1,5 @@
 # PiMulator
-Processing in Memory Emulation built on LiME, MEG, and much more!
+
+Detailed emulation of memory, DRAM, DDR, and emerging memory technologies on FPGA. 
+
+Emulation framework for Processing in Memory.
