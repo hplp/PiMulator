@@ -4,7 +4,9 @@
 // `define DDR3
 // todo: DDR3 interface is only declared at this time but not functional
 
-// references: www.systemverilog.io
+// references:
+// www.systemverilog.io
+// https://raw.githubusercontent.com/alexforencich/verilog-axi/master/rtl/
 
 module dimm
   #(parameter RANKS = 1,
@@ -17,9 +19,18 @@ module dimm
   parameter BL = 8, // Burst Length
   parameter CHWIDTH = 5, // Emulation Memory Cache Width
   
-  localparam DQWIDTH = DEVICE_WIDTH*CHIPS, // ECC pins are also connected to chips
-  localparam BANKGROUPS = 2**BGWIDTH,
-  localparam BANKSPERGROUP = 2**BAWIDTH,
+  // Width of AXI data bus in bits
+  parameter AXI_DATA_WIDTH = 32,
+  // Width of AXI address bus in bits
+  parameter AXI_ADDR_WIDTH = 16,
+  // Width of AXI wstrb (width of data bus in words)
+  parameter AXI_STRB_WIDTH = (AXI_DATA_WIDTH/8),
+  // Width of AXI ID signal
+  parameter AXI_ID_WIDTH = 8,
+  
+  parameter DQWIDTH = DEVICE_WIDTH*CHIPS, // ECC pins are also connected to chips
+  parameter BANKGROUPS = 2**BGWIDTH,
+  parameter BANKSPERGROUP = 2**BAWIDTH,
   localparam ROWS = 2**ADDRWIDTH,
   localparam COLS = 2**COLWIDTH
   )
@@ -67,7 +78,45 @@ module dimm
   input reset_n, // DRAM is active only when this signal is HIGH
   
   // AXI Port to Synchronize Emulation Memory Cache with Board Memory
-  input sync [BANKGROUPS-1:0][BANKSPERGROUP-1:0]
+  input sync [BANKGROUPS-1:0][BANKSPERGROUP-1:0],
+  /*
+  * AXI master interface
+  */
+  output wire [AXI_ID_WIDTH-1:0]    m_axi_awid,
+  output wire [AXI_ADDR_WIDTH-1:0]  m_axi_awaddr,
+  output wire [7:0]                 m_axi_awlen,
+  output wire [2:0]                 m_axi_awsize,
+  output wire [1:0]                 m_axi_awburst,
+  output wire                       m_axi_awlock,
+  output wire [3:0]                 m_axi_awcache,
+  output wire [2:0]                 m_axi_awprot,
+  output wire                       m_axi_awvalid,
+  input  wire                       m_axi_awready,
+  output wire [AXI_DATA_WIDTH-1:0]  m_axi_wdata,
+  output wire [AXI_STRB_WIDTH-1:0]  m_axi_wstrb,
+  output wire                       m_axi_wlast,
+  output wire                       m_axi_wvalid,
+  input  wire                       m_axi_wready,
+  input  wire [AXI_ID_WIDTH-1:0]    m_axi_bid,
+  input  wire [1:0]                 m_axi_bresp,
+  input  wire                       m_axi_bvalid,
+  output wire                       m_axi_bready,
+  output wire [AXI_ID_WIDTH-1:0]    m_axi_arid,
+  output wire [AXI_ADDR_WIDTH-1:0]  m_axi_araddr,
+  output wire [7:0]                 m_axi_arlen,
+  output wire [2:0]                 m_axi_arsize,
+  output wire [1:0]                 m_axi_arburst,
+  output wire                       m_axi_arlock,
+  output wire [3:0]                 m_axi_arcache,
+  output wire [2:0]                 m_axi_arprot,
+  output wire                       m_axi_arvalid,
+  input  wire                       m_axi_arready,
+  input  wire [AXI_ID_WIDTH-1:0]    m_axi_rid,
+  input  wire [AXI_DATA_WIDTH-1:0]  m_axi_rdata,
+  input  wire [1:0]                 m_axi_rresp,
+  input  wire                       m_axi_rlast,
+  input  wire                       m_axi_rvalid,
+  output wire                       m_axi_rready
   );
   
   wire clk = ck_t && cke; // clkd && cke; // todo: figurehow to use ck_c, if needed with the memory controller
@@ -290,3 +339,27 @@ endmodule
 //           .IB(ck_n)
 // `endif
 //         );
+
+/*
+
+Copyright (c) 2018 Alex Forencich
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
