@@ -180,6 +180,16 @@ module dimmtestbench(
                      dqs_c_reg = {CHIPS{1'b0}};
               end
               
+              #(tCK*5) // activating again for RowClone
+              act_n = 0;
+              bg = 1;
+              ba = 1;
+              A = 17'b00000000000000100;
+              #tCK
+              act_n = 1;
+              A = 17'b00000000000000000;
+              #(tCK*15) // tRCD
+
               // read
               for (i = 0; i < BL; i = i + 1)
               begin
