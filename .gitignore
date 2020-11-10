@@ -75,4 +75,5 @@ DRAMEmulation/DDRFSM/chipsim/
 DRAMEmulation/DDRFSM/vsim/
 DRAMEmulation/DDRFSM/cachesim/
 DRAMEmulation/DDRFSM/cachetmp.sv
+DRAMEmulation/DDRFSM/memtimingtmp.v
 

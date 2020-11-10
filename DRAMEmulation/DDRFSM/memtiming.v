@@ -1,4 +1,4 @@
-// Created by fizzim.pl version 5.20 on 2020:07:23 at 15:23:14 (www.fizzim.com)
+// Created by fizzim.pl version 5.20 on 2020:11:10 at 18:00:46 (www.fizzim.com)
 
 module memtiming
        #(parameter T_CL = 17,
@@ -7,11 +7,11 @@ module memtiming
          parameter T_RFC = 347
         )
        (
+         output reg [4:0] state,
          output reg [7:0] tCLct,
          output reg [7:0] tRCDct,
          output reg [7:0] tRFCct,
          output reg [7:0] tRPct,
-         output reg [4:0] state,
          input wire ACT,
          input wire BST,
          input wire CFG,
@@ -56,9 +56,10 @@ parameter
   ResettingPD    = 5'b10000,
   SelfRefreshing = 5'b10001,
   Writing        = 5'b10010,
-  WritingAPR     = 5'b10011;
+  WritingAPR     = 5'b10011,
+  ZRowClone      = 5'b10100;
 
-//reg [4:0] state;
+reg [4:0] state;
 reg [4:0] nextstate;
 
 // comb always block
@@ -156,6 +157,10 @@ always @*
           else if (CKEL)
             begin
               nextstate = ActivePD;
+            end
+          else if (ACT)
+            begin
+              nextstate = ZRowClone;
             end
           else
             begin
@@ -320,6 +325,17 @@ always @*
             nextstate = Precharging;
           end
         end
+      ZRowClone     :
+        begin
+          if (tRCDct==8'd1)
+            begin
+              nextstate = BankActive;
+            end
+          else
+            begin
+              nextstate = ZRowClone;
+            end
+        end
     endcase
   end
 
@@ -339,6 +355,7 @@ always @(posedge clk)
   begin
     if (rst)
       begin
+        state[4:0] <= Idle;
         tCLct[7:0] <= T_CL;
         tRCDct[7:0] <= T_RCD;
         tRFCct[7:0] <= T_RFC;
@@ -346,6 +363,7 @@ always @(posedge clk)
       end
     else
       begin
+        state[4:0] <= Idle; // default
         tCLct[7:0] <= T_CL; // default
         tRCDct[7:0] <= T_RCD; // default
         tRFCct[7:0] <= T_RFC; // default
@@ -366,6 +384,10 @@ always @(posedge clk)
           Refreshing    :
             begin
               tRFCct[7:0] <= tRFCct-1;
+            end
+          ZRowClone     :
+            begin
+              tRCDct[7:0] <= tRCDct-1;
             end
         endcase
       end
@@ -417,6 +439,8 @@ always @*
         statename = "Writing";
       WritingAPR    :
         statename = "WritingAPR";
+      ZRowClone     :
+        statename = "ZRowClone";
       default       :
         statename = "XXXXXXXXXXXXXX";
     endcase

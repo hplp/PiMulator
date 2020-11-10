@@ -3,6 +3,8 @@
 `define DDR4
 // `define DDR3
 
+`define RowClone
+
 module dimmtestbench(
        );
        
@@ -180,6 +182,7 @@ module dimmtestbench(
                      dqs_c_reg = {CHIPS{1'b0}};
               end
               
+              `ifdef RowClone
               #(tCK*5) // activating again for RowClone
               act_n = 0;
               bg = 1;
@@ -189,7 +192,8 @@ module dimmtestbench(
               act_n = 1;
               A = 17'b00000000000000000;
               #(tCK*15) // tRCD
-
+              `endif
+              
               // read
               for (i = 0; i < BL; i = i + 1)
               begin

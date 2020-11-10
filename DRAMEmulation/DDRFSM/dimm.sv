@@ -11,7 +11,11 @@
 module dimm
   #(parameter RANKS = 1,
   parameter CHIPS = 18,
+  `ifdef DDR4
   parameter BGWIDTH = 2,
+  `else
+  localparam BGWIDTH = 0,
+  `endif
   parameter BAWIDTH = 2,
   parameter ADDRWIDTH = 17,
   parameter COLWIDTH = 10,
@@ -340,6 +344,7 @@ endmodule
 // `endif
 //         );
 
+// AXI interface code adopted from https://github.com/alexforencich/verilog-axi
 /*
 
 Copyright (c) 2018 Alex Forencich
