@@ -1,4 +1,4 @@
-// Created by fizzim.pl version 5.20 on 2020:11:10 at 18:00:46 (www.fizzim.com)
+// Created by fizzim.pl version 5.20 on 2020:11:12 at 11:37:50 (www.fizzim.com)
 
 module memtiming
        #(parameter T_CL = 17,
@@ -61,6 +61,8 @@ parameter
 
 reg [4:0] state;
 reg [4:0] nextstate;
+
+reg [7:0] BSTct = 0;
 
 // comb always block
 always @*
@@ -310,7 +312,7 @@ always @*
             begin
               nextstate = Reading;
             end
-          else if (BST)
+          else if (BST || (BSTct==0))
             begin
               nextstate = BankActive;
             end
@@ -355,15 +357,14 @@ always @(posedge clk)
   begin
     if (rst)
       begin
-        state[4:0] <= Idle;
         tCLct[7:0] <= T_CL;
         tRCDct[7:0] <= T_RCD;
         tRFCct[7:0] <= T_RFC;
         tRPct[7:0] <= T_RP;
+        BSTct <= 7;
       end
     else
       begin
-        state[4:0] <= Idle; // default
         tCLct[7:0] <= T_CL; // default
         tRCDct[7:0] <= T_RCD; // default
         tRFCct[7:0] <= T_RFC; // default
@@ -376,6 +377,7 @@ always @(posedge clk)
           BankActive    :
             begin
               tCLct[7:0] <= (tCLct>1)?tCLct-1:tCLct;
+              BSTct <= 7;
             end
           Precharging   :
             begin
@@ -388,6 +390,10 @@ always @(posedge clk)
           ZRowClone     :
             begin
               tRCDct[7:0] <= tRCDct-1;
+            end
+          Writing       :
+            begin
+              BSTct <= BSTct-1;
             end
         endcase
       end
