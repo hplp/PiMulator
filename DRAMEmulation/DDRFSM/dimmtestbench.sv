@@ -133,6 +133,7 @@ module dimmtestbench(
        
        initial
        begin
+              // initialize all inputs
               reset_n = 0;
               ck_t = 1;
               ck_c = 0;
@@ -155,66 +156,70 @@ module dimmtestbench(
                             sync[i][j] = 0;
                      end
               end
+              #tCK;
               
-              #tCK // reset high
+              // reset high
               reset_n = 1;
               cs_n = 1'b0;
+              #(tCK*5);
               
-              #(tCK*5) // activating
+              // activating
               act_n = 0;
               bg = 1;
               ba = 1;
               A = 17'b00000000000000001;
-              #tCK
+              #tCK;
               act_n = 1;
               A = 17'b00000000000000000;
-              #(tCK*15) // tRCD
-              #(tCK*15) // tCL
+              #(tCK*15); // tRCD
+              #(tCK*15); // tCL
               
               // write
+              #tCK;
               for (i = 0; i < BL; i = i + 1)
               begin
-                     #tCK
                      A = (i==0)? 17'b10000000000000010 : 17'b00000000000000000;
                      writing = 1;
                      dq_reg = {$urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom };
                      dqs_t_reg = {CHIPS{1'b1}};
                      dqs_c_reg = {CHIPS{1'b0}};
+                     #tCK;
               end
+              writing = 0;
               
               `ifdef RowClone
-              #(tCK*5) // activating again for RowClone
+              #(tCK*5); // activating again for RowClone
               act_n = 0;
               bg = 1;
               ba = 1;
               A = 17'b00000000000000100;
-              #tCK
+              #tCK;
               act_n = 1;
               A = 17'b00000000000000000;
-              #(tCK*15) // tRCD
+              #(tCK*15); // tRCD
               `endif
               
-              // read
-              for (i = 0; i < BL; i = i + 1)
-              begin
-                     #tCK
-                     A = (i==0)? 17'b10100000000000010 : 17'b00000000000000000;
-                     dq_reg = {DQWIDTH{1'b0}};
-                     dqs_t_reg = {CHIPS{1'b0}};
-                     dqs_c_reg = {CHIPS{1'b1}};
-                     writing = 0;
-              end
+              // // read
+              // for (i = 0; i < BL; i = i + 1)
+              // begin
+              //        #tCK;
+              //        A = (i==0)? 17'b10100000000000010 : 17'b00000000000000000;
+              //        dq_reg = {DQWIDTH{1'b0}};
+              //        dqs_t_reg = {CHIPS{1'b0}};
+              //        dqs_c_reg = {CHIPS{1'b1}};
+              //        writing = 0;
+              // end
               
               // precharge and back to idle
-              #tCK
+              #tCK;
               A = 17'b01000000000000000;
               
-              #tCK
-              #tCK
+              #tCK;
+              #tCK;
               bg = 0;
               ba = 0;
               A = 17'b00000000000000000;
-              #(4*tCK)
+              #(4*tCK);
               $stop;
        end;
        
