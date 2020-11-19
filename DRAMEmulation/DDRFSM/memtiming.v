@@ -1,4 +1,4 @@
-// Created by fizzim.pl version 5.20 on 2020:07:23 at 15:23:14 (www.fizzim.com)
+// Created by fizzim.pl version 5.20 on 2020:11:12 at 11:37:50 (www.fizzim.com)
 
 module memtiming
        #(parameter T_CL = 17,
@@ -7,11 +7,11 @@ module memtiming
          parameter T_RFC = 347
         )
        (
+         output reg [4:0] state,
          output reg [7:0] tCLct,
          output reg [7:0] tRCDct,
          output reg [7:0] tRFCct,
          output reg [7:0] tRPct,
-         output reg [4:0] state,
          input wire ACT,
          input wire BST,
          input wire CFG,
@@ -56,10 +56,13 @@ parameter
   ResettingPD    = 5'b10000,
   SelfRefreshing = 5'b10001,
   Writing        = 5'b10010,
-  WritingAPR     = 5'b10011;
+  WritingAPR     = 5'b10011,
+  ZRowClone      = 5'b10100;
 
-//reg [4:0] state;
+reg [4:0] state;
 reg [4:0] nextstate;
+
+reg [7:0] BSTct = 0;
 
 // comb always block
 always @*
@@ -156,6 +159,10 @@ always @*
           else if (CKEL)
             begin
               nextstate = ActivePD;
+            end
+          else if (ACT)
+            begin
+              nextstate = ZRowClone;
             end
           else
             begin
@@ -305,7 +312,7 @@ always @*
             begin
               nextstate = Reading;
             end
-          else if (BST)
+          else if (BST || (BSTct==0))
             begin
               nextstate = BankActive;
             end
@@ -319,6 +326,17 @@ always @*
           begin
             nextstate = Precharging;
           end
+        end
+      ZRowClone     :
+        begin
+          if (tRCDct==8'd1)
+            begin
+              nextstate = BankActive;
+            end
+          else
+            begin
+              nextstate = ZRowClone;
+            end
         end
     endcase
   end
@@ -343,6 +361,7 @@ always @(posedge clk)
         tRCDct[7:0] <= T_RCD;
         tRFCct[7:0] <= T_RFC;
         tRPct[7:0] <= T_RP;
+        BSTct <= 7;
       end
     else
       begin
@@ -358,6 +377,7 @@ always @(posedge clk)
           BankActive    :
             begin
               tCLct[7:0] <= (tCLct>1)?tCLct-1:tCLct;
+              BSTct <= 7;
             end
           Precharging   :
             begin
@@ -366,6 +386,14 @@ always @(posedge clk)
           Refreshing    :
             begin
               tRFCct[7:0] <= tRFCct-1;
+            end
+          ZRowClone     :
+            begin
+              tRCDct[7:0] <= tRCDct-1;
+            end
+          Writing       :
+            begin
+              BSTct <= BSTct-1;
             end
         endcase
       end
@@ -417,6 +445,8 @@ always @*
         statename = "Writing";
       WritingAPR    :
         statename = "WritingAPR";
+      ZRowClone     :
+        statename = "ZRowClone";
       default       :
         statename = "XXXXXXXXXXXXXX";
     endcase

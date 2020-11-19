@@ -37,10 +37,14 @@ MBBench/MicBlzDDR4StE3Lnx/
 DRAMEmulation/DDRFSM/DDRFSM/
 DRAMEmulation/DDRFSM/FSMsim/
 DRAMEmulation/DDRFSM/dimmsim/
-DRAMEmulation/DDRFSM/*.wcfg
+DRAMEmulation/DDRFSM/LiteDRAM/
+DRAMEmulation/DDRFSM/fullsystem/
+DRAMEmulation/DDRFSM/litedramsystem/
+DRAMEmulation/ip_repo/
 DRAMEmulation/DDRFSM/IBUFGDS.v
 
 DRAMEmulation/DDRFSM/memoryFSM.v
+DRAMEmulation/DDRFSM/ambit.fzm
 DRAMEmulation/Bank_Hardware_Design/AU280_Bank_HW/
 
 CMakeLists.txt
@@ -71,10 +75,10 @@ DRAMEmulation/DDRFSM/memtiming/
 DRAMEmulation/DDRFSM/placeholders/
 DRAMEmulation/DDRFSM/sram/
 DRAMEmulation/DDRFSM/syscache/
-DRAMEmulation/DDRFSM/tristate.v
 DRAMEmulation/DDRFSM/tristate/
 DRAMEmulation/DDRFSM/chipsim/
 DRAMEmulation/DDRFSM/vsim/
 DRAMEmulation/DDRFSM/cachesim/
 DRAMEmulation/DDRFSM/cachetmp.sv
+DRAMEmulation/DDRFSM/memtimingtmp.v
 

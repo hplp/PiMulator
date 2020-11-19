@@ -3,9 +3,9 @@
 `define DDR4
 // `define DDR3
 
-`define RowClone
+// `define RowClone
 
-module dimmtestbench(
+module bainterleavingtestbench(
        );
        
        parameter RANKS = 1;
@@ -165,61 +165,50 @@ module dimmtestbench(
               
               // activating
               act_n = 0;
-              bg = 1;
-              ba = 1;
               A = 17'b00000000000000001;
-              #tCK;
-              act_n = 1;
-              A = 17'b00000000000000000;
-              #(tCK*15); // tRCD
-              #(tCK*15); // tCL
-              
-              // write
-              #tCK;
-              for (i = 0; i < BL; i = i + 1)
-              begin
-                     A = (i==0)? 17'b10000000000000010 : 17'b00000000000000000;
-                     writing = 1;
-                     dq_reg = {$urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom };
-                     dqs_t_reg = {CHIPS{1'b1}};
-                     dqs_c_reg = {CHIPS{1'b0}};
-                     #tCK;
-              end
-              writing = 0;
-              
-              `ifdef RowClone
-              #(tCK*5); // activating again for RowClone
-              act_n = 0;
-              bg = 1;
-              ba = 1;
-              A = 17'b00000000000000100;
-              #tCK;
-              act_n = 1;
-              A = 17'b00000000000000000;
-              #(tCK*15); // tRCD
-              `endif
-              
-              // // read
-              // for (i = 0; i < BL; i = i + 1)
-              // begin
-              //        #tCK;
-              //        A = (i==0)? 17'b10100000000000010 : 17'b00000000000000000;
-              //        dq_reg = {DQWIDTH{1'b0}};
-              //        dqs_t_reg = {CHIPS{1'b0}};
-              //        dqs_c_reg = {CHIPS{1'b1}};
-              //        writing = 0;
-              // end
-              
-              // precharge and back to idle
-              #tCK;
-              A = 17'b01000000000000000;
-              
-              #tCK;
-              #tCK;
               bg = 0;
               ba = 0;
+              #tCK;
+              ba = 1;
+              #tCK;
+              ba = 2;
+              #tCK;
+              ba = 3;
+              #tCK;
+              bg = 1;
+              ba = 0;
+              #tCK;
+              ba = 1;
+              #tCK;
+              ba = 2;
+              #tCK;
+              ba = 3;
+              #tCK;
+              bg = 2;
+              ba = 0;
+              #tCK;
+              ba = 1;
+              #tCK;
+              ba = 2;
+              #tCK;
+              ba = 3;
+              #tCK;
+              bg = 3;
+              ba = 0;
+              #tCK;
+              ba = 1;
+              #tCK;
+              ba = 2;
+              #tCK;
+              ba = 3;
+              #tCK;
+              
+              act_n = 1;
               A = 17'b00000000000000000;
-              #(4*tCK);
+              bg = 0;
+              ba = 0;
+              
+              #(20*tCK);
               $stop;
        end;
        

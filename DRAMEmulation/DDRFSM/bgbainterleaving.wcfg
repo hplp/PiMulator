@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="bainterleavingtestbench_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="bainterleavingtestbench" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="2366fs"></ZoomStartTime>
+      <ZoomEndTime time="27817fs"></ZoomEndTime>
+      <Cursor1Time time="4500fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="193"></NameColumnWidth>
+      <ValueColumnWidth column_width="87"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="5" />
+   <wvobject type="group" fp_name="group533">
+      <obj_property name="label">dimm</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="logic" fp_name="/bainterleavingtestbench/dut/ck_t">
+         <obj_property name="ElementShortName">ck_t</obj_property>
+         <obj_property name="ObjectShortName">ck_t</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/bainterleavingtestbench/dut/act_n">
+         <obj_property name="ElementShortName">act_n</obj_property>
+         <obj_property name="ObjectShortName">act_n</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/bainterleavingtestbench/dut/A">
+         <obj_property name="ElementShortName">A[16:0]</obj_property>
+         <obj_property name="ObjectShortName">A[16:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/bainterleavingtestbench/dut/bg">
+         <obj_property name="ElementShortName">bg[1:0]</obj_property>
+         <obj_property name="ObjectShortName">bg[1:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/bainterleavingtestbench/dut/ba">
+         <obj_property name="ElementShortName">ba[1:0]</obj_property>
+         <obj_property name="ObjectShortName">ba[1:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/bainterleavingtestbench/dut/ACT">
+         <obj_property name="ElementShortName">ACT</obj_property>
+         <obj_property name="ObjectShortName">ACT</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="group" fp_name="group574">
+      <obj_property name="label">BG1BA0</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="array" fp_name="/bainterleavingtestbench/dut/TimingFSMi/\BG[1].MT[0].MTi /statename">
+         <obj_property name="ElementShortName">statename[111:0]</obj_property>
+         <obj_property name="ObjectShortName">statename[111:0]</obj_property>
+         <obj_property name="Radix">ASCIIRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/bainterleavingtestbench/dut/TimingFSMi/\BG[1].MT[0].MTi /tRCDct">
+         <obj_property name="ElementShortName">tRCDct[7:0]</obj_property>
+         <obj_property name="ObjectShortName">tRCDct[7:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="group" fp_name="group575">
+      <obj_property name="label">BG1BA1</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="array" fp_name="/bainterleavingtestbench/dut/TimingFSMi/\BG[1].MT[1].MTi /statename">
+         <obj_property name="ElementShortName">statename[111:0]</obj_property>
+         <obj_property name="ObjectShortName">statename[111:0]</obj_property>
+         <obj_property name="Radix">ASCIIRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/bainterleavingtestbench/dut/TimingFSMi/\BG[1].MT[1].MTi /tRCDct">
+         <obj_property name="ElementShortName">tRCDct[7:0]</obj_property>
+         <obj_property name="ObjectShortName">tRCDct[7:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="group" fp_name="group576">
+      <obj_property name="label">BG1BA2</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="array" fp_name="/bainterleavingtestbench/dut/TimingFSMi/\BG[1].MT[2].MTi /statename">
+         <obj_property name="ElementShortName">statename[111:0]</obj_property>
+         <obj_property name="ObjectShortName">statename[111:0]</obj_property>
+         <obj_property name="Radix">ASCIIRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/bainterleavingtestbench/dut/TimingFSMi/\BG[1].MT[2].MTi /tRCDct">
+         <obj_property name="ElementShortName">tRCDct[7:0]</obj_property>
+         <obj_property name="ObjectShortName">tRCDct[7:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="group" fp_name="group577">
+      <obj_property name="label">BG1BA3</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="array" fp_name="/bainterleavingtestbench/dut/TimingFSMi/\BG[1].MT[3].MTi /statename">
+         <obj_property name="ElementShortName">statename[111:0]</obj_property>
+         <obj_property name="ObjectShortName">statename[111:0]</obj_property>
+         <obj_property name="Radix">ASCIIRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/bainterleavingtestbench/dut/TimingFSMi/\BG[1].MT[3].MTi /tRCDct">
+         <obj_property name="ElementShortName">tRCDct[7:0]</obj_property>
+         <obj_property name="ObjectShortName">tRCDct[7:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>
