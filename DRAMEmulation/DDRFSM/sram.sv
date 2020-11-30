@@ -1,6 +1,5 @@
 `timescale 1ns / 1ps
 
-// https://timetoexplore.net/blog/block-ram-in-verilog-with-vivado
 module sram #(parameter WIDTH = 8, DEPTH = 2048) (
          input wire clk,
          input wire [$clog2(DEPTH)-1:0] addr,
@@ -32,3 +31,6 @@ always @ (posedge clk)
       end
   end
 endmodule
+
+// Reference(s)
+// https://timetoexplore.net/blog/block-ram-in-verilog-with-vivado
