@@ -4,9 +4,9 @@ module Banktestbench(
   );
   
   parameter DEVICE_WIDTH = 4;
-  parameter ROWS = 131072;
   parameter COLS = 1024;
   parameter BL = 8;
+  parameter CHWIDTH = 5;
   
   localparam tCK = 0.75;
   
@@ -14,15 +14,15 @@ module Banktestbench(
   reg  [0:0]             rd_o_wr;
   reg  [DEVICE_WIDTH-1:0]dqin;
   wire [DEVICE_WIDTH-1:0]dqout;
-  reg  [$clog2(ROWS)-1:0]row;
+  reg  [CHWIDTH-1:0]row;
   reg  [$clog2(COLS)-1:0]column;
   
   integer i; // loop variable
   
   Bank #(.DEVICE_WIDTH(DEVICE_WIDTH),
-  .ROWS(ROWS),
   .COLS(COLS),
-  .BL(BL)) dut (
+  .BL(BL),
+  .CHWIDTH(CHWIDTH)) dut (
   .clk(clk),
   .rd_o_wr(rd_o_wr),
   .dqin(dqin),
