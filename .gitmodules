@@ -7,3 +7,6 @@
 [submodule "freedom"]
 	path = freedom
 	url = https://github.com/hplp/freedom
+[submodule "MEMulator"]
+	path = MEMulator
+	url = git@github.com:hplp/MEMulator.git
