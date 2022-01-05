@@ -3,8 +3,6 @@
 `define DDR4
 // `define DDR3
 
-// `define RowClone
-
 module bainterleavingtestbench(
        );
        
@@ -30,6 +28,7 @@ module bainterleavingtestbench(
        localparam tCK = 0.75;
        
        reg reset_n;
+       reg ck2x;
        `ifdef DDR4
        reg ck_c;
        reg ck_t;
@@ -89,6 +88,7 @@ module bainterleavingtestbench(
        .CHWIDTH(CHWIDTH)
        ) dut (
        .reset_n(reset_n),
+       .ck2x(ck2x),
        `ifdef DDR4
        .ck_c(ck_c),
        .ck_t(ck_t),
@@ -126,8 +126,9 @@ module bainterleavingtestbench(
        .sync(sync)
        );
        
-       always #(tCK*0.5) ck_t = ~ck_t;
-       always #(tCK*0.5) ck_c = ~ck_c;
+       always #(tCK) ck_t = ~ck_t;
+       always #(tCK) ck_c = ~ck_c;
+       always #(tCK*0.5) ck2x = ~ck2x;
        
        integer i, j; // loop variable
        
@@ -135,6 +136,7 @@ module bainterleavingtestbench(
        begin
               // initialize all inputs
               reset_n = 0;
+              ck2x = 1;
               ck_t = 1;
               ck_c = 0;
               cke = 1;

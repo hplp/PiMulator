@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="testbnch_TimingFSM_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="testbnch_TimingFSM" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="335251fs"></ZoomEndTime>
+      <Cursor1Time time="121343fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="243"></NameColumnWidth>
+      <ValueColumnWidth column_width="113"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="31" />
+   <wvobject type="logic" fp_name="/testbnch_TimingFSM/dut/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_TimingFSM/dut/reset_n">
+      <obj_property name="ElementShortName">reset_n</obj_property>
+      <obj_property name="ObjectShortName">reset_n</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/bg">
+      <obj_property name="ElementShortName">bg[1:0]</obj_property>
+      <obj_property name="ObjectShortName">bg[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/ba">
+      <obj_property name="ElementShortName">ba[1:0]</obj_property>
+      <obj_property name="ObjectShortName">ba[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_TimingFSM/dut/ACT">
+      <obj_property name="ElementShortName">ACT</obj_property>
+      <obj_property name="ObjectShortName">ACT</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_TimingFSM/dut/WR">
+      <obj_property name="ElementShortName">WR</obj_property>
+      <obj_property name="ObjectShortName">WR</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_TimingFSM/dut/WRA">
+      <obj_property name="ElementShortName">WRA</obj_property>
+      <obj_property name="ObjectShortName">WRA</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_TimingFSM/dut/RD">
+      <obj_property name="ElementShortName">RD</obj_property>
+      <obj_property name="ObjectShortName">RD</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_TimingFSM/dut/PR">
+      <obj_property name="ElementShortName">PR</obj_property>
+      <obj_property name="ObjectShortName">PR</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_TimingFSM/dut/REF">
+      <obj_property name="ElementShortName">REF</obj_property>
+      <obj_property name="ObjectShortName">REF</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/BankFSM">
+      <obj_property name="ElementShortName">BankFSM[3:0][3:0][4:0]</obj_property>
+      <obj_property name="ObjectShortName">BankFSM[3:0][3:0][4:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /rst">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /state">
+      <obj_property name="ElementShortName">state[4:0]</obj_property>
+      <obj_property name="ObjectShortName">state[4:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /tRCDct">
+      <obj_property name="ElementShortName">tRCDct[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tRCDct[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /tCLct">
+      <obj_property name="ElementShortName">tCLct[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tCLct[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /BSTct">
+      <obj_property name="ElementShortName">BSTct[7:0]</obj_property>
+      <obj_property name="ObjectShortName">BSTct[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /tRPct">
+      <obj_property name="ElementShortName">tRPct[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tRPct[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /tRFCct">
+      <obj_property name="ElementShortName">tRFCct[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tRFCct[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /tWRct">
+      <obj_property name="ElementShortName">tWRct[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tWRct[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /tCLct">
+      <obj_property name="ElementShortName">tCLct[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tCLct[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /tRFCct">
+      <obj_property name="ElementShortName">tRFCct[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tRFCct[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /tRPct">
+      <obj_property name="ElementShortName">tRPct[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tRPct[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /tABAct">
+      <obj_property name="ElementShortName">tABAct[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tABAct[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /tABARct">
+      <obj_property name="ElementShortName">tABARct[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tABARct[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /nextstate">
+      <obj_property name="ElementShortName">nextstate[4:0]</obj_property>
+      <obj_property name="ObjectShortName">nextstate[4:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /T_CL">
+      <obj_property name="ElementShortName">T_CL[31:0]</obj_property>
+      <obj_property name="ObjectShortName">T_CL[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /T_RCD">
+      <obj_property name="ElementShortName">T_RCD[31:0]</obj_property>
+      <obj_property name="ObjectShortName">T_RCD[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /T_RP">
+      <obj_property name="ElementShortName">T_RP[31:0]</obj_property>
+      <obj_property name="ObjectShortName">T_RP[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /T_RFC">
+      <obj_property name="ElementShortName">T_RFC[31:0]</obj_property>
+      <obj_property name="ObjectShortName">T_RFC[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /BL">
+      <obj_property name="ElementShortName">BL[31:0]</obj_property>
+      <obj_property name="ObjectShortName">BL[31:0]</obj_property>
+   </wvobject>
+</wave_config>

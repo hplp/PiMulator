@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="testbnch_MEMSync_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="testbnch_MEMSync" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="155750fs"></ZoomStartTime>
+      <ZoomEndTime time="1090251fs"></ZoomEndTime>
+      <Cursor1Time time="934500fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="141"></NameColumnWidth>
+      <ValueColumnWidth column_width="66"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="2" />
+   <wvobject type="group" fp_name="group280">
+      <obj_property name="label">MSyncInputs</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="logic" fp_name="/testbnch_MEMSync/dut/clk">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_MEMSync/dut/rst">
+         <obj_property name="ElementShortName">rst</obj_property>
+         <obj_property name="ObjectShortName">rst</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/testbnch_MEMSync/dut/RowId">
+         <obj_property name="ElementShortName">RowId[16:0]</obj_property>
+         <obj_property name="ObjectShortName">RowId[16:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_MEMSync/dut/WR">
+         <obj_property name="ElementShortName">WR</obj_property>
+         <obj_property name="ObjectShortName">WR</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_MEMSync/dut/RD">
+         <obj_property name="ElementShortName">RD</obj_property>
+         <obj_property name="ObjectShortName">RD</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_MEMSync/dut/sync">
+         <obj_property name="ElementShortName">sync</obj_property>
+         <obj_property name="ObjectShortName">sync</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="group" fp_name="group95">
+      <obj_property name="label">MSyncOutputs</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="logic" fp_name="/testbnch_MEMSync/dut/stall">
+         <obj_property name="ElementShortName">stall</obj_property>
+         <obj_property name="ObjectShortName">stall</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_MEMSync/dut/ready">
+         <obj_property name="ElementShortName">ready</obj_property>
+         <obj_property name="ObjectShortName">ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_MEMSync/dut/hit">
+         <obj_property name="ElementShortName">hit</obj_property>
+         <obj_property name="ObjectShortName">hit</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_MEMSync/dut/dirty">
+         <obj_property name="ElementShortName">dirty</obj_property>
+         <obj_property name="ObjectShortName">dirty</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/testbnch_MEMSync/dut/cRowId">
+         <obj_property name="ElementShortName">cRowId[5:0]</obj_property>
+         <obj_property name="ObjectShortName">cRowId[5:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/testbnch_MEMSync/dut/state">
+         <obj_property name="ElementShortName">state[2:0]</obj_property>
+         <obj_property name="ObjectShortName">state[2:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl">
+         <obj_property name="ElementShortName">tag_tbl[0:63]</obj_property>
+         <obj_property name="ObjectShortName">tag_tbl[0:63]</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>

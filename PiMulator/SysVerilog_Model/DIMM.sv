@@ -2,26 +2,24 @@
 
 `define DDR4
 // `define DDR3
-// todo: DDR3 interface is only declared at this time but not functional
+// todo: DDR3 interface is only declared at this time but not fully tested
 
-// references:
-// www.systemverilog.io
-// https://raw.githubusercontent.com/alexforencich/verilog-axi/master/rtl/
-
-module dimm
-  #(parameter RANKS = 1,
-  parameter CHIPS = 18,
+module DIMM // top MEMulator module with DIMM interface
+  #(parameter RANKS = 1, // number of Ranks
+  parameter CHIPS = 16, // number of Chips per Rank
   `ifdef DDR4
-  parameter BGWIDTH = 2,
+  parameter BGWIDTH = 2, // width of Bank Groups
   `else
   localparam BGWIDTH = 0,
   `endif
-  parameter BAWIDTH = 2,
-  parameter ADDRWIDTH = 17,
-  parameter COLWIDTH = 10,
-  parameter DEVICE_WIDTH = 4, // x4, x8, x16 -> DQWIDTH = DEVICE_WIDTH x CHIPS
+  parameter BAWIDTH = 2, // width of Banks per Bank Group
+  parameter ADDRWIDTH = 17, // address width for number of rows in array
+  parameter COLWIDTH = 10, // address width for number of columns in array
+  parameter DEVICE_WIDTH = 4, // data bits per Chip; x4, x8, x16 -> DQWIDTH = DEVICE_WIDTH x CHIPS
   parameter BL = 8, // Burst Length
-  parameter CHWIDTH = 5, // Emulation Memory Cache Width
+  parameter CHWIDTH = 5, //6, // address width for number of rows in Memory Emulation Model local BRAM-based array,
+  // parameter tRPRE = 1, // Read and Write Preamble on the DQS strobe signals
+  // parameter WPRE = 1, // Read and Write Preamble on the DQS strobe signals
   
   // Width of AXI data bus in bits
   parameter AXI_DATA_WIDTH = 32,
@@ -32,11 +30,11 @@ module dimm
   // Width of AXI ID signal
   parameter AXI_ID_WIDTH = 8,
   
-  parameter DQWIDTH = DEVICE_WIDTH*CHIPS, // ECC pins are also connected to chips
-  parameter BANKGROUPS = 2**BGWIDTH,
-  parameter BANKSPERGROUP = 2**BAWIDTH,
-  localparam ROWS = 2**ADDRWIDTH,
-  localparam COLS = 2**COLWIDTH
+  localparam DQWIDTH = DEVICE_WIDTH*CHIPS, // data width, ECC pins are also accounted as data
+  localparam BANKGROUPS = 2**BGWIDTH, // number of Bank Groups
+  localparam BANKSPERGROUP = 2**BAWIDTH, // number of Banks per Bank Group
+  localparam ROWS = 2**ADDRWIDTH, // number of Rows in array
+  localparam COLS = 2**COLWIDTH // number of Columns in array
   )
   (
   `ifdef DDR4
@@ -45,7 +43,7 @@ module dimm
   input [ADDRWIDTH-1:0] A,
   // ras_n -> A16, cas_n -> A15, we_n -> A14
   // Dual function inputs:
-  // - when act_n & cs_n are LOW, these are interpreted as *Row* Address Bits (RAS Row Address Strobe)
+  // - when act_n & cs_n are LOW, A0-A16 are interpreted as *Row* Address Bits (RAS Row Address Strobe)
   // - when act_n is HIGH, these are interpreted as command pins to indicate READ, WRITE or other commands
   // - - and CAS - Column Address Strobe (A0-A9 used for column at this times)
   // A10 which is an unused bit during CAS is overloaded to indicate Auto-Precharge
@@ -58,28 +56,31 @@ module dimm
   input [BGWIDTH-1:0] bg, // bankgroup address, BG0-BG1 in x4/8 and BG0 in x16
   `endif
   input [BAWIDTH-1:0] ba, // bank address
+  input ck2x, // clock 2x the frequency of ck_t, ck_c, ck_p, ck_n to drive at Dual Data Rate
   `ifdef DDR4
   input ck_c, // Differential clock input complement All address & control signals are sampled at the crossing of negedge of ck_c
-  input ck_t, // Differential clock input true All address & control signals are sampled at the crossing of posedge of ck_t
+  input ck_t, // Differential clock input true       All address & control signals are sampled at the crossing of posedge of ck_t
   `elsif DDR3
   input ck_n, // Differential clock input; All address & control signals are sampled at the crossing of negedge of ck_n
   input ck_p, // Differential clock input; All address & control signals are sampled at the crossing of posedge of ck_p
   `endif
   input cke, // Clock Enable; HIGH activates internal clock signals and device input buffers and output drivers
-  input [RANKS-1:0] cs_n, // The memory looks at all the other inputs only if this is LOW
+  input [RANKS-1:0] cs_n, // Chip select; The memory looks at all the other inputs only if this is LOW todo: scale to more ranks
   inout [DQWIDTH-1:0] dq, // Data Bus; This is how data is written in and read out
   `ifdef DDR4
   inout [CHIPS-1:0] dqs_c, // Data Strobe complement, essentially a data valid flag
-  inout [CHIPS-1:0] dqs_t, // Data Strobe true, essentially a data valid flag
+  inout [CHIPS-1:0] dqs_t, // Data Strobe true,       essentially a data valid flag
   `elsif DDR3
   inout [CHIPS-1:0] dqs_n, // Data Strobe n, essentially a data valid flag
   inout [CHIPS-1:0] dqs_p, // Data Strobe p, essentially a data valid flag
   `endif
-  input odt,
+  input odt, // todo: on-die termination is possibly irrelevant for FPGA model
   `ifdef DDR4
-  input parity,
+  input parity, // Command and Address parity; todo: parity is possibly of little use for FPGA model
   `endif
   input reset_n, // DRAM is active only when this signal is HIGH
+  
+  output stall, // signal to stall system while MEMSync in Allocate or WriteBack state
   
   // AXI Port to Synchronize Emulation Memory Cache with Board Memory
   input sync [BANKGROUPS-1:0][BANKSPERGROUP-1:0],
@@ -123,82 +124,42 @@ module dimm
   output wire                       m_axi_rready
   );
   
-  wire clk = ck_t && cke; // clkd && cke; // todo: figurehow to use ck_c, if needed with the memory controller
-  
   genvar ri, ci, bgi, bi; // rank, chip, bank group and bank identifiers
   
-  // Command decoding and active row
+  wire clk = ck2x; // && cke; // clk enabled by cke; todo: possible source of slack
+  // todo: do not create another clock but use cke directly at value update
+  // todo: figurehow to use ck_c, if needed with the memory controller
+  
+  // RAS = Row Address Strobe
+  wire [ADDRWIDTH-1:0] RowId [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+  // CAS = Column Address Strobe
+  wire [COLWIDTH-1:0] ColId [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+  // Write Enable bit
+  wire rd_o_wr [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+  
+  // Command decoding, updates RowId, ColId, other control logic
   wire ACT, BST, CFG, CKEH, CKEL, DPD, DPDX, MRR, MRW, PD, PDX, PR, PRA, RD, RDA, REF, SRF, WR, WRA;
-  CMD #(.ADDRWIDTH(ADDRWIDTH)) CMDi
-  (
+  CMD #(
+  .ADDRWIDTH(ADDRWIDTH),
+  .COLWIDTH(COLWIDTH),
+  .BGWIDTH(BGWIDTH),
+  .BAWIDTH(BAWIDTH)
+  ) CMDi (
   `ifdef DDR4
   .act_n(act_n),
   `endif
   `ifdef DDR3
-  ras_n(ras_n),
-  cas_n(cas_n),
-  we_n(we_n),
+  ras_n(ras_n), cas_n(cas_n), we_n(we_n),
   `endif
   .cke(cke),
-  .A(A),
+  .cs_n(cs_n[0]), // todo: scale up to more ranks
+  .clk(clk),
+  .bg(bg), .ba(ba),
+  .A(A), .RowId(RowId), .ColId(ColId), .rd_o_wr(rd_o_wr),
   .ACT(ACT), .BST(BST), .CFG(CFG), .CKEH(CKEH), .CKEL(CKEL), .DPD(DPD), .DPDX(DPDX), .MRR(MRR), .MRW(MRW), .PD(PD), .PDX(PDX), .PR(PR), .PRA(PRA), .RD(RD), .RDA(RDA), .REF(REF), .SRF(SRF), .WR(WR), .WRA(WRA)
   );
   
-  
-  // RAS = Row Address Strobe
-  reg [ADDRWIDTH-1:0] RowId [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-  always@(posedge clk)
-  begin
-    if(ACT) RowId[bg][ba] <= A;
-    else if (PR) RowId[bg][ba] <= {ADDRWIDTH{1'b0}};
-  end
-  
-  // CAS = Column Address Strobe
-  reg [COLWIDTH-1:0] Column [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-  reg Burst [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-  always@(posedge clk)
-  begin
-    if(WR || WRA || RD || RDA) begin
-      Column[bg][ba] <= A[COLWIDTH-1:0];
-      Burst[bg][ba] <= 1;
-    end
-    else if (PR) begin
-      Column[bg][ba] <= {COLWIDTH{1'b0}};
-      Burst[bg][ba] <= 0;
-    end
-    else begin
-      for (int i = 0; i < BANKGROUPS; i++) begin
-        for (int j = 0; j < BANKGROUPS; j++) begin
-          if(Burst[i][j]) Column[i][j] <= Column[i][j] + 1;
-        end
-      end
-    end
-  end
-  
-  // CAS = Column Address Strobe plus BL column address increment
-  // reg [$clog2(COLS)-1:0]colBL=0;
-  // always@(posedge clk)
-  //   begin
-  //     if((FSMstate==5'b01011) || (FSMstate==5'b01100))
-  //       colBL <= column;
-  //     else
-  //       if ((FSMstate==5'b10010) || (FSMstate==5'b10011) || (FSMstate==5'b01011) || (FSMstate==5'b01100))
-  //         colBL <= colBL + 1;
-  //       else
-  //         colBL <= {$clog2(COLS){1'b0}};
-  //   end
-  
-  //
-  // reg [CADDRWIDTH-1:0] column = {CADDRWIDTH{1'b0}};
-  // always@(posedge clk)
-  //   begin
-  //     if(RD || RDA || WR || WRA)
-  //       column <= A[CADDRWIDTH-1:0];
-  //     else
-  //       column <= {CADDRWIDTH{1'b0}};
-  //   end
-  
-  // Bank Timing FSMs
+  // Bank Timing FSMs accounts for the state of each bank and the latencies
   wire [4:0] BankFSM [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   TimingFSM #(.BGWIDTH(BGWIDTH),
   .BAWIDTH(BAWIDTH))
@@ -213,25 +174,13 @@ module dimm
   .BankFSM(BankFSM)
   );
   
-  // Address demultiplexing
-  // wire [ADDRWIDTH-1:0] addresses [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-  // generate
-  //   for (bgi = 0; bgi < BANKGROUPS; bgi=bgi+1)
-  //   begin
-  //     for (bi = 0; bi < BANKSPERGROUP; bi=bi+1)
-  //     begin
-  //       assign addresses[bgi][bi] = ((bg==bgi)&&(ba==bi))? A : {ADDRWIDTH{1'b0}};
-  //     end
-  //   end
-  // endgenerate
-  
-  // Emulation Memory Cache
+  // Memory Emulation Model Data Sync engines (todo: also model row subarray belonging)
   wire [CHWIDTH-1:0] cRowId [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-  CacheFSM #(.BGWIDTH(BGWIDTH),
+  MEMSyncTop #(.BGWIDTH(BGWIDTH),
   .BAWIDTH(BAWIDTH),
   .CHWIDTH(CHWIDTH),
   .ADDRWIDTH(ADDRWIDTH))
-  CacheFSMi(
+  MEMSyncTopi(
   .clk(clk),
   .reset_n(reset_n),
   `ifdef DDR4
@@ -242,7 +191,7 @@ module dimm
   .BankFSM(BankFSM),
   .sync(sync),
   .cRowId(cRowId),
-  .hold(hold)
+  .stall(stall)
   );
   
   // dq, dqs_t and dqs_c tristate split as inputs or outputs
@@ -253,18 +202,17 @@ module dimm
   wire [CHIPS-1:0] dqs_ti;
   wire [CHIPS-1:0] dqs_to;
   wire RDEN;
-  wire RDENORs [BANKGROUPS*BANKSPERGROUP:0];
+  wire [BANKGROUPS-1:0][BANKSPERGROUP-1:0] RDENs;
   generate
-    assign RDENORs[0] = 0;
     for (bgi=0; bgi<BANKGROUPS; bgi=bgi+1)
     begin
       for (bi=0; bi<BANKSPERGROUP; bi=bi+1)
       begin
-        assign RDENORs[bgi*BANKSPERGROUP+bi+1] = (BankFSM[bgi][bi]==5'b01011) || RDENORs[bgi*BANKSPERGROUP+bi];
+        assign RDENs[bgi][bi] = (BankFSM[bgi][bi]==5'b01011);
       end
     end
   endgenerate
-  assign RDEN = RDENORs[BANKGROUPS*BANKSPERGROUP];
+  assign RDEN = |RDENs;
   
   tristate #(.W(DQWIDTH)) dqtr (.dqi(dqo),.dqo(dqi),.dq(dq),.enable(RDEN)); // todo: enable must come from FSM
   tristate #(.W(CHIPS)) dqsctr (.dqi(dqs_co),.dqo(dqs_ci),.dq(dqs_c),.enable(RD || RDA));
@@ -287,15 +235,7 @@ module dimm
     end
   endgenerate
   
-  // Write Enable bit
-  reg  [0:0] rd_o_wr [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-  always@(posedge clk)
-  begin
-    if(WR || WRA) rd_o_wr[bg][ba] <= 1;
-    else if (PR || RD || RDA) rd_o_wr[bg][ba] <= 0;
-  end
-  
-  // Rank and Chip instances todo: multi rank logic
+  // Rank and Chip instances that model the shared bus and data placement todo: multi rank logic
   generate
     for (ri = 0; ri < RANKS ; ri=ri+1)
     begin:R
@@ -305,20 +245,14 @@ module dimm
         .BAWIDTH(BAWIDTH),
         .COLWIDTH(COLWIDTH),
         .DEVICE_WIDTH(DEVICE_WIDTH),
-        .BL(BL),
         .CHWIDTH(CHWIDTH)) Ci (
         .clk(clk),
-        //  .reset_n(reset_n),
+        // all the information on the data bus is in these wire bundles below
         .rd_o_wr(rd_o_wr),
-        //  .commands((!cs_n[ri])? commands : {19{1'b0}}),
-        //  .bg(bg),
-        //  .ba(ba),
         .dqin(chipdqi[ci]),
         .dqout(chipdqo[ci]),
-        //  .dqs_c(dqs_c[ci]),
-        //  .dqs_t(dqs_t[ci]),
         .row(cRowId),
-        .column(Column)
+        .column(ColId)
         );
       end
     end
@@ -326,23 +260,9 @@ module dimm
   
 endmodule
 
-
-// Differential clock buffer
-// wire clkd;
-// IBUFGDS #(
-//           .DIFF_TERM("FALSE"),
-//           .IBUF_LOW_PWR("FALSE"),
-//           .IOSTANDARD("DEFAULT")
-//         ) IBUFGDS_inst (
-//           .O(clkd),
-// `ifdef DDR4
-//           .I(ck_t),
-//           .IB(ck_c)
-// `elsif DDR3
-//           .I(ck_p),
-//           .IB(ck_n)
-// `endif
-//         );
+// references:
+// www.systemverilog.io
+// https://raw.githubusercontent.com/alexforencich/verilog-axi/master/rtl/
 
 // AXI interface code adopted from https://github.com/alexforencich/verilog-axi
 /*
@@ -368,3 +288,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
+
+// Differential clock buffer
+// wire clkd;
+// IBUFGDS #(
+//           .DIFF_TERM("FALSE"),
+//           .IBUF_LOW_PWR("FALSE"),
+//           .IOSTANDARD("DEFAULT")
+//         ) IBUFGDS_inst (
+//           .O(clkd),
+// `ifdef DDR4
+//           .I(ck_t),
+//           .IB(ck_c)
+// `elsif DDR3
+//           .I(ck_p),
+//           .IB(ck_n)
+// `endif
+//         );

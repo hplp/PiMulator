@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module Chiptestbench(
+module testbnch_Chip(
   );
   
   parameter BGWIDTH = 2;
@@ -29,7 +29,6 @@ module Chiptestbench(
   .BAWIDTH(BAWIDTH),
   .COLWIDTH(COLWIDTH),
   .DEVICE_WIDTH(DEVICE_WIDTH),
-  .BL(BL),
   .CHWIDTH(CHWIDTH)) dut (
   .clk(clk),
   .rd_o_wr(rd_o_wr),

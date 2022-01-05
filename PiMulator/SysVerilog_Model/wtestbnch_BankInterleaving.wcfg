@@ -11,13 +11,13 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="2366fs"></ZoomStartTime>
-      <ZoomEndTime time="27817fs"></ZoomEndTime>
-      <Cursor1Time time="4500fs"></Cursor1Time>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="31500fs"></ZoomEndTime>
+      <Cursor1Time time="7500fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="193"></NameColumnWidth>
-      <ValueColumnWidth column_width="87"></ValueColumnWidth>
+      <ValueColumnWidth column_width="83"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="5" />
    <wvobject type="group" fp_name="group533">
@@ -27,6 +27,10 @@
       <wvobject type="logic" fp_name="/bainterleavingtestbench/dut/ck_t">
          <obj_property name="ElementShortName">ck_t</obj_property>
          <obj_property name="ObjectShortName">ck_t</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/bainterleavingtestbench/dut/ck_c">
+         <obj_property name="ElementShortName">ck_c</obj_property>
+         <obj_property name="ObjectShortName">ck_c</obj_property>
       </wvobject>
       <wvobject type="logic" fp_name="/bainterleavingtestbench/dut/act_n">
          <obj_property name="ElementShortName">act_n</obj_property>

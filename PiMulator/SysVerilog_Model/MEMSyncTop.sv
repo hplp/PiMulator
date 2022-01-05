@@ -3,8 +3,8 @@
 `define DDR4
 // `define DDR3
 
-module CacheFSM
-    #(parameter BGWIDTH = 2,
+module MEMSyncTop #(
+    parameter BGWIDTH = 2,
     parameter BAWIDTH = 2,
     parameter CHWIDTH = 5,
     parameter ADDRWIDTH = 17,
@@ -25,39 +25,44 @@ module CacheFSM
     input [4:0] BankFSM [BANKGROUPS-1:0][BANKSPERGROUP-1:0],
     input sync [BANKGROUPS-1:0][BANKSPERGROUP-1:0],
     output [CHWIDTH-1:0] cRowId [BANKGROUPS-1:0][BANKSPERGROUP-1:0],
-    output hold
+    output stall
     );
     
-    wire holds [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-    wire holdsORs [BANKGROUPS*BANKSPERGROUP:0];
+    wire [BANKGROUPS-1:0][BANKSPERGROUP-1:0] ready; // or wire ready [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+    
+    // wire stalls [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+    wire [BANKGROUPS-1:0][BANKSPERGROUP-1:0] stalls;
+    // wire stallsORs [BANKGROUPS*BANKSPERGROUP:0];
     
     genvar bgi, bi; // bank identifier
-    generate
-        assign holdsORs[0] = 0;
-        for (bgi=0; bgi<BANKGROUPS; bgi=bgi+1)
-        begin
-            for (bi=0; bi<BANKSPERGROUP; bi=bi+1)
-            begin
-                assign holdsORs[bgi*BANKSPERGROUP+bi+1] = holds[bgi][bi] || holdsORs[bgi*BANKSPERGROUP+bi];
-            end
-        end
-    endgenerate
-    assign hold = holdsORs[BANKGROUPS*BANKSPERGROUP];
+    // generate
+    //     assign stallsORs[0] = 0;
+    //     for (bgi=0; bgi<BANKGROUPS; bgi=bgi+1)
+    //     begin
+    //         for (bi=0; bi<BANKSPERGROUP; bi=bi+1)
+    //         begin
+    //             assign stallsORs[bgi*BANKSPERGROUP+bi+1] = stalls[bgi][bi] || stallsORs[bgi*BANKSPERGROUP+bi];
+    //         end
+    //     end
+    // endgenerate
+    // assign stall = stallsORs[BANKGROUPS*BANKSPERGROUP];
+    assign stall = |stalls;
     
     generate
         for (bgi=0; bgi<BANKGROUPS; bgi=bgi+1)
         begin:BG
             for (bi=0; bi< BANKSPERGROUP; bi=bi+1)
-            begin:BC
-                cache #(
+            begin:B
+                MEMSync #(
                 .CHWIDTH(CHWIDTH),
                 .ADDRWIDTH(ADDRWIDTH)
-                ) Ci (
+                ) Mi (
                 .cRowId(cRowId[bgi][bi]),
-                .hold(holds[bgi][bi]),
-                .RD((BankFSM[bgi][bi]==5'b01011)||(BankFSM[bgi][bi]==5'b01100)),
+                .ready(ready[bgi][bi]),
+                .stall(stalls[bgi][bi]),
+                .RD((BankFSM[bgi][bi]==5'b01011)||(BankFSM[bgi][bi]==5'b01100)), // Read from memtiming FSM
                 .RowId(RowId[bgi][bi]),
-                .WR((BankFSM[bgi][bi]==5'b10010)||(BankFSM[bgi][bi]==5'b10011)),
+                .WR((BankFSM[bgi][bi]==5'b10010)||(BankFSM[bgi][bi]==5'b10011)), // Write from memtiming FSM
                 .clk(clk),
                 .rst(!reset_n),
                 .sync(sync[bgi][bi])
