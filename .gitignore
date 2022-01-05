@@ -1,11 +1,6 @@
-vivado.jou
-vivado.log
-*.backup.jou
-*.backup.log
-vivado_pid*.str
-
-vivado_hls.log
+*.jou
 *.log
+*.str
 *.png
 
 NA/
@@ -44,15 +39,5 @@ MBBench/MicBlzDDR4StE3Lnx/
 PiMulator/SysVerilog_Model/vscratch/
 PiMulator/SysVerilog_Model/vsim/
 
-PiMulator/SysVerilog_Model/IBUFGDS.v
-PiMulator/SysVerilog_Model/memoryFSM.v
-PiMulator/SysVerilog_Model/ambit.fzm
-PiMulator/SysVerilog_Model/timing.xdc
-PiMulator/SysVerilog_Model/MAXI.v
-PiMulator/SysVerilog_Model/cache.v
-PiMulator/SysVerilog_Model/dimminterface.v
-PiMulator/SysVerilog_Model/BankInterface.v
-PiMulator/SysVerilog_Model/eclk.fzm
-PiMulator/SysVerilog_Model/eclk.v
-PiMulator/SysVerilog_Model/cachetmp.sv
-PiMulator/SysVerilog_Model/memtimingtmp.v
+PiMulator/SysVerilog_Model/alt/eclk.fzm
+PiMulator/SysVerilog_Model/alt/eclk.v
