@@ -23,6 +23,8 @@ module testbnch_Chip(
   reg  [CHWIDTH-1:0]     row     [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   reg  [COLWIDTH-1:0]    column  [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   
+  reg  [DEVICE_WIDTH-1:0]data[BL-1:0];
+  
   integer i, j; // loop variable
   
   Chip #(.BGWIDTH(BGWIDTH),
@@ -55,37 +57,39 @@ module testbnch_Chip(
         dqin[i][j]=0;
       end
     end
+    #tCK;
     
     // write
     for (i = 0; i < BL; i = i + 1)
     begin
-      #tCK
       rd_o_wr[1][1] = 1;
       row[1][1]=1;
       column[1][1]=i;
       dqin[1][1]=$random;
+      data[column[1][1]] = dqin[1][1];
+      #tCK;
     end
     
-    #tCK
     rd_o_wr[1][1] = 0;
     row[1][1]=0;
     column[1][1]=0;
     dqin[1][1]=0;
+    #tCK;
     
     // read
     for (i = 0; i < BL; i = i + 1)
     begin
-      #tCK
       row[1][1]=1;
       column[1][1]=i;
+      #tCK;
+      $display(dqout[1][1], data[column[1][1]]);
+      assert (dqout[1][1] == data[column[1][1]]);
     end
     
-    #tCK
     row[1][1]=0;
     column[1][1]=0;
-    
-    #(1*tCK)
-    $stop;
+    #(2*tCK);
+    $finish();
   end;
   
 endmodule

@@ -20,6 +20,8 @@ module testbnch_Bank(
   reg  [CHWIDTH-1:0]row;
   reg  [COLWIDTH-1:0]column;
   
+  reg  [DEVICE_WIDTH-1:0]data[8-1:0];
+  
   integer i; // loop variable
   
   // dut instance of Bank
@@ -45,38 +47,39 @@ module testbnch_Bank(
     row = 0;
     column = 0;
     dqin = 0;
+    #tCK
     
     // write
     for (i = 0; i < 8; i = i + 1)
     begin
-      #tCK
       rd_o_wr = 1;
       row = 1;
       column = i;
       dqin = $random;
+      data[column] = dqin;
+      #tCK;
     end
-    
-    #tCK
+
     rd_o_wr = 0;
     row = 0;
     dqin = 0;
+    #tCK;
     
     // read
     for (i = 0; i < 8; i = i + 1)
     begin
-      #tCK
       rd_o_wr = 0;
       row = 1;
       column = i;
+      #tCK;
+      $display(dqout, data[column]);
+      assert (dqout == data[column]);
     end
-    #tCK
     
-    #tCK
     row = 0;
     column = 0;
-    
-    #(4*tCK)
-    $stop;
+    #(2*tCK);
+    $finish();
   end;
   
 endmodule
