@@ -38,6 +38,7 @@ MBBench/MicBlzDDR4StE3Lnx/
 
 PiMulator/SysVerilog_Model/vscratch/
 PiMulator/SysVerilog_Model/vsim/
+PiMulator/SysVerilog_Model/scratch/
 
 PiMulator/SysVerilog_Model/alt/eclk.fzm
 PiMulator/SysVerilog_Model/alt/eclk.v
