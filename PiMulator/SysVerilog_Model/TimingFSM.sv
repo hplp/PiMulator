@@ -2,11 +2,10 @@
 
 `define DDR4
 // `define DDR3
-// TODO: memory timings should be registers in this module that are
-// writeable by the memory controller and passed as inputs to the memtiming FSM
 
 module TimingFSM
-    #(parameter BGWIDTH = 2,
+    #(parameter BL = 8,
+    parameter BGWIDTH = 2,
     parameter BAWIDTH = 2,
     localparam BANKGROUPS = 2**BGWIDTH,
     localparam BANKSPERGROUP = 2**BAWIDTH
@@ -22,7 +21,18 @@ module TimingFSM
     output [4:0] BankFSM [BANKGROUPS-1:0][BANKSPERGROUP-1:0]
     );
     
-    // reg T_CL = 17;
+    // TODO: make memory timings registers writeable by the memory controller
+    logic [7:0] T_CL   = 17;
+    logic [7:0] T_RCD  = 17;
+    logic [7:0] T_RP   = 17;
+    logic [7:0] T_RFC  = 34;
+    logic [7:0] T_WR   = 14;
+    logic [7:0] T_RTP  = 7;
+    logic [7:0] T_CWL  = 10;
+    logic [7:0] T_ABA  = 24;
+    logic [7:0] T_ABAR = 24;
+    logic [7:0] T_RAS  = 32;
+    logic [15:0] T_REFI = 9360;
     
     genvar bgi, bi; // bank group and bank identifiers
     generate
@@ -30,12 +40,7 @@ module TimingFSM
         begin:BG
             for (bi = 0; bi < BANKSPERGROUP; bi=bi+1)
             begin:MT // todo: send latencies as inputs
-                memtiming MTi (
-                .tCLct(),
-                .tRCDct(),
-                .tRFCct(),
-                .tRPct(),
-                .BSTct(),
+                memtiming #(.BL(BL))  MTi (
                 .state(BankFSM[bgi][bi]),
                 .ACT( ((bg==bgi)&&(ba==bi))? ACT  : 1'b0),
                 .BST( ((bg==bgi)&&(ba==bi))? BST  : 1'b0),
@@ -56,7 +61,17 @@ module TimingFSM
                 .SRF( ((bg==bgi)&&(ba==bi))? SRF  : 1'b0),
                 .WR(  ((bg==bgi)&&(ba==bi))? WR   : 1'b0),
                 .WRA( ((bg==bgi)&&(ba==bi))? WRA  : 1'b0),
-                // .T_CL(T_CL),
+                .T_CL(T_CL),
+                .T_RCD(T_RCD),
+                .T_RP(T_RP),
+                .T_RFC(T_RFC),
+                .T_WR(T_WR),
+                .T_RTP(T_RTP),
+                .T_CWL(T_CWL),
+                .T_ABA(T_ABA),
+                .T_ABAR(T_ABAR),
+                .T_RAS(T_RAS),
+                .T_REFI(T_REFI),
                 .clk(clk), // TODO put eclk
                 .rst(!reset_n)
                 );

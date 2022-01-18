@@ -1,30 +1,22 @@
-// Created by fizzim.pl version 5.20 on 2021:08:23 at 19:50:19 (www.fizzim.com)
+// Created by fizzim.pl version 5.20 on 2022:01:17 at 19:04:56 (www.fizzim.com)
+
 module memtiming
-  #(parameter T_CL = 17,
-    parameter T_RCD = 17,
-    parameter T_RP = 17,
-    parameter T_RFC = 34,
-    parameter T_WR = 14,
-    parameter T_RTP = 7,
-    parameter T_CWL = 10,
-    parameter T_ABA = 24,
-    parameter T_ABAR = 24,
-    parameter T_RAS = 32,
-    parameter BL = 8
-    )
-    (
-    output state,
-  output logic [7:0] BSTct,   // Burst counter
+  #(parameter BL = 8
+  )
+  (
+  output state,
+  output logic [7:0] BSTct,    // Burst counter
   output logic [7:0] tABARct,
-  output logic [7:0] tABAct,  // Automatic Bank Active latency counter
-  output logic [7:0] tCLct,   // CAS latency counter
-  output logic [7:0] tCWLct,  // CAS write latency counter
-  output logic [7:0] tRASct,  // RAS latency counter
-  output logic [7:0] tRCDct,  // RCD latency counter
-  output logic [7:0] tRFCct,  // Refresh counter
-  output logic [7:0] tRPct,   // Precharge counter
-  output logic [7:0] tRTPct,  // Reead to Precharge Delay counter
-  output logic [7:0] tWRct,   // Write to precharge delay counter
+  output logic [7:0] tABAct,   // Automatic Bank Active latency counter
+  output logic [7:0] tCLct,    // CAS latency counter
+  output logic [7:0] tCWLct,   // CAS write latency counter
+  output logic [7:0] tRASct,   // RAS latency counter
+  output logic [7:0] tRCDct,   // RCD latency counter
+  output logic [15:0] tREFIct, // Refresh Interval
+  output logic [7:0] tRFCct,   // Refresh counter
+  output logic [7:0] tRPct,    // Precharge counter
+  output logic [7:0] tRTPct,   // Reead to Precharge Delay counter
+  output logic [7:0] tWRct,    // Write to precharge delay counter
   input logic ACT,
   input logic BST,
   input logic CFG,
@@ -42,6 +34,17 @@ module memtiming
   input logic RDA,
   input logic REF,
   input logic SRF,
+  input logic [7:0] T_ABAR,
+  input logic [7:0] T_ABA,
+  input logic [7:0] T_CL,
+  input logic [7:0] T_CWL,
+  input logic [7:0] T_RAS,
+  input logic [7:0] T_RCD,
+  input logic [15:0] T_REFI,
+  input logic [7:0] T_RFC,
+  input logic [7:0] T_RP,
+  input logic [7:0] T_RTP,
+  input logic [7:0] T_WR,
   input logic WR,
   input logic WRA,
   input logic clk,
@@ -69,7 +72,8 @@ module memtiming
     ResettingPD    = 5'b10000, 
     SelfRefreshing = 5'b10001, 
     Writing        = 5'b10010, 
-    WritingAPR     = 5'b10011
+    WritingAPR     = 5'b10011, 
+    ZRowClone      = 5'b10100
   } state, nextstate;
 
 
@@ -137,6 +141,9 @@ module memtiming
         end
         else if (CKEL) begin
           nextstate = ActivePD;
+        end
+        else if (ACT) begin
+          nextstate = ZRowClone;
         end
       end
       Config        : begin
@@ -255,6 +262,14 @@ module memtiming
           nextstate = Precharging;
         end
       end
+      ZRowClone     : begin
+        if (tRCDct==8'd1) begin
+          nextstate = BankActive;
+        end
+        else begin
+          nextstate = ZRowClone;
+        end
+      end
     endcase
   end
 
@@ -278,6 +293,7 @@ module memtiming
       tCWLct[7:0] <= T_CWL;
       tRASct[7:0] <= T_RAS;
       tRCDct[7:0] <= T_RCD;
+      tREFIct[15:0] <= T_REFI;
       tRFCct[7:0] <= T_RFC;
       tRPct[7:0] <= T_RP;
       tRTPct[7:0] <= T_RTP;
@@ -291,11 +307,15 @@ module memtiming
       tCWLct[7:0] <= T_CWL; // default
       tRASct[7:0] <= T_RAS; // default
       tRCDct[7:0] <= T_RCD; // default
+      tREFIct[15:0] <= T_REFI; // default
       tRFCct[7:0] <= T_RFC; // default
       tRPct[7:0] <= T_RP; // default
       tRTPct[7:0] <= T_RTP; // default
       tWRct[7:0] <= T_WR; // default
       case (nextstate)
+        Idle          : begin
+          tREFIct[15:0] <= (tREFIct>1)?tREFIct-1:tREFIct;
+        end
         Activating    : begin
           tRASct[7:0] <= tRASct-1;
           tRCDct[7:0] <= tRCDct-1;
@@ -304,6 +324,7 @@ module memtiming
           tCLct[7:0] <= (tCLct>1)?tCLct-1:tCLct;
           tCWLct[7:0] <= (tCWLct>1)?tCWLct-1:tCWLct;
           tRASct[7:0] <= (tRASct>0)?tRASct-1:tRASct;
+          tREFIct[15:0] <= (tREFIct>1)?tREFIct-1:tREFIct;
         end
         Precharging   : begin
           tRPct[7:0] <= tRPct-8'd1;
@@ -327,7 +348,7 @@ module memtiming
         Writing       : begin
           BSTct[7:0] <= (BSTct>0)?BSTct-1:BSTct;
           tABAct[7:0] <= (tABAct>0)?tABAct-1:tABAct;
-          tCLct[7:0] <= tCLct;
+          tCLct[7:0] <= (tCLct>1)?tCLct-1:tCLct;
           tCWLct[7:0] <= tCWLct;
           tRASct[7:0] <= (tRASct>0)?tRASct-1:tRASct;
           tWRct[7:0] <= (tWRct>0)?tWRct-1:tWRct;
@@ -337,6 +358,12 @@ module memtiming
           tCLct[7:0] <= tCLct;
           tRASct[7:0] <= (tRASct>0)?tRASct-1:tRASct;
           tWRct[7:0] <= (tWRct>0)?tWRct-1:tWRct;
+        end
+        ZRowClone     : begin
+          tCLct[7:0] <= tCLct;
+          tCWLct[7:0] <= tCWLct;
+          tRASct[7:0] <= (tRASct>0)?tRASct-1:tRASct;
+          tRCDct[7:0] <= tRCDct-1;
         end
       endcase
     end

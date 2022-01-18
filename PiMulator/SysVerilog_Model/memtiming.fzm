@@ -1,4 +1,4 @@
-## File last modified by Fizzim: 3:48:31 PM on 10/10/21
+## File last modified by Fizzim: 7:11:44 PM on 1/11/22
 <version>
    14.02.26
 </version>
@@ -1462,6 +1462,622 @@
          -1
          </page>
       </CFG>
+      <T_CL[7:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <useratts>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </useratts>
+         <resetval>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </resetval>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </T_CL[7:0]>
+      <T_RCD[7:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <useratts>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </useratts>
+         <resetval>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </resetval>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </T_RCD[7:0]>
+      <T_RP[7:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <useratts>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </useratts>
+         <resetval>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </resetval>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </T_RP[7:0]>
+      <T_RFC[7:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <useratts>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </useratts>
+         <resetval>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </resetval>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </T_RFC[7:0]>
+      <T_WR[7:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <useratts>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </useratts>
+         <resetval>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </resetval>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </T_WR[7:0]>
+      <T_RTP[7:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <useratts>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </useratts>
+         <resetval>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </resetval>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </T_RTP[7:0]>
+      <T_CWL[7:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <useratts>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </useratts>
+         <resetval>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </resetval>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </T_CWL[7:0]>
+      <T_ABA[7:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <useratts>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </useratts>
+         <resetval>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </resetval>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </T_ABA[7:0]>
+      <T_ABAR[7:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <useratts>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </useratts>
+         <resetval>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </resetval>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </T_ABAR[7:0]>
+      <T_RAS[7:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <useratts>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </useratts>
+         <resetval>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </resetval>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </T_RAS[7:0]>
+      <T_REFI[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <useratts>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </useratts>
+         <resetval>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </resetval>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </T_REFI[15:0]>
    </inputs>
    <outputs>
       <tCLct[7:0]>
@@ -3087,10 +3703,10 @@ false
 <textObj>
 fzm_globalTable
    <x>
-   179
+   5
    </x>
    <y>
-   68
+   14
    </y>
    <page>
    2

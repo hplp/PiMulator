@@ -12,14 +12,14 @@
    </db_ref_list>
    <zoom_setting>
       <ZoomStartTime time="0fs"></ZoomStartTime>
-      <ZoomEndTime time="335251fs"></ZoomEndTime>
-      <Cursor1Time time="121343fs"></Cursor1Time>
+      <ZoomEndTime time="77281fs"></ZoomEndTime>
+      <Cursor1Time time="52915fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="243"></NameColumnWidth>
-      <ValueColumnWidth column_width="113"></ValueColumnWidth>
+      <ValueColumnWidth column_width="101"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="31" />
+   <WVObjectSize size="29" />
    <wvobject type="logic" fp_name="/testbnch_TimingFSM/dut/clk">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -52,6 +52,10 @@
       <obj_property name="ElementShortName">RD</obj_property>
       <obj_property name="ObjectShortName">RD</obj_property>
    </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_TimingFSM/dut/RDA">
+      <obj_property name="ElementShortName">RDA</obj_property>
+      <obj_property name="ObjectShortName">RDA</obj_property>
+   </wvobject>
    <wvobject type="logic" fp_name="/testbnch_TimingFSM/dut/PR">
       <obj_property name="ElementShortName">PR</obj_property>
       <obj_property name="ObjectShortName">PR</obj_property>
@@ -60,9 +64,43 @@
       <obj_property name="ElementShortName">REF</obj_property>
       <obj_property name="ObjectShortName">REF</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/BankFSM">
+   <wvobject type="array" fp_name="/testbnch_TimingFSM/BankFSM">
       <obj_property name="ElementShortName">BankFSM[3:0][3:0][4:0]</obj_property>
       <obj_property name="ObjectShortName">BankFSM[3:0][3:0][4:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="array" fp_name="/testbnch_TimingFSM/BankFSM[3]">
+         <obj_property name="ElementShortName">[3][3:0][4:0]</obj_property>
+         <obj_property name="ObjectShortName">[3][3:0][4:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/testbnch_TimingFSM/BankFSM[2]">
+         <obj_property name="ElementShortName">[2][3:0][4:0]</obj_property>
+         <obj_property name="ObjectShortName">[2][3:0][4:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/testbnch_TimingFSM/BankFSM[1]">
+         <obj_property name="ElementShortName">[1][3:0][4:0]</obj_property>
+         <obj_property name="ObjectShortName">[1][3:0][4:0]</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/testbnch_TimingFSM/BankFSM[0]">
+         <obj_property name="ElementShortName">[0][3:0][4:0]</obj_property>
+         <obj_property name="ObjectShortName">[0][3:0][4:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/testbnch_TimingFSM/BankFSM[3]">
+         <obj_property name="ElementShortName">[3][3:0][4:0]</obj_property>
+         <obj_property name="ObjectShortName">[3][3:0][4:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/testbnch_TimingFSM/BankFSM[2]">
+         <obj_property name="ElementShortName">[2][3:0][4:0]</obj_property>
+         <obj_property name="ObjectShortName">[2][3:0][4:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/testbnch_TimingFSM/BankFSM[1]">
+         <obj_property name="ElementShortName">[1][3:0][4:0]</obj_property>
+         <obj_property name="ObjectShortName">[1][3:0][4:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/testbnch_TimingFSM/BankFSM[0]">
+         <obj_property name="ElementShortName">[0][3:0][4:0]</obj_property>
+         <obj_property name="ObjectShortName">[0][3:0][4:0]</obj_property>
+      </wvobject>
    </wvobject>
    <wvobject type="logic" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /clk">
       <obj_property name="ElementShortName">clk</obj_property>
@@ -106,18 +144,6 @@
       <obj_property name="ObjectShortName">tWRct[7:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /tCLct">
-      <obj_property name="ElementShortName">tCLct[7:0]</obj_property>
-      <obj_property name="ObjectShortName">tCLct[7:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /tRFCct">
-      <obj_property name="ElementShortName">tRFCct[7:0]</obj_property>
-      <obj_property name="ObjectShortName">tRFCct[7:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /tRPct">
-      <obj_property name="ElementShortName">tRPct[7:0]</obj_property>
-      <obj_property name="ObjectShortName">tRPct[7:0]</obj_property>
-   </wvobject>
    <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /tABAct">
       <obj_property name="ElementShortName">tABAct[7:0]</obj_property>
       <obj_property name="ObjectShortName">tABAct[7:0]</obj_property>
@@ -132,20 +158,20 @@
       <obj_property name="ObjectShortName">nextstate[4:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /T_CL">
-      <obj_property name="ElementShortName">T_CL[31:0]</obj_property>
-      <obj_property name="ObjectShortName">T_CL[31:0]</obj_property>
+      <obj_property name="ElementShortName">T_CL[7:0]</obj_property>
+      <obj_property name="ObjectShortName">T_CL[7:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /T_RCD">
-      <obj_property name="ElementShortName">T_RCD[31:0]</obj_property>
-      <obj_property name="ObjectShortName">T_RCD[31:0]</obj_property>
+      <obj_property name="ElementShortName">T_RCD[7:0]</obj_property>
+      <obj_property name="ObjectShortName">T_RCD[7:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /T_RP">
-      <obj_property name="ElementShortName">T_RP[31:0]</obj_property>
-      <obj_property name="ObjectShortName">T_RP[31:0]</obj_property>
+      <obj_property name="ElementShortName">T_RP[7:0]</obj_property>
+      <obj_property name="ObjectShortName">T_RP[7:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /T_RFC">
-      <obj_property name="ElementShortName">T_RFC[31:0]</obj_property>
-      <obj_property name="ObjectShortName">T_RFC[31:0]</obj_property>
+      <obj_property name="ElementShortName">T_RFC[7:0]</obj_property>
+      <obj_property name="ObjectShortName">T_RFC[7:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/testbnch_TimingFSM/dut/\BG[1].MT[1].MTi /BL">
       <obj_property name="ElementShortName">BL[31:0]</obj_property>
