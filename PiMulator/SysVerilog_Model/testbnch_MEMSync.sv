@@ -126,7 +126,7 @@ module testbnch_MEMSync(
               end
 
               #(4*tCK)
-              $stop;
+              $finish();
        end;
        
 endmodule

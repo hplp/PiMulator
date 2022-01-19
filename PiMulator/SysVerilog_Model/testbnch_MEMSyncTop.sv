@@ -122,7 +122,7 @@ module testbnch_MEMSyncTop(
               end
               
               #(4*tCK)
-              $stop;
+              $finish();
        end;
        
 endmodule

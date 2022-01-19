@@ -210,7 +210,7 @@ module refinterleavingtestbench(
               ba = 0;
               
               #(36*tCK);
-              $stop;
+              $finish();
        end;
        
 endmodule

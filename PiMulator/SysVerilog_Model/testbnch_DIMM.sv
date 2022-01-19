@@ -220,7 +220,7 @@ module dimmtestbench(
               ba = 0;
               A = 17'b00000000000000000;
               #(4*tCK);
-              $stop;
+              $finish();
        end;
        
 endmodule

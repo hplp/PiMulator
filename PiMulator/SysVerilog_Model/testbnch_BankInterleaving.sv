@@ -211,7 +211,7 @@ module bainterleavingtestbench(
               ba = 0;
               
               #(20*tCK);
-              $stop;
+              $finish();
        end;
        
 endmodule
