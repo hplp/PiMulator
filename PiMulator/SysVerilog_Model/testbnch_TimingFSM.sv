@@ -237,7 +237,7 @@ module testbnch_TimingFSM(
               ACT = 0;
               #tCK;
               $display("RowClone");
-              assert (BankFSM[bg][bg] == 5'h14) else $display(BankFSM[bg][bg]); // 10100
+              assert (BankFSM[bg][bg] == 5'h14) else $display(BankFSM[bg][bg]); // RowClone
               #(tCK*(T_RCD-1)); // tRCD
               $display("bank active");
               assert (BankFSM[bg][bg] == 5'h03) else $display(BankFSM[bg][bg]); // bank active
