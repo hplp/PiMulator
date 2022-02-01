@@ -8,12 +8,12 @@ module MEMSyncTop #(
     parameter BAWIDTH = 2,
     parameter CHWIDTH = 5,
     parameter ADDRWIDTH = 17,
-    
+
     localparam BANKGROUPS = 2**BGWIDTH,
     localparam BANKSPERGROUP = 2**BAWIDTH,
     localparam CHROWS = 2**CHWIDTH,
     localparam ROWS = 2**ADDRWIDTH
-    )
+)
     (
     input wire clk,
     input wire reset_n,
@@ -26,14 +26,14 @@ module MEMSyncTop #(
     input sync [BANKGROUPS-1:0][BANKSPERGROUP-1:0],
     output [CHWIDTH-1:0] cRowId [BANKGROUPS-1:0][BANKSPERGROUP-1:0],
     output stall
-    );
-    
+);
+
     wire [BANKGROUPS-1:0][BANKSPERGROUP-1:0] ready; // or wire ready [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
-    
+
     // wire stalls [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
     wire [BANKGROUPS-1:0][BANKSPERGROUP-1:0] stalls;
     // wire stallsORs [BANKGROUPS*BANKSPERGROUP:0];
-    
+
     genvar bgi, bi; // bank identifier
     // generate
     //     assign stallsORs[0] = 0;
@@ -47,7 +47,7 @@ module MEMSyncTop #(
     // endgenerate
     // assign stall = stallsORs[BANKGROUPS*BANKSPERGROUP];
     assign stall = |stalls;
-    
+
     generate
         for (bgi=0; bgi<BANKGROUPS; bgi=bgi+1)
         begin:BG
@@ -57,18 +57,18 @@ module MEMSyncTop #(
                 .CHWIDTH(CHWIDTH),
                 .ADDRWIDTH(ADDRWIDTH)
                 ) Mi (
-                .cRowId(cRowId[bgi][bi]),
-                .ready(ready[bgi][bi]),
-                .stall(stalls[bgi][bi]),
-                .RD((BankFSM[bgi][bi]==5'b01011)||(BankFSM[bgi][bi]==5'b01100)), // Read from memtiming FSM
-                .RowId(RowId[bgi][bi]),
-                .WR((BankFSM[bgi][bi]==5'b10010)||(BankFSM[bgi][bi]==5'b10011)), // Write from memtiming FSM
-                .clk(clk),
-                .rst(!reset_n),
-                .sync(sync[bgi][bi])
+                    .cRowId(cRowId[bgi][bi]),
+                    .ready(ready[bgi][bi]),
+                    .stall(stalls[bgi][bi]),
+                    .RD((BankFSM[bgi][bi]==5'b01011)||(BankFSM[bgi][bi]==5'b01100)), // Read from memtiming FSM
+                    .RowId(RowId[bgi][bi]),
+                    .WR((BankFSM[bgi][bi]==5'b10010)||(BankFSM[bgi][bi]==5'b10011)), // Write from memtiming FSM
+                    .clk(clk),
+                    .rst(!reset_n),
+                    .sync(sync[bgi][bi])
                 );
             end
         end
     endgenerate
-    
+
 endmodule

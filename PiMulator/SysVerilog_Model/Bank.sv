@@ -10,45 +10,27 @@
 //     the small number of full rows modeled are then mapped to any rows in use
 module Bank
   #(parameter DEVICE_WIDTH = 4,
-  parameter COLWIDTH = 10,
-  parameter CHWIDTH = 5,
-  localparam COLS = 2**COLWIDTH, // number of columns
-  localparam CHROWS = 2**CHWIDTH, // number of full rows allocated to a Bank model
-  localparam DEPTH = COLS*CHROWS) // amount of BRAM per Bank as full rows
+    parameter COLWIDTH = 10,
+    parameter CHWIDTH = 5,
+    localparam COLS = 2**COLWIDTH, // number of columns
+    localparam CHROWS = 2**CHWIDTH, // number of full rows allocated to a Bank model
+    localparam DEPTH = COLS*CHROWS) // amount of BRAM per Bank as full rows
   (
-  input  wire clk,
-  input  wire [0:0]              rd_o_wr,
-  input  wire [DEVICE_WIDTH-1:0] dqin,
-  output wire [DEVICE_WIDTH-1:0] dqout,
-  input  wire [CHWIDTH-1:0]      row,
-  input  wire [COLWIDTH-1:0]     column
-  );
-  
-  array #(.WIDTH(DEVICE_WIDTH), .DEPTH(DEPTH)) arrayi (
-  .clk(clk),
-  .addr({row, column}),
-  .rd_o_wr(rd_o_wr), // 0->rd, 1->wr
-  .i_data(dqin),
-  .o_data(dqout)
-  );
+    input  wire clk,
+    input  wire [0:0]              rd_o_wr,
+    input  wire [DEVICE_WIDTH-1:0] dqin,
+    output wire [DEVICE_WIDTH-1:0] dqout,
+    input  wire [CHWIDTH-1:0]      row,
+    input  wire [COLWIDTH-1:0]     column
+);
 
-  // logic [COLS-1:0] TRA0 [0:DEVICE_WIDTH-1];
-  // logic [COLS-1:0] TRA1 [0:DEVICE_WIDTH-1];
-
-  // enum logic [2:0] {
-  //   oAND    = 3'b000, 
-  //   oOR = 3'b001,
-  //   oNOT = 3'b010
-  // } operation;
-  
-  // always @ (posedge clk)
-  // begin
-  //   case (operation)
-  //     oAND : TRA0 <= TRA0 && TRA1;
-  //     oOR : TRA0 <= TRA0 || TRA1;
-  //     oNOT : TRA0 <= ~TRA0;
-  //   endcase
-  // end
+    bank_array #(.WIDTH(DEVICE_WIDTH), .DEPTH(DEPTH)) arrayi (
+        .clk(clk),
+        .addr({row, column}),
+        .rd_o_wr(rd_o_wr), // 0->rd, 1->wr
+        .i_data(dqin),
+        .o_data(dqout)
+    );
 
 endmodule
 
