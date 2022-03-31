@@ -1,10 +1,11 @@
 // Created by fizzim.pl version 5.20 on 2022:01:17 at 19:04:56 (www.fizzim.com)
+`timescale 1ns / 1ps
 
 module memtiming
   #(parameter BL = 8
 )
   (
-    output state,
+    output logic [4:0] stateout,
     output logic [7:0] BSTct, // Burst counter
     output logic [7:0] tABARct,
     output logic [7:0] tABAct, // Automatic Bank Active latency counter
@@ -75,6 +76,7 @@ module memtiming
         WritingAPR     = 5'b10011,
         ZRowClone      = 5'b10100
     } state, nextstate;
+    assign stateout = state;
 
 
     // comb always block
