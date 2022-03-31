@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0fs"></ZoomStartTime>
-      <ZoomEndTime time="774751fs"></ZoomEndTime>
+      <ZoomStartTime time="129125fs"></ZoomStartTime>
+      <ZoomEndTime time="903876fs"></ZoomEndTime>
       <Cursor1Time time="774750fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="133"></NameColumnWidth>
-      <ValueColumnWidth column_width="66"></ValueColumnWidth>
+      <NameColumnWidth column_width="178"></NameColumnWidth>
+      <ValueColumnWidth column_width="85"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="38" />
+   <WVObjectSize size="56" />
    <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/clk">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -28,69 +28,69 @@
       <obj_property name="ElementShortName">reset_n</obj_property>
       <obj_property name="ObjectShortName">reset_n</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/ba">
-      <obj_property name="ElementShortName">ba[1:0]</obj_property>
-      <obj_property name="ObjectShortName">ba[1:0]</obj_property>
+   <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/RowId">
+      <obj_property name="ElementShortName">RowId[3:0][3:0][16:0]</obj_property>
+      <obj_property name="ObjectShortName">RowId[3:0][3:0][16:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/bg">
-      <obj_property name="ElementShortName">bg[1:0]</obj_property>
-      <obj_property name="ObjectShortName">bg[1:0]</obj_property>
+   <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/BankFSM">
+      <obj_property name="ElementShortName">BankFSM[3:0][3:0][4:0]</obj_property>
+      <obj_property name="ObjectShortName">BankFSM[3:0][3:0][4:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/sync">
+      <obj_property name="ElementShortName">sync[3:0][3:0]</obj_property>
+      <obj_property name="ObjectShortName">sync[3:0][3:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/cRowId">
       <obj_property name="ElementShortName">cRowId[3:0][3:0][5:0]</obj_property>
       <obj_property name="ObjectShortName">cRowId[3:0][3:0][5:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/ready">
-      <obj_property name="ElementShortName">ready[3:0][3:0]</obj_property>
-      <obj_property name="ObjectShortName">ready[3:0][3:0]</obj_property>
-   </wvobject>
    <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/stall">
       <obj_property name="ElementShortName">stall</obj_property>
       <obj_property name="ObjectShortName">stall</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/ready">
+      <obj_property name="ElementShortName">ready[3:0][3:0]</obj_property>
+      <obj_property name="ObjectShortName">ready[3:0][3:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/stalls">
       <obj_property name="ElementShortName">stalls[3:0][3:0]</obj_property>
       <obj_property name="ObjectShortName">stalls[3:0][3:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="divider244" type="divider">
-      <obj_property name="label">MEMSync_0_0</obj_property>
+   <wvobject fp_name="divider455" type="divider">
+      <obj_property name="label">bg0ba0</obj_property>
       <obj_property name="DisplayName">label</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /clk">
-      <obj_property name="ElementShortName">clk</obj_property>
-      <obj_property name="ObjectShortName">clk</obj_property>
+   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /ACT">
+      <obj_property name="ElementShortName">ACT</obj_property>
+      <obj_property name="ObjectShortName">ACT</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /rst">
-      <obj_property name="ElementShortName">rst</obj_property>
-      <obj_property name="ObjectShortName">rst</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /WR">
-      <obj_property name="ElementShortName">WR</obj_property>
-      <obj_property name="ObjectShortName">WR</obj_property>
+   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /PR">
+      <obj_property name="ElementShortName">PR</obj_property>
+      <obj_property name="ObjectShortName">PR</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /RD">
       <obj_property name="ElementShortName">RD</obj_property>
       <obj_property name="ObjectShortName">RD</obj_property>
    </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /WR">
+      <obj_property name="ElementShortName">WR</obj_property>
+      <obj_property name="ObjectShortName">WR</obj_property>
+   </wvobject>
    <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /RowId">
       <obj_property name="ElementShortName">RowId[16:0]</obj_property>
       <obj_property name="ObjectShortName">RowId[16:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /sync">
-      <obj_property name="ElementShortName">sync</obj_property>
-      <obj_property name="ObjectShortName">sync</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /hit">
-      <obj_property name="ElementShortName">hit</obj_property>
-      <obj_property name="ObjectShortName">hit</obj_property>
+   <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /cRowId">
+      <obj_property name="ElementShortName">cRowId[5:0]</obj_property>
+      <obj_property name="ObjectShortName">cRowId[5:0]</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /dirty">
       <obj_property name="ElementShortName">dirty</obj_property>
       <obj_property name="ObjectShortName">dirty</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /cRowId">
-      <obj_property name="ElementShortName">cRowId[5:0]</obj_property>
-      <obj_property name="ObjectShortName">cRowId[5:0]</obj_property>
+   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /hit">
+      <obj_property name="ElementShortName">hit</obj_property>
+      <obj_property name="ObjectShortName">hit</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /nRowId">
       <obj_property name="ElementShortName">nRowId[5:0]</obj_property>
@@ -104,9 +104,82 @@
       <obj_property name="ElementShortName">stall</obj_property>
       <obj_property name="ObjectShortName">stall</obj_property>
    </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /sync">
+      <obj_property name="ElementShortName">sync</obj_property>
+      <obj_property name="ObjectShortName">sync</obj_property>
+   </wvobject>
    <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /tag_tbl">
       <obj_property name="ElementShortName">tag_tbl[0:63]</obj_property>
       <obj_property name="ObjectShortName">tag_tbl[0:63]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /state">
+      <obj_property name="ElementShortName">state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider477" type="divider">
+      <obj_property name="label">bg1ba1</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[1].B[1].Mi /ACT">
+      <obj_property name="ElementShortName">ACT</obj_property>
+      <obj_property name="ObjectShortName">ACT</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[1].B[1].Mi /PR">
+      <obj_property name="ElementShortName">PR</obj_property>
+      <obj_property name="ObjectShortName">PR</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[1].B[1].Mi /RD">
+      <obj_property name="ElementShortName">RD</obj_property>
+      <obj_property name="ObjectShortName">RD</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[1].B[1].Mi /WR">
+      <obj_property name="ElementShortName">WR</obj_property>
+      <obj_property name="ObjectShortName">WR</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/\BG[1].B[1].Mi /RowId">
+      <obj_property name="ElementShortName">RowId[16:0]</obj_property>
+      <obj_property name="ObjectShortName">RowId[16:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/\BG[1].B[1].Mi /cRowId">
+      <obj_property name="ElementShortName">cRowId[5:0]</obj_property>
+      <obj_property name="ObjectShortName">cRowId[5:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[1].B[1].Mi /dirty">
+      <obj_property name="ElementShortName">dirty</obj_property>
+      <obj_property name="ObjectShortName">dirty</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[1].B[1].Mi /hit">
+      <obj_property name="ElementShortName">hit</obj_property>
+      <obj_property name="ObjectShortName">hit</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/\BG[1].B[1].Mi /nRowId">
+      <obj_property name="ElementShortName">nRowId[5:0]</obj_property>
+      <obj_property name="ObjectShortName">nRowId[5:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[1].B[1].Mi /ready">
+      <obj_property name="ElementShortName">ready</obj_property>
+      <obj_property name="ObjectShortName">ready</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[1].B[1].Mi /stall">
+      <obj_property name="ElementShortName">stall</obj_property>
+      <obj_property name="ObjectShortName">stall</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_MEMSyncTop/dut/\BG[1].B[1].Mi /sync">
+      <obj_property name="ElementShortName">sync</obj_property>
+      <obj_property name="ObjectShortName">sync</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/\BG[1].B[1].Mi /tag_tbl">
+      <obj_property name="ElementShortName">tag_tbl[0:63]</obj_property>
+      <obj_property name="ObjectShortName">tag_tbl[0:63]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/\BG[1].B[1].Mi /state">
+      <obj_property name="ElementShortName">state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider499" type="divider">
+      <obj_property name="label">states</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/testbnch_MEMSyncTop/dut/\BG[0].B[0].Mi /state">
       <obj_property name="ElementShortName">state[2:0]</obj_property>

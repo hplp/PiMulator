@@ -11,12 +11,12 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="155750fs"></ZoomStartTime>
-      <ZoomEndTime time="1090251fs"></ZoomEndTime>
-      <Cursor1Time time="934500fs"></Cursor1Time>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="1180501fs"></ZoomEndTime>
+      <Cursor1Time time="996092fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="141"></NameColumnWidth>
+      <NameColumnWidth column_width="137"></NameColumnWidth>
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="2" />
@@ -35,6 +35,15 @@
       <wvobject type="array" fp_name="/testbnch_MEMSync/dut/RowId">
          <obj_property name="ElementShortName">RowId[16:0]</obj_property>
          <obj_property name="ObjectShortName">RowId[16:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_MEMSync/dut/ACT">
+         <obj_property name="ElementShortName">ACT</obj_property>
+         <obj_property name="ObjectShortName">ACT</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_MEMSync/dut/PR">
+         <obj_property name="ElementShortName">PR</obj_property>
+         <obj_property name="ObjectShortName">PR</obj_property>
       </wvobject>
       <wvobject type="logic" fp_name="/testbnch_MEMSync/dut/WR">
          <obj_property name="ElementShortName">WR</obj_property>
@@ -81,6 +90,264 @@
       <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl">
          <obj_property name="ElementShortName">tag_tbl[0:63]</obj_property>
          <obj_property name="ObjectShortName">tag_tbl[0:63]</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[0]">
+            <obj_property name="ElementShortName">[0]</obj_property>
+            <obj_property name="ObjectShortName">[0]</obj_property>
+            <obj_property name="isExpanded"></obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[1]">
+            <obj_property name="ElementShortName">[1]</obj_property>
+            <obj_property name="ObjectShortName">[1]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[2]">
+            <obj_property name="ElementShortName">[2]</obj_property>
+            <obj_property name="ObjectShortName">[2]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[3]">
+            <obj_property name="ElementShortName">[3]</obj_property>
+            <obj_property name="ObjectShortName">[3]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[4]">
+            <obj_property name="ElementShortName">[4]</obj_property>
+            <obj_property name="ObjectShortName">[4]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[5]">
+            <obj_property name="ElementShortName">[5]</obj_property>
+            <obj_property name="ObjectShortName">[5]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[6]">
+            <obj_property name="ElementShortName">[6]</obj_property>
+            <obj_property name="ObjectShortName">[6]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[7]">
+            <obj_property name="ElementShortName">[7]</obj_property>
+            <obj_property name="ObjectShortName">[7]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[8]">
+            <obj_property name="ElementShortName">[8]</obj_property>
+            <obj_property name="ObjectShortName">[8]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[9]">
+            <obj_property name="ElementShortName">[9]</obj_property>
+            <obj_property name="ObjectShortName">[9]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[10]">
+            <obj_property name="ElementShortName">[10]</obj_property>
+            <obj_property name="ObjectShortName">[10]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[11]">
+            <obj_property name="ElementShortName">[11]</obj_property>
+            <obj_property name="ObjectShortName">[11]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[12]">
+            <obj_property name="ElementShortName">[12]</obj_property>
+            <obj_property name="ObjectShortName">[12]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[13]">
+            <obj_property name="ElementShortName">[13]</obj_property>
+            <obj_property name="ObjectShortName">[13]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[14]">
+            <obj_property name="ElementShortName">[14]</obj_property>
+            <obj_property name="ObjectShortName">[14]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[15]">
+            <obj_property name="ElementShortName">[15]</obj_property>
+            <obj_property name="ObjectShortName">[15]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[16]">
+            <obj_property name="ElementShortName">[16]</obj_property>
+            <obj_property name="ObjectShortName">[16]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[17]">
+            <obj_property name="ElementShortName">[17]</obj_property>
+            <obj_property name="ObjectShortName">[17]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[18]">
+            <obj_property name="ElementShortName">[18]</obj_property>
+            <obj_property name="ObjectShortName">[18]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[19]">
+            <obj_property name="ElementShortName">[19]</obj_property>
+            <obj_property name="ObjectShortName">[19]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[20]">
+            <obj_property name="ElementShortName">[20]</obj_property>
+            <obj_property name="ObjectShortName">[20]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[21]">
+            <obj_property name="ElementShortName">[21]</obj_property>
+            <obj_property name="ObjectShortName">[21]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[22]">
+            <obj_property name="ElementShortName">[22]</obj_property>
+            <obj_property name="ObjectShortName">[22]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[23]">
+            <obj_property name="ElementShortName">[23]</obj_property>
+            <obj_property name="ObjectShortName">[23]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[24]">
+            <obj_property name="ElementShortName">[24]</obj_property>
+            <obj_property name="ObjectShortName">[24]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[25]">
+            <obj_property name="ElementShortName">[25]</obj_property>
+            <obj_property name="ObjectShortName">[25]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[26]">
+            <obj_property name="ElementShortName">[26]</obj_property>
+            <obj_property name="ObjectShortName">[26]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[27]">
+            <obj_property name="ElementShortName">[27]</obj_property>
+            <obj_property name="ObjectShortName">[27]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[28]">
+            <obj_property name="ElementShortName">[28]</obj_property>
+            <obj_property name="ObjectShortName">[28]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[29]">
+            <obj_property name="ElementShortName">[29]</obj_property>
+            <obj_property name="ObjectShortName">[29]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[30]">
+            <obj_property name="ElementShortName">[30]</obj_property>
+            <obj_property name="ObjectShortName">[30]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[31]">
+            <obj_property name="ElementShortName">[31]</obj_property>
+            <obj_property name="ObjectShortName">[31]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[32]">
+            <obj_property name="ElementShortName">[32]</obj_property>
+            <obj_property name="ObjectShortName">[32]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[33]">
+            <obj_property name="ElementShortName">[33]</obj_property>
+            <obj_property name="ObjectShortName">[33]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[34]">
+            <obj_property name="ElementShortName">[34]</obj_property>
+            <obj_property name="ObjectShortName">[34]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[35]">
+            <obj_property name="ElementShortName">[35]</obj_property>
+            <obj_property name="ObjectShortName">[35]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[36]">
+            <obj_property name="ElementShortName">[36]</obj_property>
+            <obj_property name="ObjectShortName">[36]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[37]">
+            <obj_property name="ElementShortName">[37]</obj_property>
+            <obj_property name="ObjectShortName">[37]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[38]">
+            <obj_property name="ElementShortName">[38]</obj_property>
+            <obj_property name="ObjectShortName">[38]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[39]">
+            <obj_property name="ElementShortName">[39]</obj_property>
+            <obj_property name="ObjectShortName">[39]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[40]">
+            <obj_property name="ElementShortName">[40]</obj_property>
+            <obj_property name="ObjectShortName">[40]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[41]">
+            <obj_property name="ElementShortName">[41]</obj_property>
+            <obj_property name="ObjectShortName">[41]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[42]">
+            <obj_property name="ElementShortName">[42]</obj_property>
+            <obj_property name="ObjectShortName">[42]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[43]">
+            <obj_property name="ElementShortName">[43]</obj_property>
+            <obj_property name="ObjectShortName">[43]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[44]">
+            <obj_property name="ElementShortName">[44]</obj_property>
+            <obj_property name="ObjectShortName">[44]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[45]">
+            <obj_property name="ElementShortName">[45]</obj_property>
+            <obj_property name="ObjectShortName">[45]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[46]">
+            <obj_property name="ElementShortName">[46]</obj_property>
+            <obj_property name="ObjectShortName">[46]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[47]">
+            <obj_property name="ElementShortName">[47]</obj_property>
+            <obj_property name="ObjectShortName">[47]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[48]">
+            <obj_property name="ElementShortName">[48]</obj_property>
+            <obj_property name="ObjectShortName">[48]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[49]">
+            <obj_property name="ElementShortName">[49]</obj_property>
+            <obj_property name="ObjectShortName">[49]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[50]">
+            <obj_property name="ElementShortName">[50]</obj_property>
+            <obj_property name="ObjectShortName">[50]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[51]">
+            <obj_property name="ElementShortName">[51]</obj_property>
+            <obj_property name="ObjectShortName">[51]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[52]">
+            <obj_property name="ElementShortName">[52]</obj_property>
+            <obj_property name="ObjectShortName">[52]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[53]">
+            <obj_property name="ElementShortName">[53]</obj_property>
+            <obj_property name="ObjectShortName">[53]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[54]">
+            <obj_property name="ElementShortName">[54]</obj_property>
+            <obj_property name="ObjectShortName">[54]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[55]">
+            <obj_property name="ElementShortName">[55]</obj_property>
+            <obj_property name="ObjectShortName">[55]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[56]">
+            <obj_property name="ElementShortName">[56]</obj_property>
+            <obj_property name="ObjectShortName">[56]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[57]">
+            <obj_property name="ElementShortName">[57]</obj_property>
+            <obj_property name="ObjectShortName">[57]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[58]">
+            <obj_property name="ElementShortName">[58]</obj_property>
+            <obj_property name="ObjectShortName">[58]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[59]">
+            <obj_property name="ElementShortName">[59]</obj_property>
+            <obj_property name="ObjectShortName">[59]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[60]">
+            <obj_property name="ElementShortName">[60]</obj_property>
+            <obj_property name="ObjectShortName">[60]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[61]">
+            <obj_property name="ElementShortName">[61]</obj_property>
+            <obj_property name="ObjectShortName">[61]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[62]">
+            <obj_property name="ElementShortName">[62]</obj_property>
+            <obj_property name="ObjectShortName">[62]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/testbnch_MEMSync/dut/tag_tbl[63]">
+            <obj_property name="ElementShortName">[63]</obj_property>
+            <obj_property name="ObjectShortName">[63]</obj_property>
+         </wvobject>
       </wvobject>
    </wvobject>
 </wave_config>

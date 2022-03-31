@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="testbnch_CMD_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="testbnch_CMD" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="2498fs"></ZoomStartTime>
+      <ZoomEndTime time="17491fs"></ZoomEndTime>
+      <Cursor1Time time="14992fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="243"></NameColumnWidth>
+      <ValueColumnWidth column_width="97"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="20" />
+   <wvobject type="array" fp_name="/testbnch_CMD/bg_o">
+      <obj_property name="ElementShortName">bg_o[1:0]</obj_property>
+      <obj_property name="ObjectShortName">bg_o[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_CMD/ba_o">
+      <obj_property name="ElementShortName">ba_o[1:0]</obj_property>
+      <obj_property name="ObjectShortName">ba_o[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_CMD/RowId">
+      <obj_property name="ElementShortName">RowId[3:0][3:0][16:0]</obj_property>
+      <obj_property name="ObjectShortName">RowId[3:0][3:0][16:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_CMD/ColId">
+      <obj_property name="ElementShortName">ColId[3:0][3:0][9:0]</obj_property>
+      <obj_property name="ObjectShortName">ColId[3:0][3:0][9:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_CMD/rd_o_wr">
+      <obj_property name="ElementShortName">rd_o_wr[3:0][3:0]</obj_property>
+      <obj_property name="ObjectShortName">rd_o_wr[3:0][3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_CMD/commands">
+      <obj_property name="ElementShortName">commands[18:0]</obj_property>
+      <obj_property name="ObjectShortName">commands[18:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider807" type="divider">
+      <obj_property name="label">dutCMD</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_CMD/dut/cke">
+      <obj_property name="ElementShortName">cke</obj_property>
+      <obj_property name="ObjectShortName">cke</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_CMD/dut/cs_n">
+      <obj_property name="ElementShortName">cs_n</obj_property>
+      <obj_property name="ObjectShortName">cs_n</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_CMD/dut/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbnch_CMD/dut/act_n">
+      <obj_property name="ElementShortName">act_n</obj_property>
+      <obj_property name="ObjectShortName">act_n</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_CMD/dut/bg">
+      <obj_property name="ElementShortName">bg[1:0]</obj_property>
+      <obj_property name="ObjectShortName">bg[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_CMD/dut/ba">
+      <obj_property name="ElementShortName">ba[1:0]</obj_property>
+      <obj_property name="ObjectShortName">ba[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_CMD/dut/A">
+      <obj_property name="ElementShortName">A[16:0]</obj_property>
+      <obj_property name="ObjectShortName">A[16:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_CMD/dut/RowId">
+      <obj_property name="ElementShortName">RowId[3:0][3:0][16:0]</obj_property>
+      <obj_property name="ObjectShortName">RowId[3:0][3:0][16:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_CMD/dut/ColId">
+      <obj_property name="ElementShortName">ColId[3:0][3:0][9:0]</obj_property>
+      <obj_property name="ObjectShortName">ColId[3:0][3:0][9:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <wvobject type="array" fp_name="/testbnch_CMD/dut/ColId[3]">
+         <obj_property name="ElementShortName">[3][3:0][9:0]</obj_property>
+         <obj_property name="ObjectShortName">[3][3:0][9:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/testbnch_CMD/dut/ColId[2]">
+         <obj_property name="ElementShortName">[2][3:0][9:0]</obj_property>
+         <obj_property name="ObjectShortName">[2][3:0][9:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/testbnch_CMD/dut/ColId[1]">
+         <obj_property name="ElementShortName">[1][3:0][9:0]</obj_property>
+         <obj_property name="ObjectShortName">[1][3:0][9:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/testbnch_CMD/dut/ColId[0]">
+         <obj_property name="ElementShortName">[0][3:0][9:0]</obj_property>
+         <obj_property name="ObjectShortName">[0][3:0][9:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_CMD/dut/rd_o_wr">
+      <obj_property name="ElementShortName">rd_o_wr[3:0][3:0]</obj_property>
+      <obj_property name="ObjectShortName">rd_o_wr[3:0][3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_CMD/dut/Burst">
+      <obj_property name="ElementShortName">Burst[3:0][3:0]</obj_property>
+      <obj_property name="ObjectShortName">Burst[3:0][3:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbnch_CMD/dut/commands">
+      <obj_property name="ElementShortName">commands[18:0]</obj_property>
+      <obj_property name="ObjectShortName">commands[18:0]</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group906">
+      <obj_property name="label">wires</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/A16">
+         <obj_property name="ElementShortName">A16</obj_property>
+         <obj_property name="ObjectShortName">A16</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/A15">
+         <obj_property name="ElementShortName">A15</obj_property>
+         <obj_property name="ObjectShortName">A15</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/A14">
+         <obj_property name="ElementShortName">A14</obj_property>
+         <obj_property name="ObjectShortName">A14</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/A10">
+         <obj_property name="ElementShortName">A10</obj_property>
+         <obj_property name="ObjectShortName">A10</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/ACT">
+         <obj_property name="ElementShortName">ACT</obj_property>
+         <obj_property name="ObjectShortName">ACT</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/BST">
+         <obj_property name="ElementShortName">BST</obj_property>
+         <obj_property name="ObjectShortName">BST</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/CFG">
+         <obj_property name="ElementShortName">CFG</obj_property>
+         <obj_property name="ObjectShortName">CFG</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/CKEH">
+         <obj_property name="ElementShortName">CKEH</obj_property>
+         <obj_property name="ObjectShortName">CKEH</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/CKEL">
+         <obj_property name="ElementShortName">CKEL</obj_property>
+         <obj_property name="ObjectShortName">CKEL</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/DPD">
+         <obj_property name="ElementShortName">DPD</obj_property>
+         <obj_property name="ObjectShortName">DPD</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/DPDX">
+         <obj_property name="ElementShortName">DPDX</obj_property>
+         <obj_property name="ObjectShortName">DPDX</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/MRR">
+         <obj_property name="ElementShortName">MRR</obj_property>
+         <obj_property name="ObjectShortName">MRR</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/MRW">
+         <obj_property name="ElementShortName">MRW</obj_property>
+         <obj_property name="ObjectShortName">MRW</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/PD">
+         <obj_property name="ElementShortName">PD</obj_property>
+         <obj_property name="ObjectShortName">PD</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/PDX">
+         <obj_property name="ElementShortName">PDX</obj_property>
+         <obj_property name="ObjectShortName">PDX</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/PR">
+         <obj_property name="ElementShortName">PR</obj_property>
+         <obj_property name="ObjectShortName">PR</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/PRA">
+         <obj_property name="ElementShortName">PRA</obj_property>
+         <obj_property name="ObjectShortName">PRA</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/RD">
+         <obj_property name="ElementShortName">RD</obj_property>
+         <obj_property name="ObjectShortName">RD</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/RDA">
+         <obj_property name="ElementShortName">RDA</obj_property>
+         <obj_property name="ObjectShortName">RDA</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/REF">
+         <obj_property name="ElementShortName">REF</obj_property>
+         <obj_property name="ObjectShortName">REF</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/SRF">
+         <obj_property name="ElementShortName">SRF</obj_property>
+         <obj_property name="ObjectShortName">SRF</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/WR">
+         <obj_property name="ElementShortName">WR</obj_property>
+         <obj_property name="ObjectShortName">WR</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/testbnch_CMD/dut/WRA">
+         <obj_property name="ElementShortName">WRA</obj_property>
+         <obj_property name="ObjectShortName">WRA</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>
