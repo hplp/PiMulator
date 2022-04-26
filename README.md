@@ -1,5 +1,4 @@
 # PiMulator: FPGA-based Processing-in-Memory Emulation Framework
-
 This framework enables emulation of existing and emerging memories on FPGA boards and modeling of PiM architectures. A soft core parameterizable and FPGA synthesizable memory prototype is provided. The memory model implements the memory components and accurately models their function and behavior. PiM kernels can be injected throughout the memory hierarchy.
 
 ## SystemVerilog Model
@@ -24,13 +23,16 @@ tested in Software.
 Reference Literature and also information on DDR3 / Command Timing
 
 ## Usage
-
 At this stage the files can be simulated in Vivado or ModelSim, synthesized (out of context). The development for integration into a full system is in progress.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
+
+## Publications
+* DATE 2022 paper 23.2.3
+    * [Presentation Video](https://youtu.be/rLoetLFsD2w)
 
 ## License
 Please see the license file
