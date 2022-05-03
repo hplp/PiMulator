@@ -37,6 +37,7 @@ Please make sure to update tests as appropriate.
 ## Publications
 * DATE 2022 paper 23.2.3
     * [Presentation Video](https://youtu.be/rLoetLFsD2w)
+    * [Full-text on ResearchGate](https://www.researchgate.net/publication/360226899_PiMulator_a_Fast_and_Flexible_Processing-in-Memory_Emulation_Platform)
 
 ## License
 Please see the license file
