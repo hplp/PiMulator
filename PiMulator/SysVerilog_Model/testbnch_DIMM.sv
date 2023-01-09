@@ -10,6 +10,7 @@ module testbnch_DIMM();
     parameter RANKS = 1;
     parameter CHIPS = 16;
     parameter BGWIDTH = 2;
+    parameter BANKGROUPS = 2**BGWIDTH;
     parameter BAWIDTH = 2;
     parameter ADDRWIDTH = 17;
     parameter COLWIDTH = 10;
@@ -18,7 +19,6 @@ module testbnch_DIMM();
     parameter CHWIDTH = 5; // Emulation Memory Cache Width
     
     localparam DQWIDTH = DEVICE_WIDTH*CHIPS; // 64 bits + 8 bits for ECC
-    localparam BANKGROUPS = 2**BGWIDTH;
     localparam BANKSPERGROUP = 2**BAWIDTH;
     localparam ROWS = 2**ADDRWIDTH;
     localparam COLS = 2**COLWIDTH;
@@ -42,13 +42,8 @@ module testbnch_DIMM();
     
     logic reset_n;
     logic ck2x;
-    `ifdef DDR4
-    logic ck_c;
-    logic ck_t;
-    `elsif DDR3
-    logic ck_n;
-    logic ck_p;
-    `endif
+    logic ck_cn;
+    logic ck_tp;
     logic cke;
     logic [RANKS-1:0]cs_n;
     `ifdef DDR4
@@ -61,22 +56,13 @@ module testbnch_DIMM();
     `endif
     logic [ADDRWIDTH-1:0]A;
     logic [BAWIDTH-1:0]ba;
-    `ifdef DDR4
-    logic [BGWIDTH-1:0]bg; // todo: explore adding one bit that is always ignored
-    `endif
+    logic [BGWIDTH-1:0]bg;
     wire [DQWIDTH-1:0]dq;
     logic [DQWIDTH-1:0]dq_reg;
-    `ifdef DDR4
-    wire [CHIPS-1:0]dqs_c;
-    logic [CHIPS-1:0]dqs_c_reg;
-    wire [CHIPS-1:0]dqs_t;
-    logic [CHIPS-1:0]dqs_t_reg;
-    `elsif DDR3
-    wire [CHIPS-1:0]dqs_n;
-    logic [CHIPS-1:0]dqs_n_reg;
-    wire [CHIPS-1:0]dqs_p;
-    logic [CHIPS-1:0]dqs_p_reg;
-    `endif
+    wire [CHIPS-1:0]dqs_cn;
+    logic [CHIPS-1:0]dqs_cn_reg;
+    wire [CHIPS-1:0]dqs_tp;
+    logic [CHIPS-1:0]dqs_tp_reg;
     logic odt;
     `ifdef DDR4
     logic parity;
@@ -87,12 +73,13 @@ module testbnch_DIMM();
     logic writing;
     
     assign dq = (writing) ? dq_reg:{DQWIDTH{1'bZ}};
-    assign dqs_c = (writing) ? dqs_c_reg:{CHIPS{1'bZ}};
-    assign dqs_t = (writing) ? dqs_t_reg:{CHIPS{1'bZ}};
+    assign dqs_cn = (writing) ? dqs_cn_reg:{CHIPS{1'bZ}};
+    assign dqs_tp = (writing) ? dqs_tp_reg:{CHIPS{1'bZ}};
     
     DIMM #(.RANKS(RANKS),
     .CHIPS(CHIPS),
     .BGWIDTH(BGWIDTH),
+    .BANKGROUPS(BANKGROUPS),
     .BAWIDTH(BAWIDTH),
     .ADDRWIDTH(ADDRWIDTH),
     .COLWIDTH(COLWIDTH),
@@ -102,13 +89,8 @@ module testbnch_DIMM();
     ) dut (
     .reset_n(reset_n),
     .ck2x(ck2x),
-    `ifdef DDR4
-    .ck_c(ck_c),
-    .ck_t(ck_t),
-    `elsif DDR3
-    .ck_n(ck_n),
-    .ck_p(ck_p),
-    `endif
+    .ck_cn(ck_cn),
+    .ck_tp(ck_tp),
     .cke(cke),
     .cs_n(cs_n),
     `ifdef DDR4
@@ -121,17 +103,10 @@ module testbnch_DIMM();
     `endif
     .A(A),
     .ba(ba),
-    `ifdef DDR4
     .bg(bg),
-    `endif
     .dq(dq),
-    `ifdef DDR4
-    .dqs_c(dqs_c),
-    .dqs_t(dqs_t),
-    `elsif DDR3
-    .dqs_n(dqs_n),
-    .dqs_p(dqs_p),
-    `endif
+    .dqs_cn(dqs_cn),
+    .dqs_tp(dqs_tp),
     .odt(odt),
     `ifdef DDR4
     .parity(parity),
@@ -139,8 +114,8 @@ module testbnch_DIMM();
     .sync(sync)
     );
     
-    always #(tCK) ck_t = ~ck_t;
-    always #(tCK) ck_c = ~ck_c;
+    always #(tCK) ck_tp = ~ck_tp;
+    always #(tCK) ck_cn = ~ck_cn;
     always #(tCK*0.5) ck2x = ~ck2x;
     
     integer i, j; // loop variable
@@ -149,8 +124,8 @@ module testbnch_DIMM();
     begin
         // initialize all inputs
         reset_n = 0; // DRAM is active only when this signal is HIGH
-        ck_t = 1;
-        ck_c = 0;
+        ck_tp = 1;
+        ck_cn = 0;
         ck2x = 1;
         cke = 1;
         cs_n = {RANKS{1'b1}}; // LOW makes rank active
@@ -159,8 +134,8 @@ module testbnch_DIMM();
         bg = 0;
         ba = 0;
         dq_reg = {DQWIDTH{1'b0}};
-        dqs_t_reg = {CHIPS{1'b0}};
-        dqs_c_reg = {CHIPS{1'b1}};
+        dqs_tp_reg = {CHIPS{1'b0}};
+        dqs_cn_reg = {CHIPS{1'b1}};
         odt = 0;
         parity = 0;
         writing = 0;
@@ -189,46 +164,41 @@ module testbnch_DIMM();
         // activating
         act_n = 0;
         A = 17'b00000000000000001;
-        bg = 1;
         ba = 1;
-        sync[1][1] = 1;
+        sync[0][1] = 1;
         #tCK;
         act_n = 1;
         A = 17'b00000000000000000;
-        bg = 0;
         ba = 0;
         #tCK;
-        assert (dut.TimingFSMi.BankFSM[1][1] == 5'h01) $display("OK: activating"); else $display(dut.TimingFSMi.BankFSM[1][1]);
+        assert (dut.TimingFSMi.BankFSM[0][1] == 5'h01) $display("OK: activating"); else $display(dut.TimingFSMi.BankFSM[0][1]);
         #(tCK*(T_RCD-1)); // tRCD
-        assert (dut.TimingFSMi.BankFSM[1][1] == 5'h03) $display("OK: bank active"); else $display(dut.TimingFSMi.BankFSM[1][1]);
+        assert (dut.TimingFSMi.BankFSM[0][1] == 5'h03) $display("OK: bank active"); else $display(dut.TimingFSMi.BankFSM[0][1]);
         #(tCK*(T_CL-1)); // tCL
-        assert (dut.TimingFSMi.BankFSM[1][1] == 5'h03) $display("OK: bank active"); else $display(dut.TimingFSMi.BankFSM[1][1]);
+        assert (dut.TimingFSMi.BankFSM[0][1] == 5'h03) $display("OK: bank active"); else $display(dut.TimingFSMi.BankFSM[0][1]);
         
         // write test
         for (i = 0; i < BL; i = i + 1)
         begin
             A = (i==0)? 17'b10000000000000010 : 17'b00000000000000000;
-            bg = (i==0)? 1:1;// todo: needs to change?
             ba = (i==0)? 1:1;// todo: needs to change?
             writing = 1;
             dq_reg = {$urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom };
-            dqs_t_reg = {CHIPS{1'b1}};
-            dqs_c_reg = {CHIPS{1'b0}};
+            dqs_tp_reg = {CHIPS{1'b1}};
+            dqs_cn_reg = {CHIPS{1'b0}};
             #tCK;
-            assert ((dut.TimingFSMi.BankFSM[1][1] == 5'h12) || (i==0)) $display("OK: writing"); else $display(dut.TimingFSMi.BankFSM[1][1]);
+            assert ((dut.TimingFSMi.BankFSM[0][1] == 5'h12) || (i==0)) $display("OK: writing"); else $display(dut.TimingFSMi.BankFSM[0][1]);
         end
         dq_reg = {DQWIDTH{1'b0}};
-        bg = 0;
         ba = 0;
         #(tCK*(T_ABA-BL));
-        assert ((dut.TimingFSMi.BankFSM[1][1] == 5'h12) || (i==0)) $display("OK: writing"); else $display(dut.TimingFSMi.BankFSM[1][1]);
+        assert ((dut.TimingFSMi.BankFSM[0][1] == 5'h12) || (i==0)) $display("OK: writing"); else $display(dut.TimingFSMi.BankFSM[0][1]);
         writing = 0;
         #(tCK*4); // no actions
         
         `ifdef RowClone
         #(tCK*5); // activating again for RowClone
         act_n = 0;
-        bg = 1;
         ba = 1;
         A = 17'b00000000000000100;
         #tCK;
@@ -242,31 +212,27 @@ module testbnch_DIMM();
         for (i = 0; i < BL; i = i + 1)
         begin
             A = (i==0)? 17'b10100000000000010 : 17'b00000000000000000;
-            bg = (i==0)? 1:1;// todo: needs to change?
             ba = (i==0)? 1:1;// todo: needs to change?
-            dqs_t_reg = {CHIPS{1'b0}};
-            dqs_c_reg = {CHIPS{1'b1}};
+            dqs_tp_reg = {CHIPS{1'b0}};
+            dqs_cn_reg = {CHIPS{1'b1}};
             #tCK;
-            assert ((dut.TimingFSMi.BankFSM[1][1] == 5'h0b) || (i==0)) $display("OK: reading"); else $display(dut.TimingFSMi.BankFSM[1][1]);
+            assert ((dut.TimingFSMi.BankFSM[0][1] == 5'h0b) || (i==0)) $display("OK: reading"); else $display(dut.TimingFSMi.BankFSM[0][1]);
         end
-        bg = 0;
         ba = 0;
         #(tCK*(T_ABAR-BL));
-        assert ((dut.TimingFSMi.BankFSM[1][1] == 5'h0b) || (i==0)) $display("OK: reading"); else $display(dut.TimingFSMi.BankFSM[1][1]);
+        assert ((dut.TimingFSMi.BankFSM[0][1] == 5'h0b) || (i==0)) $display("OK: reading"); else $display(dut.TimingFSMi.BankFSM[0][1]);
         #(tCK*4); // no actions
         
         // precharge and back to idle
-        bg = 1;
         ba = 1;
         A = 17'b01000000000000000;
         #tCK;
-        assert ((dut.TimingFSMi.BankFSM[1][1] == 5'h0a) || (i==0)) $display("OK: precharge"); else $display(dut.TimingFSMi.BankFSM[1][1]);
-        bg = 0;
+        assert ((dut.TimingFSMi.BankFSM[0][1] == 5'h0a) || (i==0)) $display("OK: precharge"); else $display(dut.TimingFSMi.BankFSM[0][1]);
         ba = 0;
         A = 17'b00000000000000000;
-        sync[1][1] = 0;
+        sync[0][1] = 0;
         #((T_RP-1)*tCK);
-        assert (dut.TimingFSMi.BankFSM[1][1] == 5'h00) $display("OK: idle"); else $display(dut.TimingFSMi.BankFSM[1][1]);
+        assert (dut.TimingFSMi.BankFSM[0][1] == 5'h00) $display("OK: idle"); else $display(dut.TimingFSMi.BankFSM[0][1]);
         #(2*tCK);
         $finish();
     end;

@@ -9,21 +9,21 @@
 // one place while still achieving the goal of slicing and hierarchically
 // placing the data.
 // * parameter `BGWIDTH` determines the number of Bank Groups, and
-//     `BGWIDTH=0` is equivalent to a single Bank Group
+//     `BGWIDTH=0` for single Bank Group is achieved with `BGWIDTH=1` and `BANKGROUPS=1`
 module Chip
     #(parameter BGWIDTH = 2,
+    parameter BANKGROUPS = 2**BGWIDTH, // set to 1 for DDR3 and prior gen
     parameter BAWIDTH = 2,
     parameter COLWIDTH = 10,
     parameter DEVICE_WIDTH = 4,
     parameter CHWIDTH = 5,
     
-    localparam BANKGROUPS = 2**BGWIDTH,
     localparam BANKSPERGROUP = 2**BAWIDTH,
     localparam COLS = 2**COLWIDTH
     )
     (
     input logic clk,
-    // SystemVerilog multi-dimentional arrays allows to easily scale the bundling
+    // SystemVerilog multi-dimensional arrays allows to easily scale the bundling
     // of inputs. For example, the data of bank 2 and bank group 3 can be read
     // out as dqout[3][2] and setting the row and column value will give the
     // relevant word

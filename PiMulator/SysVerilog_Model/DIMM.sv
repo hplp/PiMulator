@@ -8,11 +8,8 @@ module DIMM // top MEMulator module with DIMM interface
   #(parameter PROTOCOL = "DDR4",
   parameter RANKS = 1, // number of Ranks
   parameter CHIPS = 16, // number of Chips per Rank
-  `ifdef DDR4
-  parameter BGWIDTH = 2, // width of Bank Groups
-  `else
-  localparam BGWIDTH = 0,
-  `endif
+  parameter BGWIDTH = 2, // width of Bank Groups, set to 1 for DDR3 and prior gen
+  parameter BANKGROUPS = 2**BGWIDTH, // number of Bank Groups, set to 1 for DDR3 and prior gen
   parameter BAWIDTH = 2, // width of Banks per Bank Group
   parameter ADDRWIDTH = 17, // address width for number of rows in array
   parameter COLWIDTH = 10, // address width for number of columns in array
@@ -32,7 +29,6 @@ module DIMM // top MEMulator module with DIMM interface
   parameter AXI_ID_WIDTH = 8,
   
   localparam DQWIDTH = DEVICE_WIDTH*CHIPS, // data width, ECC pins are also accounted as data
-  localparam BANKGROUPS = 2**BGWIDTH, // number of Bank Groups
   localparam BANKSPERGROUP = 2**BAWIDTH, // number of Banks per Bank Group
   localparam ROWS = 2**ADDRWIDTH, // number of Rows in array
   localparam COLS = 2**COLWIDTH // number of Columns in array
@@ -53,76 +49,64 @@ module DIMM // top MEMulator module with DIMM interface
   input logic cas_n,
   input logic we_n,
   `endif
-  `ifdef DDR4
   input logic [BGWIDTH-1:0] bg, // bankgroup address, BG0-BG1 in x4/8 and BG0 in x16
-  `endif
   input logic [BAWIDTH-1:0] ba, // bank address
   input logic ck2x, // clock 2x the frequency of ck_t, ck_c, ck_p, ck_n to drive at Dual Data Rate
-  `ifdef DDR4
-  input logic ck_c, // Differential clock input complement All address & control signals are sampled at the crossing of negedge of ck_c
-  input logic ck_t, // Differential clock input true       All address & control signals are sampled at the crossing of posedge of ck_t
-  `elsif DDR3
-  input logic ck_n, // Differential clock input; All address & control signals are sampled at the crossing of negedge of ck_n
-  input logic ck_p, // Differential clock input; All address & control signals are sampled at the crossing of posedge of ck_p
-  `endif
+  input logic ck_cn, // Differential clock input complement All address & control signals are sampled at the crossing of negedge of ck_cn
+  input logic ck_tp, // Differential clock input true       All address & control signals are sampled at the crossing of posedge of ck_tp
   input logic cke, // Clock Enable; HIGH activates internal clock signals and device input buffers and output drivers
   input logic [RANKS-1:0] cs_n, // Chip select; The memory looks at all the other inputs only if this is LOW todo: scale to more ranks
   inout logic [DQWIDTH-1:0] dq, // Data Bus; This is how data is written in and read out
-  `ifdef DDR4
-  inout logic [CHIPS-1:0] dqs_c, // Data Strobe complement, essentially a data valid flag
-  inout logic [CHIPS-1:0] dqs_t, // Data Strobe true,       essentially a data valid flag
-  `elsif DDR3
-  inout logic [CHIPS-1:0] dqs_n, // Data Strobe n, essentially a data valid flag
-  inout logic [CHIPS-1:0] dqs_p, // Data Strobe p, essentially a data valid flag
-  `endif
+  inout logic [CHIPS-1:0] dqs_cn, // Data Strobe complement (n), essentially a data valid flag
+  inout logic [CHIPS-1:0] dqs_tp, // Data Strobe true (p),       essentially a data valid flag
   input logic odt, // todo: on-die termination is possibly irrelevant for FPGA model
   `ifdef DDR4
   input logic parity, // Command and Address parity; todo: parity is possibly of little use for FPGA model
   `endif
   input logic reset_n, // DRAM is active only when this signal is HIGH
   
-  output logic stall, // signal to stall system while MEMSync in Allocate or WriteBack state
+  output logic stall//, // signal to stall system while MEMSync in Allocate or WriteBack state
   
-  // AXI Port to Synchronize Emulation Memory Cache with Board Memory
-  input logic sync [BANKGROUPS-1:0][BANKSPERGROUP-1:0],
-  /*
-  * AXI master interface
-  */
-  output logic [AXI_ID_WIDTH-1:0]    m_axi_awid,
-  output logic [AXI_ADDR_WIDTH-1:0]  m_axi_awaddr,
-  output logic [7:0]                 m_axi_awlen,
-  output logic [2:0]                 m_axi_awsize,
-  output logic [1:0]                 m_axi_awburst,
-  output logic                       m_axi_awlock,
-  output logic [3:0]                 m_axi_awcache,
-  output logic [2:0]                 m_axi_awprot,
-  output logic                       m_axi_awvalid,
-  input  logic                       m_axi_awready,
-  output logic [AXI_DATA_WIDTH-1:0]  m_axi_wdata,
-  output logic [AXI_STRB_WIDTH-1:0]  m_axi_wstrb,
-  output logic                       m_axi_wlast,
-  output logic                       m_axi_wvalid,
-  input  logic                       m_axi_wready,
-  input  logic [AXI_ID_WIDTH-1:0]    m_axi_bid,
-  input  logic [1:0]                 m_axi_bresp,
-  input  logic                       m_axi_bvalid,
-  output logic                       m_axi_bready,
-  output logic [AXI_ID_WIDTH-1:0]    m_axi_arid,
-  output logic [AXI_ADDR_WIDTH-1:0]  m_axi_araddr,
-  output logic [7:0]                 m_axi_arlen,
-  output logic [2:0]                 m_axi_arsize,
-  output logic [1:0]                 m_axi_arburst,
-  output logic                       m_axi_arlock,
-  output logic [3:0]                 m_axi_arcache,
-  output logic [2:0]                 m_axi_arprot,
-  output logic                       m_axi_arvalid,
-  input  logic                       m_axi_arready,
-  input  logic [AXI_ID_WIDTH-1:0]    m_axi_rid,
-  input  logic [AXI_DATA_WIDTH-1:0]  m_axi_rdata,
-  input  logic [1:0]                 m_axi_rresp,
-  input  logic                       m_axi_rlast,
-  input  logic                       m_axi_rvalid,
-  output logic                       m_axi_rready
+//  // AXI Port to Synchronize Emulation Memory Cache with Board Memory
+//  input logic sync [BANKGROUPS-1:0][BANKSPERGROUP-1:0],
+//  /*
+//  * AXI master interface
+//  */
+//  output logic [AXI_ID_WIDTH-1:0]    m_axi_awid,
+//  output logic [AXI_ADDR_WIDTH-1:0]  m_axi_awaddr,
+//  output logic [7:0]                 m_axi_awlen,
+//  output logic [2:0]                 m_axi_awsize,
+//  output logic [1:0]                 m_axi_awburst,
+//  output logic                       m_axi_awlock,
+//  output logic [3:0]                 m_axi_awcache,
+//  output logic [2:0]                 m_axi_awprot,
+//  output logic                       m_axi_awvalid,
+//  input  logic                       m_axi_awready,
+//  output logic [AXI_DATA_WIDTH-1:0]  m_axi_wdata,
+//  output logic [AXI_STRB_WIDTH-1:0]  m_axi_wstrb,
+//  output logic                       m_axi_wlast,
+//  output logic                       m_axi_wvalid,
+//  input  logic                       m_axi_wready,
+//  input  logic [AXI_ID_WIDTH-1:0]    m_axi_bid,
+//  input  logic [1:0]                 m_axi_bresp,
+//  input  logic                       m_axi_bvalid,
+//  output logic                       m_axi_bready,
+//  output logic [AXI_ID_WIDTH-1:0]    m_axi_arid,
+//  output logic [AXI_ADDR_WIDTH-1:0]  m_axi_araddr,
+//  output logic [7:0]                 m_axi_arlen,
+//  output logic [2:0]                 m_axi_arsize,
+//  output logic [1:0]                 m_axi_arburst,
+//  output logic                       m_axi_arlock,
+//  output logic [3:0]                 m_axi_arcache,
+//  output logic [2:0]                 m_axi_arprot,
+//  output logic                       m_axi_arvalid,
+//  input  logic                       m_axi_arready,
+//  input  logic [AXI_ID_WIDTH-1:0]    m_axi_rid,
+//  input  logic [AXI_DATA_WIDTH-1:0]  m_axi_rdata,
+//  input  logic [1:0]                 m_axi_rresp,
+//  input  logic                       m_axi_rlast,
+//  input  logic                       m_axi_rvalid,
+//  output logic                       m_axi_rready
   );
   
   genvar ri, ci, bgi, bi; // rank, chip, bank group and bank identifiers
@@ -145,6 +129,7 @@ module DIMM // top MEMulator module with DIMM interface
   .ADDRWIDTH(ADDRWIDTH),
   .COLWIDTH(COLWIDTH),
   .BGWIDTH(BGWIDTH),
+  .BANKGROUPS(BANKGROUPS),
   .BAWIDTH(BAWIDTH),
   .BL(BL)
   ) CMDi (
@@ -165,13 +150,12 @@ module DIMM // top MEMulator module with DIMM interface
   // Bank Timing FSMs accounts for the state of each bank and the latencies
   logic [4:0] BankFSM [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
   TimingFSM #(.BGWIDTH(BGWIDTH),
+  .BANKGROUPS(BANKGROUPS),
   .BAWIDTH(BAWIDTH))
   TimingFSMi(
   .clk(clk),
   .reset_n(reset_n),
-  `ifdef DDR4
   .bg(bg),
-  `endif
   .ba(ba),
   .commands(commands),
   .BankFSM(BankFSM)
@@ -179,7 +163,9 @@ module DIMM // top MEMulator module with DIMM interface
   
   // Memory Emulation Model Data Sync engines (todo: also model row subarray belonging)
   logic [CHWIDTH-1:0] cRowId [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
+  logic sync [BANKGROUPS-1:0][BANKSPERGROUP-1:0]; // TODO: this has to be an input from AXI-2-BoardMemory
   MEMSyncTop #(.BGWIDTH(BGWIDTH),
+  .BANKGROUPS(BANKGROUPS),
   .BAWIDTH(BAWIDTH),
   .CHWIDTH(CHWIDTH),
   .ADDRWIDTH(ADDRWIDTH))
@@ -193,13 +179,13 @@ module DIMM // top MEMulator module with DIMM interface
   .stall(stall)
   );
   
-  // dq, dqs_t and dqs_c tristate split as inputs or outputs
+  // dq, dqs_tp and dqs_cn tristate split as inputs or outputs
   logic [DQWIDTH-1:0] dqi;
   logic [DQWIDTH-1:0] dqo;
-  logic [CHIPS-1:0] dqs_ci;
-  logic [CHIPS-1:0] dqs_co;
-  logic [CHIPS-1:0] dqs_ti;
-  logic [CHIPS-1:0] dqs_to;
+  logic [CHIPS-1:0] dqs_cni;
+  logic [CHIPS-1:0] dqs_cno;
+  logic [CHIPS-1:0] dqs_tpi;
+  logic [CHIPS-1:0] dqs_tpo;
   logic RDEN;
   logic [BANKGROUPS-1:0][BANKSPERGROUP-1:0] RDENs;
   generate
@@ -214,8 +200,8 @@ module DIMM // top MEMulator module with DIMM interface
   assign RDEN = |RDENs;
   
   tristate #(.W(DQWIDTH)) dqtr (.dqi(dqo),.dqo(dqi),.dq(dq),.enable(RDEN)); // todo: enable must come from FSM
-  tristate #(.W(CHIPS)) dqsctr (.dqi(dqs_co),.dqo(dqs_ci),.dq(dqs_c),.enable(commands[5] || commands[4]));
-  tristate #(.W(CHIPS)) dqsttr (.dqi(dqs_to),.dqo(dqs_ti),.dq(dqs_t),.enable(commands[5] || commands[4]));
+  tristate #(.W(CHIPS)) dqsctr (.dqi(dqs_cno),.dqo(dqs_cni),.dq(dqs_cn),.enable(commands[5] || commands[4]));
+  tristate #(.W(CHIPS)) dqsttr (.dqi(dqs_tpo),.dqo(dqs_tpi),.dq(dqs_tp),.enable(commands[5] || commands[4]));
   
   // dqi is demultiplexed into chipdqi while chipdqo is multiplexed into dqo
   logic [DEVICE_WIDTH-1:0] chipdqi [CHIPS-1:0][BANKGROUPS-1:0][BANKSPERGROUP-1:0];
@@ -241,6 +227,7 @@ module DIMM // top MEMulator module with DIMM interface
       for (ci = 0; ci < CHIPS ; ci=ci+1)
       begin:C
         Chip #(.BGWIDTH(BGWIDTH),
+        .BANKGROUPS(BANKGROUPS),
         .BAWIDTH(BAWIDTH),
         .COLWIDTH(COLWIDTH),
         .DEVICE_WIDTH(DEVICE_WIDTH),

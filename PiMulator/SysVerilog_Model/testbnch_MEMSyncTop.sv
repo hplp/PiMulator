@@ -1,17 +1,14 @@
 `timescale 1ns / 1ps
 
-`define DDR4
-// `define DDR3
-
 module testbnch_MEMSyncTop(
     );
     
     parameter BGWIDTH = 2;
+    parameter BANKGROUPS = 2**BGWIDTH;
     parameter BAWIDTH = 2;
     parameter CHWIDTH = 6;
     parameter ADDRWIDTH = 17;
     
-    localparam BANKGROUPS = 2**BGWIDTH;
     localparam BANKSPERGROUP = 2**BAWIDTH;
     localparam CHROWS = 2**CHWIDTH;
     localparam ROWS = 2**ADDRWIDTH;
@@ -22,9 +19,7 @@ module testbnch_MEMSyncTop(
     logic reset_n;
     
     logic [BAWIDTH-1:0]ba; // bank address
-    `ifdef DDR4
     logic [BGWIDTH-1:0]bg; // bankgroup address, BG0-BG1 in x4/8 and BG0 in x16
-    `endif
     logic [ADDRWIDTH-1:0] RowId [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
     logic [4:0] BankFSM [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
     logic sync [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
@@ -33,6 +28,7 @@ module testbnch_MEMSyncTop(
     
     MEMSyncTop #(
     .BGWIDTH(BGWIDTH),
+    .BANKGROUPS(BANKGROUPS),
     .BAWIDTH(BAWIDTH),
     .CHWIDTH(CHWIDTH),
     .ADDRWIDTH(ADDRWIDTH)
@@ -59,7 +55,7 @@ module testbnch_MEMSyncTop(
         bg = 0; // bank group 0
         ba = 0; // bank 0 MEMSync will be tested
         for (bgi=0; bgi<BANKGROUPS; bgi=bgi+1) begin
-            for (bi=0; bi<BANKGROUPS; bi=bi+1) begin
+            for (bi=0; bi<BANKSPERGROUP; bi=bi+1) begin
                 sync[bgi][bi] = 0;
                 BankFSM[bgi][bi] = 0;
                 RowId[bgi][bi]=0;
@@ -72,7 +68,7 @@ module testbnch_MEMSyncTop(
         #tCK
         
         // write then read to/from each MEMSync
-        for (bgi=0; bgi<BANKSPERGROUP; bgi=bgi+1) begin
+        for (bgi=0; bgi<BANKGROUPS; bgi=bgi+1) begin
             for (bi=0; bi<BANKSPERGROUP; bi=bi+1) begin
                 
                 BankFSM[bgi][bi] = 5'b10010; // write

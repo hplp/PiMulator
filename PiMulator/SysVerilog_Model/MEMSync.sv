@@ -127,10 +127,10 @@ tag_table_type tag_tbl [CHROWS];
     if (rst) begin
         // reset tag table values
         for (int i = 0; i < CHROWS; i++) begin
-            tag_tbl[i].valid=0;
-            tag_tbl[i].dirty=0;
-            tag_tbl[i].tag=i;
-            tag_tbl[i].rowaddr='0;
+            tag_tbl[i].valid <= 0;
+            tag_tbl[i].dirty <= 0;
+            tag_tbl[i].tag <= CHWIDTH'(i);
+            tag_tbl[i].rowaddr <= '0;
         end
       cRowId[CHWIDTH-1:0] <= 0;
       dirty <= 0;

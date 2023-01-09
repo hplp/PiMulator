@@ -1,22 +1,17 @@
 `timescale 1ns / 1ps
 
-`define DDR4
-// `define DDR3
-
 // This module instantiates a memtiming (state and timing) module for each Bank
 module TimingFSM
     #(parameter BL = 8,
     parameter BGWIDTH = 2,
+    parameter BANKGROUPS = 2**BGWIDTH,
     parameter BAWIDTH = 2,
-    localparam BANKGROUPS = 2**BGWIDTH,
     localparam BANKSPERGROUP = 2**BAWIDTH
     )
     (
     input logic clk,
     input logic reset_n,
-    `ifdef DDR4
     input logic [BGWIDTH-1:0]bg, // bankgroup address, BG0-BG1 in x4/8 and BG0 in x16
-    `endif
     input logic [BAWIDTH-1:0]ba, // bank address
     input logic [18:0] commands,
     output logic [4:0] BankFSM [BANKGROUPS-1:0][BANKSPERGROUP-1:0]

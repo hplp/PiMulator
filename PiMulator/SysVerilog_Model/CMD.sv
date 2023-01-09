@@ -11,10 +11,10 @@ module CMD
     #(parameter ADDRWIDTH = 17,
     parameter COLWIDTH = 10,
     parameter BGWIDTH = 2,
+    parameter BANKGROUPS = 2**BGWIDTH,
     parameter BAWIDTH = 2,
     parameter BL = 8, // Burst Length
     
-    localparam BANKGROUPS = 2**BGWIDTH,
     localparam BANKSPERGROUP = 2**BAWIDTH
     )
     (
@@ -29,9 +29,7 @@ module CMD
     input logic cas_n,
     input logic we_n,
     `endif
-    `ifdef DDR4
     input logic [BGWIDTH-1:0] bg,
-    `endif
     input logic [BAWIDTH-1:0] ba,
     input logic [ADDRWIDTH-1:0] A,
     output logic [ADDRWIDTH-1:0] RowId [BANKGROUPS-1:0][BANKSPERGROUP-1:0],
@@ -102,7 +100,7 @@ module CMD
         end
         else begin
             for (int i = 0; i < BANKGROUPS; i++) begin
-                for (int j = 0; j < BANKGROUPS; j++) begin
+                for (int j = 0; j < BANKSPERGROUP; j++) begin
                     if(Burst[i][j]) ColId[i][j] <= ColId[i][j] + 1;
                 end
             end

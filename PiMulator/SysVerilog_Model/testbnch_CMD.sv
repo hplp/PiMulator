@@ -10,10 +10,10 @@ module testbnch_CMD(
     parameter ADDRWIDTH = 17;
     parameter COLWIDTH = 10;
     parameter BGWIDTH = 2;
+    parameter BANKGROUPS = 2**BGWIDTH;
     parameter BAWIDTH = 2;
     parameter BL = 8; // Burst Length
     
-    localparam BANKGROUPS = 2**BGWIDTH;
     localparam BANKSPERGROUP = 2**BAWIDTH;
     
     // time for a clk cycle
@@ -31,9 +31,7 @@ module testbnch_CMD(
     logic cas_n;
     logic we_n;
     `endif
-    `ifdef DDR4
     logic [BGWIDTH-1:0] bg;
-    `endif
     logic [BAWIDTH-1:0] ba;
     logic [ADDRWIDTH-1:0] A;
     wire [ADDRWIDTH-1:0] RowId [BANKGROUPS-1:0][BANKSPERGROUP-1:0];
@@ -47,6 +45,7 @@ module testbnch_CMD(
     CMD #(.ADDRWIDTH(ADDRWIDTH),
     .COLWIDTH(COLWIDTH),
     .BGWIDTH(BGWIDTH),
+    .BANKGROUPS(BANKGROUPS),
     .BAWIDTH(BAWIDTH), .BL(BL)) dut (
     .cke(cke), .cs_n(cs_n), .clk(clk), .act_n(act_n),
     `ifdef DDR3
@@ -54,9 +53,7 @@ module testbnch_CMD(
     .cas_n(cas_n),
     .we_n(we_n),
     `endif
-    `ifdef DDR4
     .bg(bg),
-    `endif
     .ba(ba), .A(A),
     .RowId(RowId), .ColId(ColId), .rd_o_wr(rd_o_wr), .commands(commands)
     );
@@ -79,7 +76,6 @@ module testbnch_CMD(
         // activating
         act_n = 0;
         A = 17'b00000000000000001;
-        bg = 1;
         ba = 1;
         #tCK;
         assert (dut.ACT == 1) $display("OK: ACT"); else $display(dut.ACT);
@@ -87,7 +83,6 @@ module testbnch_CMD(
         
         act_n = 1;
         A = 17'b00000000000000000;
-        bg = 0;
         ba = 0;
         #tCK;
         
@@ -95,13 +90,12 @@ module testbnch_CMD(
         for (i = 0; i < BL; i = i + 1)
         begin
             A = (i==0)? 17'b10000000000001000 : 17'b00000000000000000;
-            bg = (i==0)? 1:0;
             ba = (i==0)? 1:0;
             #tCK;
             assert ((dut.WR == 1) || (i!=0)) $display("OK: writing"); else $display(dut.WR);
-            assert (dut.ColId[1][1] == 8+i) $display("OK: ColId[1][1] value"); else $display(dut.ColId[1][1]);
-            assert (dut.Burst[1][1] == 1) $display("OK: Burst[1][1] value"); else $display(dut.Burst[1][1]);
-            assert (dut.rd_o_wr[1][1] == 1) $display("OK: rd_o_wr[1][1] value"); else $display(dut.rd_o_wr[1][1]);
+            assert (dut.ColId[0][1] == 8+i) $display("OK: ColId[0][1] value"); else $display(dut.ColId[0][1]);
+            assert (dut.Burst[0][1] == 1) $display("OK: Burst[0][1] value"); else $display(dut.Burst[0][1]);
+            assert (dut.rd_o_wr[0][1] == 1) $display("OK: rd_o_wr[0][1] value"); else $display(dut.rd_o_wr[0][1]);
         end
         #tCK;
         
@@ -109,28 +103,25 @@ module testbnch_CMD(
         for (i = 0; i < BL; i = i + 1)
         begin
             A = (i==0)? 17'b10100000000001000 : 17'b00000000000000000;
-            bg = (i==0)? 1:0;
             ba = (i==0)? 1:0;
             #tCK;
             assert ((dut.RD == 1) || (i!=0)) $display("OK: reading"); else $display(dut.RD);
-            assert (dut.ColId[1][1] == 8+i) $display("OK: ColId[1][1] value"); else $display(dut.ColId[1][1]);
-            assert (dut.Burst[1][1] == 1) $display("OK: Burst[1][1] value"); else $display(dut.Burst[1][1]);
-            assert (dut.rd_o_wr[1][1] == 0) $display("OK: rd_o_wr[1][1] value"); else $display(dut.rd_o_wr[1][1]);
+            assert (dut.ColId[0][1] == 8+i) $display("OK: ColId[0][1] value"); else $display(dut.ColId[0][1]);
+            assert (dut.Burst[0][1] == 1) $display("OK: Burst[0][1] value"); else $display(dut.Burst[0][1]);
+            assert (dut.rd_o_wr[0][1] == 0) $display("OK: rd_o_wr[0][1] value"); else $display(dut.rd_o_wr[0][1]);
         end
         #tCK;
         
         // precharge
         A = 17'b01000000000000000;
-        bg = 1;
         ba = 1;
         #tCK;
         assert ((dut.PR == 1) || (i!=0)) $display("OK: precharge"); else $display(dut.PR);
-        assert (dut.Burst[1][1] == 0) $display("OK: Burst[1][1] value"); else $display(dut.Burst[1][1]);
-        assert (dut.rd_o_wr[1][1] == 0) $display("OK: rd_o_wr[1][1] value"); else $display(dut.rd_o_wr[1][1]);
+        assert (dut.Burst[0][1] == 0) $display("OK: Burst[0][1] value"); else $display(dut.Burst[0][1]);
+        assert (dut.rd_o_wr[0][1] == 0) $display("OK: rd_o_wr[0][1] value"); else $display(dut.rd_o_wr[0][1]);
         
         // end
         A = 17'b00000000000000000;
-        bg = 0;
         ba = 0;
         #tCK;
         $finish();
