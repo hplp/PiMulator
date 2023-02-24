@@ -50,13 +50,13 @@ module CMD
     assign A16 = A[ADDRWIDTH-1]; // RAS_n
     assign A15 = A[ADDRWIDTH-2]; // CAS_n
     assign A14 = A[ADDRWIDTH-3]; // WE_n
-    assign A10 = A[ADDRWIDTH-4]; // AP
+    assign A10 = A[ADDRWIDTH-7];  // for W/R with Auto Precharge
     
     logic ACT, BST, CFG, CKEH, CKEL, DPD, DPDX, MRR, MRW, PD, PDX, PR, PRA, RD, RDA, REF, SRF, WR, WRA;
     
     // implement ddr command decoding logic using truth table // todo: implement all commands not just a few
     assign ACT  = (!cs_n && !act_n); // entire A is the Row Address at this time
-    assign BST  = 0; //(act_n && A[ADDRWIDTH-2]); // todo:
+    assign BST  = 0; // RD||RDA||WR||WRA (//todo)
     assign CFG  = 0;
     assign CKEH = 0; //cke;
     assign CKEL = 0; //!cke;
@@ -83,7 +83,7 @@ module CMD
     always@(posedge clk)
     begin
         if(ACT) begin // store the active row
-            RowId[bg][ba] <= A;
+            RowId[bg][ba] <= A;  // rowID
         end
     end
     
@@ -102,8 +102,8 @@ module CMD
         end
         else begin
             for (int i = 0; i < BANKGROUPS; i++) begin
-                for (int j = 0; j < BANKGROUPS; j++) begin
-                    if(Burst[i][j]) ColId[i][j] <= ColId[i][j] + 1;
+                for (int j = 0; j < BANKSPERGROUP; j++) begin   
+                    if(Burst[i][j]) ColId[i][j] <= ColId[i][j] + 1;  // column increment happens only for the bg.ba whose burst is active
                 end
             end
         end

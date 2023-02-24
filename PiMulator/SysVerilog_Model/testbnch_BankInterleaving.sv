@@ -7,7 +7,7 @@ module testbnch_BankInterleaving(
 );
 
     parameter RANKS = 1;
-    parameter CHIPS = 18;
+    parameter CHIPS = 8;
     parameter BGWIDTH = 2;
     parameter BAWIDTH = 2;
     parameter ADDRWIDTH = 17;
@@ -26,7 +26,15 @@ module testbnch_BankInterleaving(
     localparam DIMMSIZE = (CHIPSIZE*CHIPS)/(1024*8); // GB
 
     localparam tCK = 0.75;
-
+    localparam T_CL   = 17; //CAS is the Column-Address-Strobe, i.e., when the column address is presented on the lines. CL is the delay, in clock cycles, between the internal READ command and the availability of the first bit of output data.
+    localparam T_RCD  = 17; //Row to Column command delay, time interval between row access and data ready at sense amplifier
+    localparam T_ABA  = 24; // 
+    localparam T_RRDs = 4; //row to row delay in same bank group
+    localparam T_RRDl = 6; // row to row delay in banks of different groups
+    localparam T_ABAR = 24;
+    localparam T_RP   = 17; //Row precharge, time to precharge DRAM to access another row
+    localparam T_RFC  = 34; //Refresh cycle time, time b/w refresh and activation command
+    
     logic reset_n;
     logic ck2x;
        `ifdef DDR4
@@ -47,17 +55,17 @@ module testbnch_BankInterleaving(
        reg we_n;
        `endif
        logic [ADDRWIDTH-1:0]A;
-    logic [BAWIDTH-1:0]ba;
+       logic [BAWIDTH-1:0]ba;
        `ifdef DDR4
        logic [BGWIDTH-1:0]bg;
        `endif
        wire [DQWIDTH-1:0]dq;
-    logic [DQWIDTH-1:0]dq_reg;
+       logic [DQWIDTH-1:0]dq_reg;
        `ifdef DDR4
        wire [CHIPS-1:0]dqs_c;
-    logic [CHIPS-1:0]dqs_c_reg;
-    wire [CHIPS-1:0]dqs_t;
-    logic [CHIPS-1:0]dqs_t_reg;
+       logic [CHIPS-1:0]dqs_c_reg;
+       wire [CHIPS-1:0]dqs_t;
+       logic [CHIPS-1:0]dqs_t_reg;
        `elsif DDR3
        wire [CHIPS-1:0]dqs_n;
        reg [CHIPS-1:0]dqs_n_reg;
@@ -158,58 +166,194 @@ module testbnch_BankInterleaving(
                         sync[i][j] = 0;
                     end
             end
+        #(tCK*0.99) // use a propagation delay because of (suspected) bug in Vivado Simulator
         #tCK;
 
         // reset high
-        reset_n = 1;
-        cs_n = 1'b0;
+        reset_n = 1;  //reset release 
+        cs_n = 1'b0;  //chip select for the Rank 0
         #(tCK*5);
 
-        // activating
-        act_n = 0;
-        A = 17'b00000000000000001;
-        bg = 0;
-        ba = 0;
-        #tCK;
-        ba = 1;
-        #tCK;
-        ba = 2;
-        #tCK;
-        ba = 3;
-        #tCK;
-        bg = 1;
-        ba = 0;
-        #tCK;
-        ba = 1;
-        #tCK;
-        ba = 2;
-        #tCK;
-        ba = 3;
-        #tCK;
-        bg = 2;
-        ba = 0;
-        #tCK;
-        ba = 1;
-        #tCK;
-        ba = 2;
-        #tCK;
-        ba = 3;
-        #tCK;
-        bg = 3;
-        ba = 0;
-        #tCK;
-        ba = 1;
-        #tCK;
-        ba = 2;
-        #tCK;
-        ba = 3;
+        for (i = 0; i < BANKGROUPS; i = i + 1)
+        begin
+            for (j = 0; j < BANKSPERGROUP; j = j + 1)
+            begin
+                assert (dut.TimingFSMi.BankFSM[i][j] == 5'h00) $display("OK: StateTimingIdle"); else $display(dut.TimingFSMi.BankFSM[i][j]);
+            end
+        end
         #tCK;
 
-        act_n = 1;
+
+            act_n = 0;  /// Act = cs_n = 0, act_n = 0, A16:0 = row_addr
+            A = 17'b00000000000000001;
+            bg = 0;
+            ba = 0;
+            sync[0][0] = 1;
+            #(tCK*4); //t_RRD_s
+            bg = 0;
+            ba = 1;
+            sync[0][1] = 1;
+            #(tCK*4);
+            bg = 0;
+            ba = 2;
+            sync[0][2] = 1;
+            #(tCK*4);
+            bg = 0;
+            ba = 3;
+            sync[0][3] = 1;
+            #tCK;
+            act_n = 1;  // the command should now be DES ( deselect)
+            
+            //#(tCK*(T_RCD-1+T_CL-1)); ( wait till the bank is active)
+            //write sequence
+        
+        //from testbnch_DIMM
         A = 17'b00000000000000000;
         bg = 0;
         ba = 0;
+        #tCK;
+        assert (dut.TimingFSMi.BankFSM[0][0] == 5'h01) $display("OK: activating"); else $display(dut.TimingFSMi.BankFSM[0][0]);
+        #(tCK*(T_RCD-1)); // tRCD
+        assert (dut.TimingFSMi.BankFSM[0][0] == 5'h03) $display("OK: bank active"); else $display(dut.TimingFSMi.BankFSM[0][0]);
+        #(tCK*(T_CL-1)); // tCL
+        assert (dut.TimingFSMi.BankFSM[0][0] == 5'h03) $display("OK: bank active"); else $display(dut.TimingFSMi.BankFSM[0][0]);            
+         
+        //writing
+        #tCK;
+        for (i = 0; i < BL; i = i + 1)
+        begin
+            A = (i==0)? 17'b10000000000000001 : 17'b00000000000000000;
+            bg = (i==0)? 0:0;// todo: needs to change?
+            ba = (i==0)? 0:0;// todo: needs to change?
+            writing = 1;
+            dq_reg = {$urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom };
+            dqs_t_reg = {CHIPS{1'b0}};
+            dqs_c_reg = {CHIPS{1'b1}};
+            #tCK;
+            assert ((dut.TimingFSMi.BankFSM[0][0] == 5'h012) || (i==0)) $display("OK: writing", $time, " dq= h%x ", dq); else $display(dut.TimingFSMi.BankFSM[0][0]);
+        end
+        writing = 0;   
+        //#tCK;
+        for (i = 0; i < BL; i = i + 1)
+        begin
+            A = (i==0)? 17'b10000000000000001 : 17'b00000000000000000;
+            bg = (i==0)? 0:0;// todo: needs to change?
+            ba = (i==0)? 1:1;// todo: needs to change?
+            writing = 1;
+            dq_reg = {$urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom };
+            dqs_t_reg = {CHIPS{1'b0}};
+            dqs_c_reg = {CHIPS{1'b1}};
+            #tCK;
+            assert ((dut.TimingFSMi.BankFSM[0][1] == 5'h012) || (i==0)) $display("OK: writing", $time, " dq= h%x ", dq); else $display(dut.TimingFSMi.BankFSM[0][0]);
+        end
+        writing =0;        
+        //#tCK;
+        for (i = 0; i < BL; i = i + 1)
+        begin
+            A = (i==0)? 17'b10000000000000001 : 17'b00000000000000000;
+            bg = (i==0)? 0:0;// todo: needs to change?
+            ba = (i==0)? 2:2;// todo: needs to change?
+            writing = 1;
+            dq_reg = {$urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom };
+            dqs_t_reg = {CHIPS{1'b0}};
+            dqs_c_reg = {CHIPS{1'b1}};
+            #tCK;
+            assert ((dut.TimingFSMi.BankFSM[0][2] == 5'h012) || (i==0)) $display("OK: writing", $time, " dq= h%x ", dq); else $display(dut.TimingFSMi.BankFSM[0][0]);
+        end        
+        writing = 0;
+        //#tCK;
+        for (i = 0; i < BL; i = i + 1)
+        begin
+            A = (i==0)? 17'b10000000000000001 : 17'b00000000000000000;
+            bg = (i==0)? 0:0;// todo: needs to change?
+            ba = (i==0)? 3:3;// todo: needs to change?
+            writing = 1;
+            dq_reg = {$urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom, $urandom };
+            dqs_t_reg = {CHIPS{1'b0}};
+            dqs_c_reg = {CHIPS{1'b1}};
+            #tCK;
+            assert ((dut.TimingFSMi.BankFSM[0][3] == 5'h012) || (i==0)) $display("OK: writing", $time, " dq= h%x ", dq); else $display(dut.TimingFSMi.BankFSM[0][0]);
+        end       
+        writing = 0;
+        //from testbnch_DIMM ( Z is gettign written to the memory)
+//        #(tCK*(T_ABA-BL));
+//        assert ((dut.TimingFSMi.BankFSM[1][1] == 5'h12) || (i==0)) $display("OK: writing", $time," dq= h%x ", dq); else $display(dut.TimingFSMi.BankFSM[1][1]);
+//        writing = 0;
+        //reading with Auto precharge  
+        //#tCK;
+        for (i = 0; i < BL; i = i + 1)
+        begin
+            //A = (i==0)? 17'b10100000000000010 : 17'b00000000000000000;
+            A = (i==0)? 17'b10100010000000001 : 17'b00000000000000000; //change made by kk for addr and RDA
+            bg = (i==0)? 0:0;// todo: needs to change?
+            ba = (i==0)? 0:0;// todo: needs to change?
+            dqs_t_reg = {CHIPS{1'b0}};
+            dqs_c_reg = {CHIPS{1'b1}};
+            #tCK;
+            assert ((dut.TimingFSMi.BankFSM[0][0] == 5'h0c) || (i==0)) $display("OK: reading with autoprecharge", $time, " dq= h%x ", dq); else $display(dut.TimingFSMi.BankFSM[0][0]);
+        end
 
+         
+        //reading with Auto precharge  
+        #tCK;
+        for (i = 0; i < BL; i = i + 1)
+        begin
+            A = (i==0)? 17'b10100010000000001 : 17'b00000000000000000;
+            bg = (i==0)? 0:0;// todo: needs to change?
+            ba = (i==0)? 1:1;// todo: needs to change?
+            dqs_t_reg = {CHIPS{1'b0}};
+            dqs_c_reg = {CHIPS{1'b1}};
+            #tCK;
+            assert ((dut.TimingFSMi.BankFSM[0][1] == 5'h0c) || (i==0)) $display("OK: reading with autoprecharge", $time, " dq= h%x ", dq); else $display(dut.TimingFSMi.BankFSM[0][1]);
+        end
+         
+        //reading with Auto precharge  
+        #tCK;
+        for (i = 0; i < BL; i = i + 1)
+        begin
+            A = (i==0)? 17'b10100010000000001 : 17'b00000000000000000;
+            bg = (i==0)? 0:0;// todo: needs to change?
+            ba = (i==0)? 2:2;// todo: needs to change?
+            dqs_t_reg = {CHIPS{1'b0}};
+            dqs_c_reg = {CHIPS{1'b1}};
+            #tCK;
+            assert ((dut.TimingFSMi.BankFSM[0][2] == 5'h0c) || (i==0)) $display("OK: reading with autoprecharge", $time, " dq= h%x ", dq); else $display(dut.TimingFSMi.BankFSM[0][2]);
+        end
+
+         
+        //reading with Auto precharge  
+        #tCK;
+        for (i = 0; i < BL; i = i + 1)
+        begin
+            A = (i==0)? 17'b10100010000000001 : 17'b00000000000000000;
+            bg = (i==0)? 0:0;// todo: needs to change?
+            ba = (i==0)? 3:3;// todo: needs to change?
+            dqs_t_reg = {CHIPS{1'b0}};
+            dqs_c_reg = {CHIPS{1'b1}};
+            #tCK;
+            assert ((dut.TimingFSMi.BankFSM[0][3] == 5'h0c) || (i==0)) $display("OK: reading with autoprecharge", $time, " dq= h%x ", dq); else $display(dut.TimingFSMi.BankFSM[0][3]);
+        end
+
+// refresh 
+        #(tCK*(T_RP-1));
+            A = 17'b00100000000000000;
+            bg = 0;
+            ba = 0;
+            #tCK;
+            assert ((dut.TimingFSMi.BankFSM[0][0] == 5'h0d) || (i==0)) $display("OK: refreshing", $time); else $display(dut.TimingFSMi.BankFSM[0][0]);
+            bg = 0;
+            ba = 1;
+            #tCK;
+            assert ((dut.TimingFSMi.BankFSM[0][1] == 5'h0d) || (i==0)) $display("OK: refreshing", $time); else $display(dut.TimingFSMi.BankFSM[0][1]);
+            bg = 0;
+            ba = 2;
+            #tCK;
+            assert ((dut.TimingFSMi.BankFSM[0][2] == 5'h0d) || (i==0)) $display("OK: refreshing", $time); else $display(dut.TimingFSMi.BankFSM[0][2]);
+            bg = 0;
+            ba = 3;
+        #(tCK*(T_RFC -1));
+            assert ((dut.TimingFSMi.BankFSM[0][3] == 5'h0d) || (i==0)) $display("OK: refreshing", $time); else $display(dut.TimingFSMi.BankFSM[0][3]);    
+          A = 17'b00000000000000000;  
         #(20*tCK);
         $finish();
     end;

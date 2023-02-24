@@ -207,7 +207,7 @@ module DIMM // top MEMulator module with DIMM interface
     begin
       for (bi=0; bi<BANKSPERGROUP; bi=bi+1)
       begin
-        assign RDENs[bgi][bi] = (BankFSM[bgi][bi]==5'b01011);
+        assign RDENs[bgi][bi] = (BankFSM[bgi][bi]==5'b01011 || BankFSM[bgi][bi]==5'b01100); // ORed with Reading with autoprecharge
       end
     end
   endgenerate

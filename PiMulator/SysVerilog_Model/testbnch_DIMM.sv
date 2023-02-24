@@ -28,17 +28,17 @@ module testbnch_DIMM();
     
     localparam tCK = 0.75;
     
-    localparam T_CL   = 17;
-    localparam T_RCD  = 17;
-    localparam T_RP   = 17;
-    localparam T_RFC  = 34;
-    localparam T_WR   = 14;
-    localparam T_RTP  = 7;
-    localparam T_CWL  = 10;
-    localparam T_ABA  = 24;
-    localparam T_ABAR = 24;
-    localparam T_RAS  = 32;
-    localparam T_REFI = 9360;
+    localparam T_CL   = 17;   // CAS is the Column-Address-Strobe, i.e., when the column address is presented on the lines. CL is the delay, in clock cycles, between the internal READ command and the availability of the first bit of output data.
+    localparam T_RCD  = 17;   // Row to Column command delay, time interval between row access and data ready at sense amplifier
+    localparam T_RP   = 17;   // Row precharge, time to precharge DRAM to access another row
+    localparam T_RFC  = 34;   // Refresh cycle time, time b/w refresh and activation command
+    localparam T_WR   = 14;   // Write recovery time, time b/w end of write data burst and start of a precharge command
+    localparam T_RTP  = 7;    // Read to Precharge, time b/w read and precharge command (~t_cas(column access strobe latency)-t_cmd(command transport duration))
+    localparam T_CWL  = 10;   //
+    localparam T_ABA  = 24;   // 
+    localparam T_ABAR = 24;   //
+    localparam T_RAS  = 32;   // Row access strobe latency
+    localparam T_REFI = 9360; // Time refresh Interval
     
     logic reset_n;
     logic ck2x;
@@ -207,7 +207,7 @@ module testbnch_DIMM();
         // write test
         for (i = 0; i < BL; i = i + 1)
         begin
-            A = (i==0)? 17'b10000000000000010 : 17'b00000000000000000;
+            A = (i==0)? 17'b10000000000000001 : 17'b00000000000000000;
             bg = (i==0)? 1:1;// todo: needs to change?
             ba = (i==0)? 1:1;// todo: needs to change?
             writing = 1;
@@ -215,13 +215,13 @@ module testbnch_DIMM();
             dqs_t_reg = {CHIPS{1'b1}};
             dqs_c_reg = {CHIPS{1'b0}};
             #tCK;
-            assert ((dut.TimingFSMi.BankFSM[1][1] == 5'h12) || (i==0)) $display("OK: writing"); else $display(dut.TimingFSMi.BankFSM[1][1]);
+            assert ((dut.TimingFSMi.BankFSM[1][1] == 5'h12) || (i==0)) $display("OK: writing", $time, " dq= h%x ", dq); else $display(dut.TimingFSMi.BankFSM[1][1]);
         end
         dq_reg = {DQWIDTH{1'b0}};
         bg = 0;
         ba = 0;
         #(tCK*(T_ABA-BL));
-        assert ((dut.TimingFSMi.BankFSM[1][1] == 5'h12) || (i==0)) $display("OK: writing"); else $display(dut.TimingFSMi.BankFSM[1][1]);
+        assert ((dut.TimingFSMi.BankFSM[1][1] == 5'h12) || (i==0)) $display("OK: writing", $time," dq= h%x ", dq); else $display(dut.TimingFSMi.BankFSM[1][1]);
         writing = 0;
         #(tCK*4); // no actions
         
@@ -241,18 +241,18 @@ module testbnch_DIMM();
         #tCK;
         for (i = 0; i < BL; i = i + 1)
         begin
-            A = (i==0)? 17'b10100000000000010 : 17'b00000000000000000;
+            A = (i==0)? 17'b10100000000000001 : 17'b00000000000000000;
             bg = (i==0)? 1:1;// todo: needs to change?
             ba = (i==0)? 1:1;// todo: needs to change?
             dqs_t_reg = {CHIPS{1'b0}};
             dqs_c_reg = {CHIPS{1'b1}};
             #tCK;
-            assert ((dut.TimingFSMi.BankFSM[1][1] == 5'h0b) || (i==0)) $display("OK: reading"); else $display(dut.TimingFSMi.BankFSM[1][1]);
+            assert ((dut.TimingFSMi.BankFSM[1][1] == 5'h0b) || (i==0)) $display("OK: reading", $time, " dq= h%x ", dq); else $display(dut.TimingFSMi.BankFSM[1][1]);
         end
         bg = 0;
         ba = 0;
         #(tCK*(T_ABAR-BL));
-        assert ((dut.TimingFSMi.BankFSM[1][1] == 5'h0b) || (i==0)) $display("OK: reading"); else $display(dut.TimingFSMi.BankFSM[1][1]);
+        assert ((dut.TimingFSMi.BankFSM[1][1] == 5'h0b) || (i==0)) $display("OK: reading", $time, " dq= h%x ", dq); else $display(dut.TimingFSMi.BankFSM[1][1]);
         #(tCK*4); // no actions
         
         // precharge and back to idle
